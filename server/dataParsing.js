@@ -8,6 +8,7 @@ const fs = require('fs');
     let names = []; 
     let pictures = [];
     let breeds = [];
+    let ages=[]
     let descriptions = [];
 
     for (let pageNumber = 1; pageNumber < 2; pageNumber++) {
@@ -25,6 +26,11 @@ const fs = require('fs');
             const productItem = document.querySelectorAll('[data-testid="listing-tile-attr-breed"]');
             return Array.from(productItem, el => el.innerHTML);
         });
+        const ageArr = await page.evaluate(() => {
+            const productItem = document.querySelectorAll('[data-testid="listing-tile-attr-dateOfBirth"]');
+            return Array.from(productItem, el => el.innerHTML);
+        });
+
         const descriptionsArr = await page.evaluate(() => {
             const productItem = document.querySelectorAll('.gn');
             return Array.from(productItem, el => el.innerHTML);
@@ -32,6 +38,7 @@ const fs = require('fs');
         names.push(...nameArr);
         pictures.push(...picturesArr);
         breeds.push(...breedArr)
+        ages.push(...ageArr)
         descriptions.push(...descriptionsArr)
         console.log(names);
     }
@@ -42,6 +49,7 @@ for (let i = 0; i < names.length; i++) {
         name: names[i] || '',
         picture: pictures[i] || '',
         breed: breeds[i] || '',
+        age: ages[i].substring(6,ages[i].length-1) || '',
         description: descriptions[i] || ''
     };
 
