@@ -5,7 +5,7 @@ const path = require('path')
 
 mongoose.connect('mongodb://127.0.0.1:27017/pawrescue')
 
-
+/*
 const animalSchema = new mongoose.Schema({
     name: { type: String, index: true },
     picture: { type: String, index: true },
@@ -13,7 +13,13 @@ const animalSchema = new mongoose.Schema({
     age: { type: String, index: true },
     description: { type: String, index: true }
 });
-/*
+const userSchema = new mongoose.Schema({
+    username:{ type: String, index: true },
+    email:{ type: String, index: true },
+    password:{ type: String, index: true },
+    cardDetails:{ type: String, index: true }
+})
+
 const animalModel = mongoose.model("animals", animalSchema);
 const animalNameToFind = "Persian";
 
@@ -29,6 +35,7 @@ query.exec().then(foundAnimal => {
     console.error("Error finding document:", err);
 });
 */
+
 
 
 const app = express()

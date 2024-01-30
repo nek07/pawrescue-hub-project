@@ -1,8 +1,8 @@
 const api_key = '47bd84681a0a48f580e552a1397e1dfc';
 
 var url = 'https://newsapi.org/v2/everything?' +
-          'q=Apple&' +
-          'from=2024-01-25&' +
+          'q=a&' +
+          'from=2024-01-29&' +
           'sortBy=popularity&' +
           'apiKey=' + api_key;
 
