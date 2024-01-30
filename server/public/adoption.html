@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animals</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        /* Styles for the card container */
+        .profile-card {
+            width: 500px;
+            height: 150px;
+            display: flex;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Styles for the image */
+        .profile-image {
+            width: 150px;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Styles for the content on the right side */
+        .profile-content {
+            flex: 1;
+            padding: 15px;
+        }
+
+        /* Styles for name, description, and age */
+        .profile-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .profile-description {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .profile-age {
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Paw Rescue Hub</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/adoption">Adoption</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/support">Support</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/resources">Resources</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/aboutus">About us</a>
+            </li>
+            <li class="nav-item ">
+                <a class="nav-link" href="/login">Login</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Product Cards -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="profile-card">
+            <!-- Image on the left side -->
+            <img src="https://cdn.vectorstock.com/i/1000x1000/35/74/lucky-cat-vector-823574.webp" alt="Profile Image" class="profile-image">
+    
+            <!-- Content on the right side -->
+            <div class="profile-content">
+                <!-- Name -->
+                <div class="profile-name">Persian</div>
+    
+                <!-- Description -->
+                <div class="profile-description">💗We have a litter of the very highest quality Chinchilla Persian kittens available to be reserved. </div>
+    
+                <!-- Age -->
+                <div class="profile-age">Age: 25</div>
+            </div>
+        </div>
+        <div class="profile-card">
+            <!-- Image on the left side -->
+            <img src="profile-image.jpg" alt="Profile Image" class="profile-image">
+    
+            <!-- Content on the right side -->
+            <div class="profile-content">
+                <!-- Name -->
+                <div class="profile-name">John Doe</div>
+    
+                <!-- Description -->
+                <div class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+    
+                <!-- Age -->
+                <div class="profile-age">Age: 25</div>
+            </div>
+        </div>
+        <div class="profile-card">
+            <!-- Image on the left side -->
+            <img src="profile-image.jpg" alt="Profile Image" class="profile-image">
+    
+            <!-- Content on the right side -->
+            <div class="profile-content">
+                <!-- Name -->
+                <div class="profile-name">John Doe</div>
+    
+                <!-- Description -->
+                <div class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+    
+                <!-- Age -->
+                <div class="profile-age">Age: 25</div>
+            </div>
+        </div>
+        <div class="profile-card">
+            <!-- Image on the left side -->
+            <img src="profile-image.jpg" alt="Profile Image" class="profile-image">
+    
+            <!-- Content on the right side -->
+            <div class="profile-content">
+                <!-- Name -->
+                <div class="profile-name">John Doe</div>
+    
+                <!-- Description -->
+                <div class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+    
+                <!-- Age -->
+                <div class="profile-age">Age: 25</div>
+            </div>
+        </div>
+        <div class="profile-card">
+            <!-- Image on the left side -->
+            <img src="profile-image.jpg" alt="Profile Image" class="profile-image">
+    
+            <!-- Content on the right side -->
+            <div class="profile-content">
+                <!-- Name -->
+                <div class="profile-name">John Doe</div>
+    
+                <!-- Description -->
+                <div class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+    
+                <!-- Age -->
+                <div class="profile-age">Age: 25</div>
+            </div>
+        </div>
+        <div class="profile-card">
+            <!-- Image on the left side -->
+            <img src="profile-image.jpg" alt="Profile Image" class="profile-image">
+    
+            <!-- Content on the right side -->
+            <div class="profile-content">
+                <!-- Name -->
+                <div class="profile-name">John Doe</div>
+    
+                <!-- Description -->
+                <div class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+    
+                <!-- Age -->
+                <div class="profile-age">Age: 25</div>
+            </div>
+        </div>
+        <div class="profile-card">
+            <!-- Image on the left side -->
+            <img src="profile-image.jpg" alt="Profile Image" class="profile-image">
+    
+            <!-- Content on the right side -->
+            <div class="profile-content">
+                <!-- Name -->
+                <div class="profile-name">John Doe</div>
+    
+                <!-- Description -->
+                <div class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+    
+                <!-- Age -->
+                <div class="profile-age">Age: 25</div>
+            </div>
+        </div>
+        <div class="profile-card">
+            <!-- Image on the left side -->
+            <img src="profile-image.jpg" alt="Profile Image" class="profile-image">
+    
+            <!-- Content on the right side -->
+            <div class="profile-content">
+                <!-- Name -->
+                <div class="profile-name">John Doe</div>
+    
+                <!-- Description -->
+                <div class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+    
+                <!-- Age -->
+                <div class="profile-age">Age: 25</div>
+            </div>
+        </div>
+        <!-- Add more cards for additional products -->
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3">
+    &copy; 2024 Paw Request Hub. All rights reserved.
+</footer>
+</body>
+</html>

@@ -11,15 +11,16 @@ const fs = require('fs');
     let ages=[]
     let descriptions = [];
 
-    for (let pageNumber = 1; pageNumber < 2; pageNumber++) {
+    for (let pageNumber = 1; pageNumber < 11
+        ; pageNumber++) {
         await page.goto('https://www.pets4homes.co.uk/sale/kittens/local/local/page-' + pageNumber +'/');
-
+        await page.waitForTimeout(2000);
         const nameArr = await page.evaluate(() => {
-            const productItem = document.querySelectorAll('.en');
+            const productItem = document.querySelectorAll('.sm');
             return Array.from(productItem, el => el.innerHTML);
         });
         const picturesArr = await page.evaluate(() => {
-            const productItem = document.querySelectorAll('.Et');
+            const productItem = document.querySelectorAll('.Zt');
             return Array.from(productItem, el => el.getAttribute('src'));
         });
         const breedArr = await page.evaluate(() => {
@@ -32,7 +33,7 @@ const fs = require('fs');
         });
 
         const descriptionsArr = await page.evaluate(() => {
-            const productItem = document.querySelectorAll('.gn');
+            const productItem = document.querySelectorAll('.um');
             return Array.from(productItem, el => el.innerHTML);
         });
         names.push(...nameArr);
