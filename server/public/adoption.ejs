@@ -90,24 +90,29 @@
 <!-- Product Cards -->
 <div class="container mt-5">
     <div class="row">
-        <% data.forEach(item => { %>         
-        <div class="profile-card">
-            <!-- Image on the left side -->
-            <img src="<%= animal.image %>" alt="Profile Image" class="profile-image">
-    
-            <!-- Content on the right side -->
-            <div class="profile-content">
-                <!-- Name -->
-                <div class="profile-name"><%= animal.breed %></div>
-    
-                <!-- Description -->
-                <div class="profile-description"><%= animal.description %></div>
-    
-                <!-- Age -->
-                <div class="profile-age"><%= animal.age %></div>
+        <div class="container mt-5">
+            <div class="row">
+                <% animal.forEach(animal => { %>         
+                <div class="profile-card">
+                    <!-- Image on the left side -->
+                    <img src="<%= animal.picture %>" alt="Profile Image" class="profile-image">
+            
+                    <!-- Content on the right side -->
+                    <div class="profile-content">
+                        <!-- Name -->
+                        <div class="profile-name"><%= animal.breed %></div>
+            
+                        <!-- Description -->
+                        <div class="profile-description"><%= animal.description %></div>
+            
+                        <!-- Age -->
+                        <div class="profile-age"><%= animal.age %></div>
+                    </div>
+                </div>
+                <% }); %>
             </div>
         </div>
-        <% }); %>
+        
     </div>
 </div>
 

@@ -2,7 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const path = require('path')
 
-
+const fs = require('fs')
 mongoose.connect('mongodb://127.0.0.1:27017/pawrescue')
 
 /*
@@ -37,11 +37,16 @@ query.exec().then(foundAnimal => {
 */
 
 
-
+const jsonData = JSON.parse(fs.readFileSync(path.join(__dirname, 'animals.json'), 'utf-8'));
 const app = express()
+app.set('view engine', 'ejs');
+app.set('views', __dirname);
+app.get('/adoption', (req, res) => {
+    res.render('public/adoption', {animal: jsonData}); // Assuming 'adoption.ejs' is in the 'public' folder
+  });
 app.use('/home',express.static(path.join(__dirname+"/public/index.html")))
 app.use('/login',express.static(path.join(__dirname+"/public/login.html")))
-app.use('/adoption',express.static(path.join(__dirname+"/public/adoption.html")))
+
 app.use('/aboutus',express.static(path.join(__dirname+"/public/aboutus.html")))
 app.use('/support',express.static(path.join(__dirname+"/public/support.html")))
 app.use('/resources',express.static(path.join(__dirname+"/public/resources.html")))
