@@ -59,3 +59,6 @@ app.listen(3001, ()=>{
     console.log('Server is currently running')
 })
 
+
+
+// Read and parse the contents of the first JSON file

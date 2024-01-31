@@ -4,22 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Animals</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <style>
         /* Styles for the card container */
+        /* Import Montserrat font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+/* Apply Montserrat font to all elements */
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Apply Montserrat font to specific elements */
+h1, h2, h3, p {
+  font-family: 'Montserrat', sans-serif;
+}
+
         .profile-card {
             width: 500px;
-            height: 150px;
+            height: 200px;
             display: flex;
             border: 1px solid #ddd;
             border-radius: 8px;
             overflow: hidden;
             margin: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+            transition: box-shadow 0.3s ease-in-out;
+          }
+          
+          .profile-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+          }
 
         /* Styles for the image */
         .profile-image {
@@ -44,12 +64,20 @@
         .profile-description {
             font-size: 14px;
             color: #555;
-            margin-bottom: 10px;
+            margin: 8px 0 5px;
             overflow: hidden;
         }
-
-        .profile-age {
+        .profile-location {
             font-size: 14px;
+            color: #000;
+            margin: 4rem 0 !important;
+            overflow: hidden;
+        }
+        hr {
+            margin: 1rem 0rem 0.5rem !important;
+        }
+        .profile-age {
+            font-size: 12px;
             color: #777;
         }
     </style>
@@ -93,6 +121,7 @@
         <div class="container mt-5">
             <div class="row">
                 <% animal.forEach(animal => { %>         
+
                 <div class="profile-card">
                     <!-- Image on the left side -->
                     <img src="<%= animal.picture %>" alt="Profile Image" class="profile-image">
@@ -101,12 +130,18 @@
                     <div class="profile-content">
                         <!-- Name -->
                         <div class="profile-name"><%= animal.breed %></div>
-            
+                        <span class="profile-age"><%= animal.breed %> •</span>
+                        <span class="profile-age">Age: <%= animal.age %></span>
+                        
                         <!-- Description -->
-                        <div class="profile-description"><%= animal.description %></div>
-            
-                        <!-- Age -->
-                        <div class="profile-age"><%= animal.age %></div>
+                        <div class="profile-description">
+               
+                            <%- (animal.description.split(/\s+/).slice(0, 15).join(' ').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')) %>
+                          
+                          </div>
+                        <hr>
+                        <span class="profile-location">• <%= animal.city %></span>
+                        
                     </div>
                 </div>
                 <% }); %>
