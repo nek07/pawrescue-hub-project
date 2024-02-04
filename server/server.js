@@ -8,17 +8,20 @@ const authRouter = require('./authRouter')
 const app = express()
 
 app.use(express.json())
-
+app.use('/auth',authRouter);
 const start = async () => {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/pawrescue')
+        await mongoose.connect('mongodb://127.0.0.1:27017/pawrescue');
+        console.log('Connected to MongoDB');
         app.listen(PORT, () => {
-            console.log(`Server started on port ${PORT}`)
-        })
-    }catch (error) {
-        console.log(`Error: ${error}`)
+            console.log(`Server started on port ${PORT}`);
+        });
+    } catch (error) {
+        console.log(`Error connecting to MongoDB: ${error}`);
     }
-}
+};
+
+start()
 
 
 
