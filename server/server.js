@@ -4,7 +4,6 @@ const path = require('path')
 const PORT = 3001
 const fs = require('fs')
 const authRouter = require('./authRouter')
-
 const app = express()
 
 app.use(express.json())
