@@ -1,10 +1,48 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const path = require('path')
-
+const PORT = 3001
 const fs = require('fs')
-mongoose.connect('mongodb://127.0.0.1:27017/pawrescue')
+const authRouter = require('./authRouter')
 
+const app = express()
+
+app.use(express.json())
+
+const start = async () => {
+    try {
+        await mongoose.connect('mongodb://127.0.0.1:27017/pawrescue')
+        app.listen(PORT, () => {
+            console.log(`Server started on port ${PORT}`)
+        })
+    }catch (error) {
+        console.log(`Error: ${error}`)
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 /*
 const animalSchema = new mongoose.Schema({
     name: { type: String, index: true },
@@ -35,30 +73,61 @@ query.exec().then(foundAnimal => {
     console.error("Error finding document:", err);
 });
 */
+// ... (Previous code)
+/*
+const api_key = '47bd84681a0a48f580e552a1397e1dfc';
+var url = 'https://newsapi.org/v2/everything?' +
+          'q=a&' +
+          'from=2024-01-29&' +
+          'sortBy=popularity&' +
+          'apiKey=' + api_key;
 
+let articles = []; // Move the declaration here
 
-const jsonData = JSON.parse(fs.readFileSync(path.join(__dirname, 'animals.json'), 'utf-8'));
-const app = express()
-app.set('view engine', 'ejs');
-app.set('views', __dirname);
-app.get('/adoption', (req, res) => {
-    res.render('public/adoption', {animal: jsonData}); // Assuming 'adoption.ejs' is in the 'public' folder
-  });
-app.use('/home',express.static(path.join(__dirname+"/public/index.html")))
-app.use('/login',express.static(path.join(__dirname+"/public/login.html")))
+fetch(url)
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        // Check if data.articles is defined
+        if (data.articles) {
+            articles = data.articles;
 
-app.use('/aboutus',express.static(path.join(__dirname+"/public/aboutus.html")))
-app.use('/support',express.static(path.join(__dirname+"/public/support.html")))
-app.use('/resources',express.static(path.join(__dirname+"/public/resources.html")))
-app.use('/registration',express.static(path.join(__dirname+"/public/reg.html")))
-app.use((req,res)=> {
-    res.status(404);
-    res.send('<h1>Error 404 bro</h1>')
-})
-app.listen(3001, ()=>{
-    console.log('Server is currently running')
-})
+            // Move the Express app initialization here
+            const jsonData1 = JSON.parse(fs.readFileSync(path.join(__dirname, 'animals.json'), 'utf-8'));
+            const app = express();
 
+            app.set('view engine', 'ejs');
+            app.set('views', __dirname);
 
+            app.get('/adoption', (req, res) => {
+                res.render('public/adoption', { animal: jsonData1 });
+            });
 
-// Read and parse the contents of the first JSON file
+            app.get('/recources', (req, res) => {
+                res.render('public/recources', { article: articles });
+            });
+
+            app.use('/home', express.static(path.join(__dirname, '/public/index.html')));
+            // ... (Other static routes)
+
+            app.use('/registration', express.static(path.join(__dirname, '/public/reg.html')));
+
+            app.use((req, res) => {
+                res.status(404);
+                res.send('<h1>Error 404 bro</h1>');
+            });
+
+            app.listen(3001, () => {
+                console.log('Server is currently running');
+            });
+        } else {
+            console.error('No articles found in the response.');
+        }
+    })
+    .catch(function(error) {
+        // Handle errors here
+        console.error('Error fetching data:', error);
+    });
+*/
+
