@@ -3,8 +3,8 @@ const mongoose = require('mongoose')
 const path = require('path')
 const PORT = 3001
 const fs = require('fs')
-const authRouter = require('./authRouter')
-const router = require('./allRouter')
+const authRouter = require('./routes/authRouter')
+const router = require('./routes/allRouter')
 const app = express()
 
 app.use(express.json())
@@ -48,19 +48,7 @@ start()
 
 /*
 /*
-const animalSchema = new mongoose.Schema({
-    name: { type: String, index: true },
-    picture: { type: String, index: true },
-    breed: { type: String, index: true },
-    age: { type: String, index: true },
-    description: { type: String, index: true }
-});
-const userSchema = new mongoose.Schema({
-    username:{ type: String, index: true },
-    email:{ type: String, index: true },
-    password:{ type: String, index: true },
-    cardDetails:{ type: String, index: true }
-})
+
 
 const animalModel = mongoose.model("animals", animalSchema);
 const animalNameToFind = "Persian";
