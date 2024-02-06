@@ -2,7 +2,11 @@ const Role = require('./models/role');
 const User = require('./models/user'); 
 const bcrypt = require('bcryptjs');
 const {validationResult} = require('express-validator')
-
+const tokenService = require('./service/token-service')
+const userService = require('./service/user-service')
+const UserDto = require('./dtos/user-dto')
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
 class AuthController {
     async registration(req, res) {
         try {
@@ -12,19 +16,18 @@ class AuthController {
             }
             const { username, password } = req.body;
                     console.log('Received username and password:', username, password);
+
             const candidate = await User.findOne({ username });
 
             if (candidate) {
-                return res.status(400).json({ message: "User with this username already exists." });
                 console.log("User with this username already exists.");
+                return res.status(400).json({ message: "User with this username already exists." });
+                
             }
+            const userData = await userService.registration(username,password)
+            res.cookie('refreshToken', userData.refreshToken,{maxAge:7*60*60*24*1000,httpOnly:true})
 
-            const hash = bcrypt.hashSync(password, 6);
-            const userRole = await Role.findOne({ value: 'USER' });
-            const user = new User({ username, password: hash, roles: [userRole.value] });
-
-            await user.save();
-            return res.json({ message: "User successfully registered" });
+            return res.json(userData);
         } catch (error) {
             console.log(`Error: ${error}`);
             return res.status(500).json({ message: 'Internal server error' });
@@ -44,6 +47,14 @@ class AuthController {
                 return res.status(400).json({message: `Password is not correct.`})
             }
         } catch (error) {
+            console.log(`Error: ${error}`);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+    async refresh(req,res,next){
+        try {
+
+        } catch(error) {
             console.log(`Error: ${error}`);
             return res.status(500).json({ message: 'Internal server error' });
         }

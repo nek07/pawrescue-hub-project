@@ -1,15 +1,29 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const path = require('path')
-const PORT = 3001
 const fs = require('fs')
 const authRouter = require('./routes/authRouter')
 const router = require('./routes/allRouter')
-const app = express()
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
+const PORT = process.env.PORT || 3001
+const app = express()
+/**
+ * TODO:
+ * - AUTORIZATION WITH TOKENS 
+ * - CONNECT DB AND TAKE DATA DROM DB FOR ADOPTION
+ * - FETCH API AND SHOW NEWS IN RESOURCES PAGE
+ * - PAGINATION FOR PAGES
+ * - NEW PAGE FOR EVERY PET WITH ID IN ROUTE
+ * - CHANGE DESIGN 
+ * 
+*/
 app.use(express.json())
 app.use('/auth',authRouter);
 app.use('/pets',router)
+app.use(cookieParser())
+app.use(cors())
 const start = async () => {
     try {
         await mongoose.connect('mongodb://127.0.0.1:27017/pawrescue');
