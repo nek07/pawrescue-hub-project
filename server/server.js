@@ -4,10 +4,12 @@ const path = require('path')
 const PORT = 3001
 const fs = require('fs')
 const authRouter = require('./authRouter')
+const router = require('./allRouter')
 const app = express()
 
 app.use(express.json())
 app.use('/auth',authRouter);
+app.use('/pets',router)
 const start = async () => {
     try {
         await mongoose.connect('mongodb://127.0.0.1:27017/pawrescue');

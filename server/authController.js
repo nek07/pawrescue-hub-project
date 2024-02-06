@@ -16,6 +16,7 @@ class AuthController {
 
             if (candidate) {
                 return res.status(400).json({ message: "User with this username already exists." });
+                console.log("User with this username already exists.");
             }
 
             const hash = bcrypt.hashSync(password, 6);
@@ -33,6 +34,15 @@ class AuthController {
     async login(req, res) {
         try {
             // Your login logic goes here
+            const {username,password} = req.body
+            const user = await User.findOne({username})
+            if(!user) {
+                return res.status(400).json({message: `User ${username} not found.`})
+            }
+            const validPassword = bcrypt.compareSync(password,user.password)
+            if(!validPassword) {
+                return res.status(400).json({message: `Password is not correct.`})
+            }
         } catch (error) {
             console.log(`Error: ${error}`);
             return res.status(500).json({ message: 'Internal server error' });
