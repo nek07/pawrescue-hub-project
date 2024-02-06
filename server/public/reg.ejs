@@ -15,12 +15,18 @@
         #add-prod-btn{
             width:100%
         }
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+/* Apply Montserrat font to all elements */
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
     </style>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
 
-<% include header.ejs %>
+<%- include('header.ejs') %>
 
 <div class="container mt-5">
     
@@ -28,7 +34,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h4>Register</h4>
+                    <h4 style="text-align:center">Sign Up</h4>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -54,7 +60,7 @@
         </div>
     </div>
 </div>
-<% include footer.ejs %>
+<%- include('footer.ejs') %>
 <script>
 async function handleFormSubmission(url, formData, callback) {
     try {

@@ -21,13 +21,12 @@ class AuthController {
 
             if (candidate) {
                 console.log("User with this username already exists.");
-                return res.status(400).json({ message: "User with this username already exists." });
-                
+                return res.status(400).json({ message: "User with this username already exists." });  
             }
             const userData = await userService.registration(username,password)
             res.cookie('refreshToken', userData.refreshToken,{maxAge:7*60*60*24*1000,httpOnly:true})
-
-            return res.json(userData);
+           // let temp = res.json(userData)
+            return res.json({message:"User successfully registered"});
         } catch (error) {
             console.log(`Error: ${error}`);
             return res.status(500).json({ message: 'Internal server error' });
