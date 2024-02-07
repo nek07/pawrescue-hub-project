@@ -3,8 +3,8 @@ const tokenModel = require('../models/token')
 require('dotenv').config();
 class TokenService {
     generateTokens(payload){
-        const accessToken = jwt.sign(payload,process.env.JWT_ACCESS_CODE,{expiresIn:'1h'})
-        const refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_CODE,{expiresIn:'1h'})
+        const accessToken = jwt.sign(payload,process.env.JWT_ACCESS_CODE,{expiresIn:'10m'})
+        const refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_CODE,{expiresIn:'10m'})
         return {
             accessToken, refreshToken
         }

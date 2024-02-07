@@ -24,9 +24,10 @@ class AuthController {
                 return res.status(400).json({ message: "User with this username already exists." });  
             }
             const userData = await userService.registration(username,password)
-            res.cookie('refreshToken', userData.refreshToken,{maxAge:7*60*60*24*1000,httpOnly:true})
+
+            res.cookie('refreshToken', userData.refreshToken,{maxAge:30*60*60*24*1000,httpOnly:true})
            // let temp = res.json(userData)
-            return res.json({message:"User successfully registered"});
+            return res.json(userData)
         } catch (error) {
             console.log(`Error: ${error}`);
             return res.status(500).json({ message: 'Internal server error' });
@@ -36,8 +37,12 @@ class AuthController {
     async login(req, res) {
         try {
             // Your login logic goes here
-            const {username,password} = req.body
-            const user = await User.findOne({username})
+            
+            const {username,password} = req.body;
+            console.log('Received username and password:', username, password);
+
+            const userData = await userService.login(username,password);
+            /*const user = await UserModel.findOne({username})
             if(!user) {
                 return res.status(400).json({message: `User ${username} not found.`})
             }
@@ -45,6 +50,10 @@ class AuthController {
             if(!validPassword) {
                 return res.status(400).json({message: `Password is not correct.`})
             }
+            */ 
+            console.log('point')
+            res.cookie('refreshToken',userData.refreshToken, {maxAge:30*60*60*24*1000,httpOnly:true})
+            return res.json(userData)
         } catch (error) {
             console.log(`Error: ${error}`);
             return res.status(500).json({ message: 'Internal server error' });
