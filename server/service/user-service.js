@@ -20,21 +20,20 @@ class UserService {
         user.save()
         return {
             ...tokens,
-            user: userDto
+            user: userDto,
+            message:"Successfully registered",
         }
     }
     async login(username,password){
         const user = await UserModel.findOne({ username})
         const userDto = new UserDto(user)
-        const validPassword = bcrypt.compareSync(password,user.password)
-        if(!validPassword){
-            console.log('Password not correct')
-        }
         const tokens = tokenService.generateTokens({ ...userDto });
         await tokenService.saveToken(user.id, tokens.refreshToken)
         return {
+
             ...tokens,
             user: userDto
+            
         }
     }
 }

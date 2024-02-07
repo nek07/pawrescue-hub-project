@@ -1,29 +1,79 @@
 const express = require('express')
-const mongoose = require('mongoose')
-const path = require('path')
-const fs = require('fs')
+const axios = require('axios')
+const cookieParser = require('cookie-parser')
 const authRouter = require('./routes/authRouter')
 const router = require('./routes/allRouter')
 const cors = require('cors')
-const cookieParser = require('cookie-parser')
-
+const mongoose = require('mongoose')
 const PORT = process.env.PORT || 3001
 const app = express()
-/**
- * TODO:
- * - AUTORIZATION WITH TOKENS 
- * - CONNECT DB AND TAKE DATA DROM DB FOR ADOPTION
- * - FETCH API AND SHOW NEWS IN RESOURCES PAGE
- * - PAGINATION FOR PAGES
- * - NEW PAGE FOR EVERY PET WITH ID IN ROUTE
- * - CHANGE DESIGN 
- * 
-*/
+
+// Middleware
 app.use(express.json())
-app.use('/auth',authRouter);
-app.use('/pets',router)
 app.use(cookieParser())
 app.use(cors())
+
+// Routes
+app.use('/auth', authRouter)
+app.use('/pets', router)
+
+// Create an instance of axios
+const instance = axios.create({
+  // Attach cookies to the request
+  withCredentials: true,
+  baseURL: "http://localhost:3001",
+});
+
+// Middleware to add token to requests
+instance.interceptors.request.use(
+  (config) => {
+    // Retrieve token from cookies
+    const token = req.cookies.token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Example route using axios instance
+app.get('/pets/adoption', async (req, res) => {
+  try {
+    // Make a request using the axios instance
+    const response = await instance.get('/pets/adoption');
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error:', error.response.data);
+    res.status(error.response.status).json({ message: 'Error occurred' });
+  }
+});
+
+function verifyToken(token) {
+    try {
+        const decoded = jwt.verify(token, 'secret');
+        return decoded.user;
+    } catch (err) {
+        return false;
+    }
+}
+
+// Мидлвара для проверки авторизации
+function requireAuth(req, res, next) {
+    const token = req.headers.set-Cookie;
+    const user = verifyToken(token);
+    if (user) {
+        req.user = user;
+        next();
+    } else {
+        res.status(401).json({ error: 'Unauthorized' });
+    }
+}
+app.get('/private', requireAuth, (req, res) => {
+    res.json({ message: 'hello bro' });
+});
 const start = async () => {
     try {
         await mongoose.connect('mongodb://127.0.0.1:27017/pawrescue');

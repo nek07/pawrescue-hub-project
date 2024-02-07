@@ -41,8 +41,8 @@ class AuthController {
             const {username,password} = req.body;
             console.log('Received username and password:', username, password);
 
-            const userData = await userService.login(username,password);
-            /*const user = await UserModel.findOne({username})
+  
+            const user = await User.findOne({username})
             if(!user) {
                 return res.status(400).json({message: `User ${username} not found.`})
             }
@@ -50,8 +50,9 @@ class AuthController {
             if(!validPassword) {
                 return res.status(400).json({message: `Password is not correct.`})
             }
-            */ 
-            console.log('point')
+            
+            const userData = await userService.login(username,password);
+            console.log(res.json(userData))
             res.cookie('refreshToken',userData.refreshToken, {maxAge:30*60*60*24*1000,httpOnly:true})
             return res.json(userData)
         } catch (error) {

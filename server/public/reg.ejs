@@ -103,7 +103,7 @@ async function categorySubmit() {
 }
 function updateAlert(data){
     const alert = document.getElementById('status');
-    if(data.message === "User successfully registered"){
+    if(data.message == "Successfully registered"){
         alert.classList = 'alert alert-success  mt-3';
         alert.innerHTML = "Successfully registered"
     } else if (data.message != null){
