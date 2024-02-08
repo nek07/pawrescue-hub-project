@@ -1,14 +1,15 @@
 const {Schema,model} = require('mongoose')
 
 
-const animalSchema = new mongoose.Schema({
+const animalSchema = new Schema({
     name: { type: String, index: true },
     picture: { type: String, index: true },
     breed: { type: String, index: true },
     age: { type: String, index: true },
+    city:{ type: String, index: true },
     description: { type: String, index: true }
 });
 
-const Animal = mongoose.model('Animal', animalSchema);
+const Animal = model('Animal', animalSchema);
 
-module.exports = Role;
+module.exports = Animal;
