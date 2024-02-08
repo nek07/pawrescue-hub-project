@@ -5,6 +5,27 @@ const UserDto = require('../dtos/user-dto')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const tokenService = require('./token-service')
+const axios = require('axios')
+let accessToken = "";
+const instance = axios.create({
+    // Attach cookies to the request
+    withCredentials: true,
+    baseURL: "http://localhost:3001",
+});
+
+instance.interceptors.request.use(
+    (config) => {
+        // Retrieve token from cookies
+        const token = config.Authorization.accessToken; // Предполагается, что accessToken хранится в куках
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 class UserService {
     async registration(username, password) {
 
@@ -29,6 +50,7 @@ class UserService {
         const userDto = new UserDto(user)
         const tokens = tokenService.generateTokens({ ...userDto });
         await tokenService.saveToken(user.id, tokens.refreshToken)
+        accessToken = tokens.accessToken
         return {
 
             ...tokens,
@@ -38,4 +60,7 @@ class UserService {
     }
 }
 
-module.exports = new UserService();
+module.exports = {
+    userService:new UserService(),
+    axiosInstance:instance
+}

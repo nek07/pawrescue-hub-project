@@ -3,10 +3,11 @@ const User = require('./models/user');
 const bcrypt = require('bcryptjs');
 const {validationResult} = require('express-validator')
 const tokenService = require('./service/token-service')
-const userService = require('./service/user-service')
+const {userService} = require('./service/user-service')
 const UserDto = require('./dtos/user-dto')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+
 class AuthController {
     async registration(req, res) {
         try {
@@ -51,9 +52,11 @@ class AuthController {
                 return res.status(400).json({message: `Password is not correct.`})
             }
             
-            const userData = await userService.login(username,password);
-            console.log(res.json(userData))
+            const userData = await userService.login(username,password)
+
+            
             res.cookie('refreshToken',userData.refreshToken, {maxAge:30*60*60*24*1000,httpOnly:true})
+            res.cookie('accessToken',userData.refreshToken, {maxAge:30*60*60*24*1000,httpOnly:true})
             return res.json(userData)
         } catch (error) {
             console.log(`Error: ${error}`);
@@ -70,4 +73,6 @@ class AuthController {
     }
 }
 
-module.exports = new AuthController();
+module.exports ={
+    controller:new AuthController(),
+} 

@@ -5,6 +5,7 @@ const authRouter = require('./routes/authRouter')
 const router = require('./routes/allRouter')
 const cors = require('cors')
 const mongoose = require('mongoose')
+
 const PORT = process.env.PORT || 3001
 const app = express()
 
@@ -13,43 +14,14 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(cors())
 
+  
 // Routes
 app.use('/auth', authRouter)
 app.use('/pets', router)
 
 // Create an instance of axios
-const instance = axios.create({
-  // Attach cookies to the request
-  withCredentials: true,
-  baseURL: "http://localhost:3001",
-});
-
-// Middleware to add token to requests
-instance.interceptors.request.use(
-  (config) => {
-    // Retrieve token from cookies
-    const token = req.cookies.token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
 // Example route using axios instance
-app.get('/pets/adoption', async (req, res) => {
-  try {
-    // Make a request using the axios instance
-    const response = await instance.get('/pets/adoption');
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error:', error.response.data);
-    res.status(error.response.status).json({ message: 'Error occurred' });
-  }
-});
 
 function verifyToken(token) {
     try {
