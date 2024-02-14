@@ -6,26 +6,10 @@ router.set('views', __dirname);
 const Animal = require('../models/animal');
 const fs = require('fs')
 const {axiosInstance} = require('../service/user-service')
-const getArrayData = require("../newsApiConnection");
-const filePath = path.join(__dirname, '../jsonData/articles.json');
+const apiConnection = require("../newsApiConnection");
+const filePath = path.join(__dirname, '../articles.json');
 const jsonData = JSON.parse(fs.readFileSync(filePath), 'utf-8');
-let arr = []
-// function fillURL(jsonData){
-//   for (let i = 0; i < jsonData.length; i++) {
-//     const object = jsonData[i]; // Access each object
-//     console.log(object)
-//     if (object.urlToImage === null) {
-//       object.urlToImage = 'https://awlights.com/wp-content/uploads/sites/31/2017/05/placeholder-news.jpg';
-//     }
-//     arr.push(object);
-   
-//   }
-//   return arr
-// }
-
-// const jsonContent = JSON.stringify(fillURL(jsonData), null, 2); // Indent for readability
-// fs.writeFileSync('articles.json', jsonContent);
-/*router.get('/adoption', async (req, res) => {
+router.get('/adoption', async (req, res) => {
     try {
         // Fetch all animals from the database
         const animals = await Animal.find();
@@ -36,17 +20,17 @@ let arr = []
         console.error('Error fetching animals:', error);
         res.status(500).send('Internal Server Error');
     }
-});*/
-async function articles() {
-  try {
-    const data = await getArrayData(); // Await the promise
-    const jsonContent = JSON.stringify(data, null, 2); // Indent for readability
-    fs.writeFileSync('articles.json', jsonContent);
-  } catch (error) {
-    console.error('Error fetching articles:', error);
-    throw error; // Re-throw the error for proper handling
-  }
-}
+});
+// async function articles() {
+//   try {
+//     const data = await getArrayData(); // Await the promise
+//     const jsonContent = JSON.stringify(data, null, 2); // Indent for readability
+//     fs.writeFileSync('articles.json', jsonContent);
+//   } catch (error) {
+//     console.error('Error fetching articles:', error);
+//     throw error; // Re-throw the error for proper handling
+//   }
+// }
 
 router.get('/resources', async (req, res) => {
 
