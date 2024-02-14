@@ -23,29 +23,29 @@ app.use('/pets', router)
 
 // Example route using axios instance
 
-function verifyToken(token) {
-    try {
-        const decoded = jwt.verify(token, 'secret');
-        return decoded.user;
-    } catch (err) {
-        return false;
-    }
-}
+// function verifyToken(token) {
+//     try {
+//         const decoded = jwt.verify(token, 'secret');
+//         return decoded.user;
+//     } catch (err) {
+//         return false;
+//     }
+// }
 
-// Мидлвара для проверки авторизации
-function requireAuth(req, res, next) {
-    const token = req.headers.set-Cookie;
-    const user = verifyToken(token);
-    if (user) {
-        req.user = user;
-        next();
-    } else {
-        res.status(401).json({ error: 'Unauthorized' });
-    }
-}
-app.get('/private', requireAuth, (req, res) => {
-    res.json({ message: 'hello bro' });
-});
+// // Мидлвара для проверки авторизации
+// function requireAuth(req, res, next) {
+//     const token = req.headers.set-Cookie;
+//     const user = verifyToken(token);
+//     if (user) {
+//         req.user = user;
+//         next();
+//     } else {
+//         res.status(401).json({ error: 'Unauthorized' });
+//     }
+// }
+// app.get('/private', requireAuth, (req, res) => {
+//     res.json({ message: 'hello bro' });
+// });
 const start = async () => {
     try {
         await mongoose.connect('mongodb://127.0.0.1:27017/pawrescue');

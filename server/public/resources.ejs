@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,78 +8,147 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        /* Apply Montserrat font to all elements */
         body {
-            background-color: #f8f9fa;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #F0F0F0;
+
         }
 
-        .navbar {
-            background-color: #343a40;
-        }
-
-        .jumbotron {
-            background: url('background-image.jpg') center/cover;
-            color: #000;
-            text-align: center;
-            padding: 80px 0;
-        }
-
-        .features {
-            background-color: #fff;
-            padding: 80px 0;
-        }
-
-        .feature-item {
-            text-align: center;
-        }
-
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-
-        .cta {
-            background-color: #343a40;
-            color: #fff;
-            text-align: center;
-            padding: 60px 0;
-        }
-
-        .footer {
-            background-color: #343a40;
-            color: #fff;
-            text-align: center;
-            padding: 30px 0;
-        }
-
-        /* Custom styles for the articles section */
         .article-container {
+            width: 100%;
+            background-color: #F0F0F0;
+
+
+            margin-top: 20px;
+            padding: 25px 10px;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
+            flex-direction: column;
         }
 
         .article {
-            flex: 0 1 calc(33.333% - 20px);
-            margin: 10px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fff;
-            transition: transform 0.3s;
+            width: 100%;
+            background-color: white;
+            padding: 25px 10px;
+            margin: 10px 5px;
+            display: block;
+
         }
 
-        .article:hover {
-            transform: scale(1.05);
+        .container {
+            display: grid;
+            grid-template-columns: 70% 30%;
+            gap: 5px
         }
 
-        .article h2 {
-            color: #343a40;
-            margin-bottom: 10px;
+        .donation-icon {
+            width: 60px;
+            height: 60px;
+            margin-left: 5px;
         }
 
-        .article p {
-            color: #555;
-            margin-bottom: 20px;
+        .icon {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+        }
+
+
+        .top-donation-containers {
+            display: flex;
+            flex-direction: column;
+            width: 250px;
+            height: max-content;
+            background-color: white;
+            border-radius: 4px;
+            margin-top: 20px
+        }
+
+        .donation-corp {
+            display: flex;
+            width: 220px;
+            height: 70px;
+
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+
+
+        }
+
+        .donation-info .donation-name {
+            width: 150px;
+
+        }
+
+        .donation-stat {
+            width: 150px;
+            font-size: 0.8rem;
+            color: #00e500;
+        }
+
+        .donation-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #header-resources {
+
+            padding: 30px 10px 5px 10px;
+
+        }
+
+        #header-donations {
+            padding: 10px 10px 5px 10px;
+            width: 250px
+        }
+
+        hr {
+            margin: 0 5px;
+            padding: 5px 10px;
+
+        }
+
+        .author {
+
+            display: flex;
+            font-weight: 800;
+            font-size: 0.8rem;
+            width: 200px;
+            height: 40px;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .author-img {
+            width: 25px;
+            height: 25px;
+
+        }
+
+        .title {
+            text-align: left;
+            display: block;
+            font-weight: 800;
+            font-size: 1.5rem;
+            padding: 0px 0 10px 0;
+        }
+
+        .news-img {
+            width: 100%
+        }
+
+        .content {
+            padding: 30px 0;
         }
     </style>
 </head>
@@ -88,39 +158,109 @@
     <!-- Navbar -->
     <%- include('header.ejs') %>
 
-    <!-- Jumbotron -->
-    <div class="jumbotron" id="home">
-        <h1 class="display-4">Welcome to our Articles Section</h1>
-        <p class="lead">Discover the power of creativity and innovation with us.</p>
+        <!-- Jumbotron -->
 
-    </div>
 
-    <!-- Articles Section -->
-    <div class="container">
-        <div class="article-container">
-            <% article.forEach( => { %>         
+        <!-- Articles Section -->
+        <div class="container">
 
-            <div class="article">
-                <h2><%= article.description %></h2>
-                <p><%= article.content %></p>
+            <div class="article-container">
+
+                <span id="header-resources">Донаты дня</span>
+                <% data.forEach(data=> { %>
+            
+                    <div class="article">
+                        <div class="author">
+                            <div class="author-img"><img
+                                    src='https://previews.123rf.com/images/apoev/apoev2107/apoev210700029/171405822-default-avatar-photo-placeholder-gray-profile-picture-icon-business-man-illustration.jpg'
+                                    class="avatar"></div>
+                            <div class="name">
+                                <%= data.author %>
+                            </div>
+                        </div>
+
+                        <div class="title">
+                            <%= data.title %>
+                        </div>
+                        <div class="news-img"><img class='news-img' src="<%= data.urlToImage %>"></div>
+                        <div class="content">
+                            <%= data.content %>
+                        </div>
+
+                        <div class="publishedAt">
+                            <%= data.publishedAt %>
+                        </div>
+
+
+
+                    </div>
+                    <% }); %>
             </div>
-            <% }); %>
-            <!-- Add more articles as needed -->
-        </div>
-    </div>
-    <br>
-    <!-- Footer -->
-    <%- include('footer.ejs') %>
+            <div class="top-donation-containers">
+                <span id="header-donations">Донаты дня</span>
+                <hr>
+                <div class="donation-corp">
+                    <div class="donation-icon">
+                        <img class="icon" src="https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_640.jpg">
+                    </div>
+                    <div class="donation-info">
+                        <span class="donation-name">Abylai fond</span>
+                        <span class="donation-stat">+50000</span>
+                    </div>
+                </div>
+                <div class="donation-corp">
+                    <div class="donation-icon">
+                        <img class="icon" src="https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_640.jpg">
+                    </div>
+                    <div class="donation-info">
+                        <span class="donation-name">Abylai fond</span>
+                        <span class="donation-stat">+50000</span>
+                    </div>
+                </div>
+                <div class="donation-corp">
+                    <div class="donation-icon">
+                        <img class="icon" src="https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_640.jpg">
+                    </div>
+                    <div class="donation-info">
+                        <span class="donation-name">Abylai fond</span>
+                        <span class="donation-stat">+50000</span>
+                    </div>
+                </div>
+                <div class="donation-corp">
+                    <div class="donation-icon">
+                        <img class="icon" src="https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_640.jpg">
+                    </div>
+                    <div class="donation-info">
+                        <span class="donation-name">Abylai fond</span>
+                        <span class="donation-stat">+50000</span>
+                    </div>
+                </div>
+                <div class="donation-corp">
+                    <div class="donation-icon">
+                        <img class="icon" src="https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_640.jpg">
+                    </div>
+                    <div class="donation-info">
+                        <span class="donation-name">Abylai fond</span>
+                        <span class="donation-stat">+50000</span>
+                    </div>
+                </div>
+            </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
+        </div>
+        <br>
+        <!-- Footer -->
+        <%- include('footer.ejs') %>
+
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+                crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+                integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+                crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+                integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+                crossorigin="anonymous"></script>
+            
 
 </body>
 
