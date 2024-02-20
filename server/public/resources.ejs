@@ -20,10 +20,11 @@
         .article-container {
             width: 100%;
             background-color: #F0F0F0;
-
+            border-radius: 5px;
 
             margin-top: 20px;
-            padding: 25px 10px;
+            
+            padding: 0px 10px;
             display: flex;
             flex-direction: column;
         }
@@ -40,7 +41,8 @@
         .container {
             display: grid;
             grid-template-columns: 70% 30%;
-            gap: 5px
+            gap: 20px;
+            justify-items:baseline;
         }
 
         .donation-icon {
@@ -55,7 +57,7 @@
             border-radius: 4px;
         }
 
-
+   
         .top-donation-containers {
             display: flex;
             flex-direction: column;
@@ -63,14 +65,25 @@
             height: max-content;
             background-color: white;
             border-radius: 4px;
-            margin-top: 20px
+            margin-top: 20px;
+            position:static;
         }
-
+        @media (max-width: 900px) {
+            .top-donation-containers  {
+              display: none;
+            }
+          }
+          @media (max-width: 900px) {
+            .container {
+                display: grid;
+                grid-template-columns: 100%;
+            }
+          }
         .donation-corp {
             display: flex;
             width: 220px;
             height: 70px;
-
+            margin-bottom: 5px;
             flex-direction: row;
             align-items: center;
             gap: 10px;
@@ -95,9 +108,13 @@
         }
 
         #header-resources {
-
-            padding: 30px 10px 5px 10px;
-
+            background-color: white;
+            padding:20px;
+            margin: 0px 5px;
+            width: 100%;
+            text-align: center;
+            font-size: larger;
+            border-radius: 5px;
         }
 
         #header-donations {
@@ -120,7 +137,8 @@
             height: 40px;
             flex-direction: row;
             align-items: center;
-            gap: 4px
+            gap: 4px;
+            opacity:70%;
         }
 
         .avatar {
@@ -166,7 +184,7 @@
 
             <div class="article-container">
 
-                <span id="header-resources">Донаты дня</span>
+                <span id="header-resources">Новости дня</span>
                 <% data.forEach(data=> { %>
             
                     <div class="article">
@@ -184,13 +202,14 @@
                         </div>
                         <div class="news-img"><img class='news-img' src="<%= data.urlToImage %>"></div>
                         <div class="content">
-                            <%= data.content %>
+                            <%= data.description %>
                         </div>
-
+                    
                         <div class="publishedAt">
-                            <%= data.publishedAt %>
+                            <%= data.publishedAt.slice(0, 10)+" "+data.publishedAt.slice(12,19); %>
                         </div>
-
+                        <span><a href="<%= data.url %>">View full article</a></span>
+                        
 
 
                     </div>

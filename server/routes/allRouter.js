@@ -7,7 +7,7 @@ const Animal = require('../models/animal');
 const fs = require('fs')
 const {axiosInstance} = require('../service/user-service')
 const apiConnection = require("../newsApiConnection");
-const filePath = path.join(__dirname, '../articles.json');
+const filePath = path.join(__dirname, '../articles1.json');
 const jsonData = JSON.parse(fs.readFileSync(filePath), 'utf-8');
 router.get('/adoption', async (req, res) => {
     try {
@@ -21,16 +21,6 @@ router.get('/adoption', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-// async function articles() {
-//   try {
-//     const data = await getArrayData(); // Await the promise
-//     const jsonContent = JSON.stringify(data, null, 2); // Indent for readability
-//     fs.writeFileSync('articles.json', jsonContent);
-//   } catch (error) {
-//     console.error('Error fetching articles:', error);
-//     throw error; // Re-throw the error for proper handling
-//   }
-// }
 
 router.get('/resources', async (req, res) => {
 
@@ -42,6 +32,33 @@ router.get('/resources', async (req, res) => {
 });
 router.get('/home', (req, res) => {
     res.render(path.join(__dirname, '../public/index'), {});
+});
+router.get('/support', (req, res) => {
+  res.render(path.join(__dirname, '../public/support'), {});
+});
+router.post('/support', (req, res) => {
+  const { amount, nonprofit_id, funds_collected } = req.body
+
+  fetch('https://api.getchange.io/api/v1/donations', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Basic ' + Buffer.from(public_key + ":" + secret_key).toString('base64'),
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      amount: amount,
+      nonprofit_id: "n_dZWs9lvVIn3wfIXsTbxAAk2z",
+      funds_collected: false
+    })
+  })
+    .then(response => response.json())
+    .then(data => res.status(200).json(data))
+    .catch(error => res.status(500).json(error))
+})
+
+router.get('/aboutus', (req, res) => {
+  res.render(path.join(__dirname, '../public/aboutus'), {});
 });
 router.get('/adoption', async (req, res) => {
     try {

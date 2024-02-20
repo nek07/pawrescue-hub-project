@@ -1,63 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support Page</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="style/supportPageStyle.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Paw Rescue Foundation - Donation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        /* Apply Montserrat font to all elements */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+        }
+       
+            
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
-
 <body>
-
-    <!-- Navbar -->
-    <% include('header.ejs') %>
-
-    <!-- Support Container -->
-    <div class="container support-container">
-        <!-- Donation Section -->
-        <div class="donation-section">
-            <h2 class="donation-title">Make a Donation</h2>
-            <form class="donation-form">
-                <!-- Add your donation form fields here -->
-                <div class="form-group">
-                    <label for="amount">Amount:</label>
-                    <input type="text" class="form-control" id="amount" placeholder="Enter donation amount">
-                </div>
-                <div class="form-group">
-                    <label for="creditCard">Credit Card:</label>
-                    <input type="text" class="form-control" id="creditCard" placeholder="Enter credit card number">
-                </div>
-                <button type="submit" class="btn btn-primary">Donate Now</button>
-            </form>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Paw Rescue Hub</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item  active">
+                    <a class="nav-link" href="/pets/home">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pets/adoption">Adoption</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pets/support">Support</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pets/resources">Resources</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pets/aboutus">About us</a>
+                </li>
+    
+                <li class="nav-item ">
+                    <a class="nav-link" href="/auth/registration">Login</a>
+                </li>
+            </ul>
         </div>
-
-        <!-- Result Statistics Section -->
-        <div class="statistics-section">
-            <h2 class="statistics-title">Result Statistics</h2>
-            <div class="result-statistics">
-                <div class="statistics-item">Total Donations: $50,000</div>
-                <div class="statistics-item">Number of Supporters: 500</div>
-                <!-- Add more statistics items as needed -->
+    </nav>
+    <div class="container">
+        <h2 class="text-center">Paw Rescue Foundation</h2>
+        <form id="donationForm" method="post">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" required>
             </div>
-        </div>
+            <div class="form-group">
+                <label for="cardNumber">Card Number:</label>
+                <input type="text" class="form-control" id="cardNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="cvv">CVV:</label>
+                <input type="text" class="form-control" id="cvv" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" class="form-control" id="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="number" class="form-control" id="amount" required>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="submitForm()">Donate Now</button>
+        </form>
     </div>
+    <footer class="bg-dark text-white text-center py-3">
+        &copy; 2024 Paw Rescue Hub. All rights reserved.
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
 
-    <!-- Footer -->
-    <% include('footer.ejs') %>
-    <!-- Bootstrap JS and jQuery (make sure they are included at the end of the body for better performance) -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-
+  
+        async function handleFormSubmission(url, formData, callback) {
+            try {
+                await fetch(url, {
+                    method: "POST",
+                    mode: "cors",
+                    cache: "no-cache",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    redirect: "follow",
+                    referrerPolicy: "no-referrer",
+                    body: JSON.stringify(formData),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Call the provided callback function with the response data
+                        callback(data);
+                    }).catch(error => console.error('ErrorTest:', error));
+            } catch (error) {
+                console.error('Error during form submission:', error);
+                throw error; 
+            }
+        }
+        
+        async function submitForm()  {
+            const formData = {
+                amount: document.getElementById('amount').value,
+                nonprofit_id: "n_dZWs9lvVIn3wfIXsTbxAAk2z",
+                funds_collected: false
+            };
+            alert("Donation submitted!");
+            document.getElementById("donationForm").reset();
+            console.log("good")
+            try {
+                await handleFormSubmission('/pets/support', formData);
+            } catch (error) {
+                console.error('Error during category submission:', error);
+            }
+            console.log("still good")
+        }
+      
+    </script>
 </body>
-
 </html>

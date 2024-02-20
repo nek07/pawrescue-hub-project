@@ -2,8 +2,8 @@
 
 // const api_key = '47bd84681a0a48f580e552a1397e1dfc';
 // const url = 'https://newsapi.org/v2/everything?' +
-//     'q=a&' +
-//     'from=2024-01-29&' +
+//     'q=Pets&' +
+//     'from=2024-02-10&' +
 //     'sortBy=popularity&' +
 //     'apiKey=' + api_key;
 
@@ -33,7 +33,7 @@
 
 //         try {
 //             // Use fs.promises.writeFile to make it async
-//             await fs.writeFile('adrticles.json', jsonContent);
+//             await fs.writeFile('articles1.json', jsonContent);
 //             console.log('Data has been written to articles.json');
 //         } catch (error) {
 //             console.error('Error writing to file:', error);
