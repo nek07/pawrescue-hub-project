@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Page</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style>
         footer {
-            margin-top:200px;
+            margin-top:250px !important;
         }
         #add-prod-btn{
             width:100%
@@ -16,22 +20,44 @@
 
         /* Apply Montserrat font to all elements */
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Montserrat', sans-serif !important;
+       
         }
-
+        .card {
+            min-width: 350px;
+            display: block;
+        }
+        .contain {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+       #signup {
+        margin-top: 10px;
+       }
+        .btn {
+            margin-bottom: 5px 0 !important;
+        }
+        form {
+            height: auto;
+            width: auto;
+            padding-bottom: 10px;
+            
+        }
+      
+        
     </style>
 </head>
 <body>
 <!-- header -->
-<% include header.ejs %>
+<%- include('header.ejs') %>
 
-<div class="container mt-5">
-    
+
     <div class="row justify-content-center" style="margin:100px">
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-md-6 contain">
+            <div style="width:400px" class="card">
                 <div class="card-header">
-                    <h4>Register</h4>
+                    <h4 style="text-align:center">Log In</h4>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -44,26 +70,75 @@
                             <label for="password">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                        </div>
                         <div id="status"></div>
-                        <button type="button" class="btn btn-outline-success mt-3" onclick="categorySubmit()" id="add-prod-btn">Sign up</button>
-                        
+                        <button type="button" class="btn btn-outline-success mt-3" onclick="categorySubmit()" id="add-prod-btn">Login</button>
+
                     </form>
+                    <span id="signup" style="opacity:60%; border: shadow 10px;"><a href="/auth/registration" color="#003459">Don't have an account yet?</a></span>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!-- footer -->
-<% include footer.ejs %>
-<script>
 
-</script>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<!-- footer -->
+
+<%- include('footer.ejs') %>
+<script>
+    async function handleFormSubmission(url, formData, callback) {
+        try {
+            await fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                redirect: "follow",
+                referrerPolicy: "no-referrer",
+                body: JSON.stringify(formData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Call the provided callback function with the response data
+                    callback(data);
+                }).catch(error => console.error('ErrorTest:', error));
+        } catch (error) {
+            console.error('Error during form submission:', error);
+            throw error; // rethrow the error to handle it elsewhere if needed
+        }
+    }
+    
+    async function categorySubmit() {
+      
+    
+        const formData = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+        };
+    
+        try {
+            await handleFormSubmission('/auth/login', formData, updateAlert);
+        } catch (error) {
+            console.error('Error during category submission:', error);
+        }
+    }
+    function updateAlert(data){
+        const alert = document.getElementById('status');
+        if(data.message == "Successfully loginned"){
+            alert.classList = 'alert alert-success  mt-3';
+            alert.innerHTML = "Successfully loginned"
+        } else if (data.message != null){
+            alert.classList = 'alert alert-warning mt-3'
+            alert.innerHTML = data.message;
+        }
+        else{
+            alert.classList = "";
+            alert.innerHTML = "";
+        }
+    }
+    
+    </script>
+
 </body>
 </html>

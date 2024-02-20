@@ -54,8 +54,8 @@ class UserService {
         return {
 
             ...tokens,
-            user: userDto
-            
+            user: userDto,
+            message:"Successfully loginned"
         }
     }
 }
