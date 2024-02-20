@@ -4,9 +4,10 @@ const path = require('path')
 router.set('view engine', 'ejs');
 router.set('views', __dirname);
 const Animal = require('../models/animal');
+const requireAuth = require('../middleware/authMiddleware')
 const fs = require('fs')
-const {axiosInstance} = require('../service/user-service')
-const apiConnection = require("../newsApiConnection");
+
+
 const filePath = path.join(__dirname, '../articles1.json');
 const jsonData = JSON.parse(fs.readFileSync(filePath), 'utf-8');
 router.get('/adoption', async (req, res) => {
@@ -33,7 +34,7 @@ router.get('/resources', async (req, res) => {
 router.get('/home', (req, res) => {
     res.render(path.join(__dirname, '../public/index'), {});
 });
-router.get('/support', (req, res) => {
+router.get('/support',requireAuth.requireAuth, (req, res) => {
   res.render(path.join(__dirname, '../public/support'), {});
 });
 router.post('/support', (req, res) => {

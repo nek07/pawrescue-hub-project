@@ -26,7 +26,8 @@ class AuthController {
             }
             const userData = await userService.registration(username,password)
 
-            res.cookie('refreshToken', userData.refreshToken,{maxAge:30*60*60*24*1000,httpOnly:true})
+            res.cookie('refreshToken',userData.refreshToken, {maxAge:30*60*60*24*1000,httpOnly:true})
+            res.cookie('accessToken',userData.accessToken, {maxAge:30*60*1000,httpOnly:true})
            // let temp = res.json(userData)
             return res.json(userData)
         } catch (error) {
@@ -56,7 +57,7 @@ class AuthController {
 
             
             res.cookie('refreshToken',userData.refreshToken, {maxAge:30*60*60*24*1000,httpOnly:true})
-            res.cookie('accessToken',userData.refreshToken, {maxAge:30*60*60*24*1000,httpOnly:true})
+            res.cookie('accessToken',userData.accessToken, {maxAge:20000*20*20,httpOnly:true})
             return res.json(userData)
         } catch (error) {
             console.log(`Error: ${error}`);
