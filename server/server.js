@@ -1,5 +1,5 @@
 const express = require('express')
-const axios = require('axios')
+
 const cookieParser = require('cookie-parser')
 const authRouter = require('./routes/authRouter')
 const router = require('./routes/allRouter')

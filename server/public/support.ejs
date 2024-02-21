@@ -1,142 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <title>Paw Rescue Foundation - Donation</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Support us</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=ASHNxGs1TsDoDnrAOrWQturgQf_B5GDb_4NSOrBmU9FtgqhDYMc6N5lXdrHHI7DHrVVrxowq9Tmxq_i6"></script>
 
-        /* Apply Montserrat font to all elements */
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f8f9fa;
-          
-        }
-       
-            
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/minstyle.io@2.0.1/dist/css/minstyle.io.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-<body>
+  <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Paw Rescue Hub</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item  active">
-                    <a class="nav-link" href="/pets/home">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/pets/adoption">Adoption</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/pets/support">Support</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/pets/resources">Resources</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/pets/aboutus">About us</a>
-                </li>
-    
-                <li class="nav-item ">
-                    <a class="nav-link" href="/auth/registration">Login</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+      <a class="navbar-brand" href="#">Paw Rescue Hub</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+              <li class="nav-item ">
+                  <a class="nav-link" href="/pets/home">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item ">
+                  <a class="nav-link" href="/pets/adoption">Adoption</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/pets/support">Support</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/pets/resources">Resources</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/pets/aboutus">About us</a>
+              </li>
+  
+              <li class="nav-item ">
+                  <a class="nav-link" href="/auth/login">Login</a>
+              </li>
+          </ul>
+      </div>
+  </nav>
     <div class="container">
-        <h2 class="text-center">Paw Rescue Foundation</h2>
-        <form id="donationForm" method="post">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" required>
+      <div class="row">
+        <div class="col-sm"></div>
+        <div class="col-sm">
+          <h2 class="ms-text-center" style="min-width:200px">Paw Rescue :З</h2>
+          <div class="ms-text-center pb-2">
+            <div class="ms-label ms-large ms-action2 ms-light">$5 USD</div>
+          </div>
+          <div id="alerts" class="ms-text-center"></div>
+          <div id="loading" class="spinner-container ms-div-center">
+            <div class="spinner"></div>
+          </div>
+          <div id="content" class="hide">
+            <div class="ms-card ms-fill">
+              <div class="ms-card-content">
+                <img src="https://www.aear.org/wp-content/uploads/2021/02/one-time-donations-icon.jpg" style="width:400px">
+              </div>
             </div>
-            <div class="form-group">
-                <label for="cardNumber">Card Number:</label>
-                <input type="text" class="form-control" id="cardNumber" required>
-            </div>
-            <div class="form-group">
-                <label for="cvv">CVV:</label>
-                <input type="text" class="form-control" id="cvv" required>
-            </div>
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" class="form-control" id="name" required>
-            </div>
-            <div class="form-group">
-                <label for="lastName">Last Name:</label>
-                <input type="text" class="form-control" id="lastName" required>
-            </div>
-            <div class="form-group">
-                <label for="amount">Amount:</label>
-                <input type="number" class="form-control" id="amount" required>
-            </div>
-            <button type="button" class="btn btn-primary" onclick="submitForm()">Donate Now</button>
-        </form>
+            <div id="payment_options"></div>
+          </div>
+        </div>
+        <div class="col-sm"></div>
+      </div>
     </div>
     <footer class="bg-dark text-white text-center py-3">
-        &copy; 2024 Paw Rescue Hub. All rights reserved.
-    </footer>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      &copy; 2024 Paw Rescue Hub. All rights reserved.
+  </footer>
     <script>
-
-  
-        async function handleFormSubmission(url, formData, callback) {
-            try {
-                await fetch(url, {
-                    method: "POST",
-                    mode: "cors",
-                    cache: "no-cache",
-                    credentials: "same-origin",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    redirect: "follow",
-                    referrerPolicy: "no-referrer",
-                    body: JSON.stringify(formData),
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Call the provided callback function with the response data
-                        callback(data);
-                    }).catch(error => console.error('ErrorTest:', error));
-            } catch (error) {
-                console.error('Error during form submission:', error);
-                throw error; 
+        let url_to_head = (url) => {
+            return new Promise(function(resolve, reject) {
+                var script = document.createElement('script');
+                script.src = url;
+                script.onload = function() {
+                    resolve();
+                };
+                script.onerror = function() {
+                    reject('Error loading script.');
+                };
+                document.head.appendChild(script);
+            });
+        }
+        let handle_close = (event) => {
+            event.target.closest(".ms-alert").remove();
+        }
+        let handle_click = (event) => {
+            if (event.target.classList.contains("ms-close")) {
+                handle_close(event);
             }
         }
+        document.addEventListener("click", handle_click);
+        const paypal_sdk_url = "https://www.paypal.com/sdk/js";
+        const client_id = "ASHNxGs1TsDoDnrAOrWQturgQf_B5GDb_4NSOrBmU9FtgqhDYMc6N5lXdrHHI7DHrVVrxowq9Tmxq_i6";
+        const currency = "USD";
+        const intent = "capture";
+        let alerts = document.getElementById("alerts");
         
-        async function submitForm()  {
-            const formData = {
-                amount: document.getElementById('amount').value,
-                nonprofit_id: "n_dZWs9lvVIn3wfIXsTbxAAk2z",
-                funds_collected: false
-            };
-            alert("Donation submitted!");
-            document.getElementById("donationForm").reset();
-            console.log("good")
-            try {
-                await handleFormSubmission('/pets/support', formData);
-            } catch (error) {
-                console.error('Error during category submission:', error);
-            }
-            console.log("still good")
-        }
-      
+        //PayPal Code
+        //https://developer.paypal.com/sdk/js/configuration/#link-queryparameters
+        url_to_head(paypal_sdk_url + "?client-id=" + client_id + "&enable-funding=venmo&currency=" + currency + "&intent=" + intent)
+        .then(() => {
+            //Handle loading spinner
+            document.getElementById("loading").classList.add("hide");
+            document.getElementById("content").classList.remove("hide");
+            let alerts = document.getElementById("alerts");
+            let paypal_buttons = paypal.Buttons({ // https://developer.paypal.com/sdk/js/reference
+                onClick: (data) => { // https://developer.paypal.com/sdk/js/reference/#link-oninitonclick
+                    //Custom JS here
+                },
+                style: { //https://developer.paypal.com/sdk/js/reference/#link-style
+                    shape: 'rect',
+                    color: 'gold',
+                    layout: 'vertical',
+                    label: 'paypal'
+                },
+        
+                createOrder: function(data, actions) { //https://developer.paypal.com/docs/api/orders/v2/#orders_create
+                    return fetch("http://localhost:3001/pets/create_order", {
+                        method: "post", headers: { "Content-Type": "application/json; charset=utf-8" },
+                        body: JSON.stringify({ "intent": intent })
+                    })
+                    .then((response) => response.json())
+                    .then((order) => { return order.id; });
+                },
+        
+                onApprove: function(data, actions) {
+                    let order_id = data.orderID;
+                    return fetch("http://localhost:3001/pets/complete_order", {
+                        method: "post", headers: { "Content-Type": "application/json; charset=utf-8" },
+                        body: JSON.stringify({
+                            "intent": intent,
+                            "order_id": order_id
+                        })
+                    })
+                    .then((response) => response.json())
+                    .then((order_details) => {
+                        console.log(order_details); //https://developer.paypal.com/docs/api/orders/v2/#orders_capture!c=201&path=create_time&t=response
+                        let intent_object = intent === "authorize" ? "authorizations" : "captures";
+                        //Custom Successful Message
+                        alerts.innerHTML = `<div class=\'ms-alert ms-action\'>Thank you ` + order_details.payer.name.given_name + ` ` + order_details.payer.name.surname + ` for your payment of ` + order_details.purchase_units[0].payments[intent_object][0].amount.value + ` ` + order_details.purchase_units[0].payments[intent_object][0].amount.currency_code + `!</div>`;
+        
+                        //Close out the PayPal buttons that were rendered
+                        <!-- paypal_buttons.close(); -->
+                     })
+                     .catch((error) => {
+                        console.log(error);
+                        alerts.innerHTML = `<div class="ms-alert ms-action2 ms-small"><span class="ms-close"></span><p>An Error Ocurred!</p>  </div>`;
+                     });
+                },
+        
+                onCancel: function (data) {
+                    alerts.innerHTML = `<div class="ms-alert ms-action2 ms-small"><span class="ms-close"></span><p>Order cancelled!</p>  </div>`;
+                },
+        
+                onError: function(err) {
+                    console.log(err);
+                }
+            });
+            paypal_buttons.render('#payment_options').then(function () {
+                loading.classList.add("hide");
+                content.classList.remove("hide");
+            }).catch(function (error) {
+                console.log(error);
+            });
+        })
+       
     </script>
-</body>
+  </body>
 </html>

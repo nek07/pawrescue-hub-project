@@ -6,71 +6,129 @@ router.set('views', __dirname);
 const Animal = require('../models/animal');
 const middleware = require('../middleware/authMiddleware')
 const fs = require('fs')
-const paypal = require("@paypal/checkout-server-sdk")
-const Environment =
-  process.env.NODE_ENV === "production"
-    ? paypal.core.LiveEnvironment
-    : paypal.core.SandboxEnvironment
-const paypalClient = new paypal.core.PayPalHttpClient(
-  new Environment(
-    process.env.PAYPAL_CLIENT_ID,
-    process.env.PAYPAL_CLIENT_SECRET
-  )
-)
+require('dotenv').config();
 
-const storeItems = new Map([
-  [1, { price: 100, name: "Learn React Today" }],
-  [2, { price: 200, name: "Learn CSS Today" }],
-])
+// To this line
+let fetchModule;
+fetchModule = import('node-fetch');
+router.use(Router.json());
+router.use(Router.urlencoded({
+    extended: true
+}));
+const environment = process.env.ENVIRONMENT || 'sandbox';
+const client_id = process.env.CLIENT_ID;
+const client_secret = process.env.CLIENT_SECRET;
+const endpoint_url = environment === 'sandbox' ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 
-router.get("/", (req, res) => {
-  res.render("../public/support1", {
-    paypalClientId: process.env.PAYPAL_CLIENT_ID,
-  })
-})
+/**
+ * Creates an order and returns it as a JSON response.
+ * @function
+ * @name createOrder
+ * @memberof module:routes
+ * @param {object} req - The HTTP request object.
+ * @param {object} req.body - The request body containing the order information.
+ * @param {string} req.body.intent - The intent of the order.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} The created order as a JSON response.
+ * @throws {Error} If there is an error creating the order.
+ */
+router.post('/create_order', (req, res) => {
+    get_access_token()
+        .then(access_token => {
+            let order_data_json = {
+                'intent': req.body.intent.toUpperCase(),
+                'purchase_units': [{
+                    'amount': {
+                        'currency_code': 'USD',
+                        'value': '5.00'
+                    }
+                }]
+            };
+            const data = JSON.stringify(order_data_json)
 
-router.post("/support1", async (req, res) => {
-  const request = new paypal.orders.OrdersCreateRequest()
-  const total = req.body.items.reduce((sum, item) => {
-    return sum + storeItems.get(item.id).price * item.quantity
-  }, 0)
-  request.prefer("return=representation")
-  request.requestBody({
-    intent: "CAPTURE",
-    purchase_units: [
-      {
-        amount: {
-          currency_code: "USD",
-          value: total,
-          breakdown: {
-            item_total: {
-              currency_code: "USD",
-              value: total,
+            fetch(endpoint_url + '/v2/checkout/orders', { //https://developer.paypal.com/docs/api/orders/v2/#orders_create
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${access_token}`
+                    },
+                    body: data
+                })
+                .then(res => res.json())
+                .then(json => {
+                    res.send(json);
+                }) //Send minimal data to client
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err)
+        })
+});
+
+/**
+ * Completes an order and returns it as a JSON response.
+ * @function
+ * @name completeOrder
+ * @memberof module:routes
+ * @param {object} req - The HTTP request object.
+ * @param {object} req.body - The request body containing the order ID and intent.
+ * @param {string} req.body.order_id - The ID of the order to complete.
+ * @param {string} req.body.intent - The intent of the order.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} The completed order as a JSON response.
+ * @throws {Error} If there is an error completing the order.
+ */
+router.post('/complete_order', (req, res) => {
+    get_access_token()
+        .then(access_token => {
+            fetch(endpoint_url + '/v2/checkout/orders/' + req.body.order_id + '/' + req.body.intent, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                })
+                .then(res => res.json())
+                .then(json => {
+                    console.log(json);
+                    res.send(json);
+                }) //Send minimal data to client
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err)
+        })
+});
+
+// Helper / Utility functions
+
+//Servers the index.html file
+router.get('/support',middleware.requireAuth, (req, res) => {
+    res.render(path.join(__dirname, '../public/support'), {});
+  });
+
+
+//PayPal Developer YouTube Video:
+//How to Retrieve an API Access Token (Node.js)
+//https://www.youtube.com/watch?v=HOkkbGSxmp4
+function get_access_token() {
+    const auth = `${client_id}:${client_secret}`
+    const data = 'grant_type=client_credentials'
+    return fetch(endpoint_url + '/v1/oauth2/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${Buffer.from(auth).toString('base64')}`
             },
-          },
-        },
-        items: req.body.items.map(item => {
-          const storeItem = storeItems.get(item.id)
-          return {
-            name: storeItem.name,
-            unit_amount: {
-              currency_code: "USD",
-              value: storeItem.price,
-            },
-            quantity: item.quantity,
-          }
-        }),
-      },
-    ],
-  })
+            body: data
+        })
+        .then(res => res.json())
+        .then(json => {
+            return json.access_token;
+        })
+}
 
-  try {
-    const order = await paypalClient.execute(request);
-    res.json({ id: order.id });
-  } catch (e) {
-    console.error("Error creating PayPal order:", e);
-    res.status(500).json({ error: e.message });
-  }})
+
 
 
 const filePath = path.join(__dirname, '../articles1.json');
@@ -99,29 +157,7 @@ router.get('/resources', async (req, res) => {
 router.get('/home', (req, res) => {
     res.render(path.join(__dirname, '../public/index'), {});
 });
-router.get('/support',middleware.requireAuth, (req, res) => {
-  res.render(path.join(__dirname, '../public/support'), {});
-});
-router.post('/support', (req, res) => {
-  const { amount, nonprofit_id, funds_collected } = req.body
 
-  fetch('https://api.getchange.io/api/v1/donations', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Basic ' + Buffer.from(public_key + ":" + secret_key).toString('base64'),
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({
-      amount: amount,
-      nonprofit_id: "n_dZWs9lvVIn3wfIXsTbxAAk2z",
-      funds_collected: false
-    })
-  })
-    .then(response => response.json())
-    .then(data => res.status(200).json(data))
-    .catch(error => res.status(500).json(error))
-})
 
 router.get('/aboutus', (req, res) => {
   res.render(path.join(__dirname, '../public/aboutus'), {});
