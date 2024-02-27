@@ -5,14 +5,21 @@ const authRouter = require('./routes/authRouter')
 const router = require('./routes/allRouter')
 const cors = require('cors')
 const mongoose = require('mongoose')
+const path = require('path')
+const app = express()
+app.set('view engine', 'ejs');
+app.set('views', __dirname);
 
 const PORT = process.env.PORT || 3001
-const app = express()
+
 
 // Middleware
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors())
+app.get('/', (req, res) => {
+    res.render(path.join(__dirname, '/public/index'), {});
+});
 
   
 // Routes
@@ -59,7 +66,6 @@ const start = async () => {
 };
 
 start()
-
 
 
 
