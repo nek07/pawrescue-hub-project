@@ -129,6 +129,24 @@
                                 </div>
                             </div>
                             <% }); %>
+                                <nav aria-label="..." class="col-12">
+                                    <ul class="pagination">
+                                        <li class="page-item ">
+                                            <a href="" class="page-link-prev page-link" onclick="prevPage()">Previous</a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link" href="/pets/adoption?page=0">1</a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link" href="/pets/adoption?page=1">2</a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link" href="/pets/adoption?page=2">3</a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link" href="/pets/adoption?page=3">4</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <div href="" class="page-link-next page-link" onclick="nextPage()">Next</div>
+                                        </li>
+                                    </ul>
+                                </nav>
                     </div>
                 </div>
 
@@ -137,6 +155,41 @@
 
         <!-- Footer -->
         <%- include('footer.ejs') %>
+        <script>
+            var page = parseInt(new URLSearchParams(window.location.search).get('page')) || 0;
+        
+            function addOrUpdateURLParam(key, value) {
+                const searchParams = new URLSearchParams(window.location.search);
+                searchParams.set(key, value);
+                const newRelativePathQuery = window.location.pathname + "?" + searchParams.toString();
+                history.pushState(null, "", newRelativePathQuery);
+            }
+        
+            function updatePageLinks() {
+                document.querySelector('.page-link-prev').href = "/pets/adoption?page=" + (page - 1);
+                document.querySelector('.page-link-next').href = "/pets/adoption?page=" + (page + 1);
+            }
+        
+            function nextPage() {
+                page += 1;
+                addOrUpdateURLParam("page", page);
+                updatePageLinks();
+            }
+        
+            function prevPage() {
+                if (page > 0) {
+                    page -= 1;
+                    addOrUpdateURLParam("page", page);
+                    updatePageLinks();
+                }
+            }
+        
+            // Call the function initially
+            updatePageLinks();
+        </script>
+        
+        
+        
 </body>
 
 </html>

@@ -133,18 +133,34 @@ function get_access_token() {
 
 const filePath = path.join(__dirname, '../articles1.json');
 const jsonData = JSON.parse(fs.readFileSync(filePath), 'utf-8');
-router.get('/adoption',middleware.requireAuth, async (req, res) => {
+
+
+router.get('/adoption', middleware.requireAuth, async (req, res) => {
+    let animals = [];
+    const page = parseInt(req.query.page) || 0; // Parse the page query parameter to an integer
+    const booksPerPage = 10;
+
     try {
         // Fetch all animals from the database
-        const animals = await Animal.find();
-        // Render the view and pass the animals data to it
-        res.render(path.join(__dirname, '../public/adoption'), { animal: animals });
+        await Animal.find()
+            .skip(page * booksPerPage)
+            .limit(booksPerPage)
+            .then((animalList) => {
+                animals = animalList;
+                res.render(path.join(__dirname, '../public/adoption'), { animal: animals });
+            })
+            .catch((error) => {
+                console.error('Error fetching documents:', error);
+                res.status(500).json({ error: 'Could not fetch documents' });
+            });
+
     } catch (error) {
         // Handle any errors that occur during the database operation
         console.error('Error fetching animals:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 router.get('/resources', async (req, res) => {
 
