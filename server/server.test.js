@@ -1,11 +1,11 @@
 const request = require('supertest');
 const app = require('./server'); // Replace with the actual path to your app file
-
+const URL= "pawrescue-hub-project.onrender.com"
 // Test the registration route
 describe('POST /auth/registration', () => {
     it('should register a new user', async () => {
         const response = await request(app)
-            .post('/auth/registration')
+            .post(URL+'/auth/registration')
             .send({
                 username: 'testuser123',
                 password: 'testpassword123',
@@ -15,7 +15,7 @@ describe('POST /auth/registration', () => {
     });
     it('should detect existing user', async () => {
         const response = await request(app)
-            .post('/auth/registration')
+            .post(URL+'/auth/registration')
             .send({
                 username: 'damir',
                 password: '12345678',
