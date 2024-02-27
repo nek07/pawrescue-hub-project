@@ -14,7 +14,7 @@
 - #### Node.js and Express.js
 - #### MongoDB
 - #### JSON Web Tokens (JWT)
-- #### News API
+- #### News API and PayPal
 - #### EJS and CSS
 
 
