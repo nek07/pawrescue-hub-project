@@ -29,7 +29,7 @@ class AuthController {
             res.cookie('refreshToken',userData.refreshToken, {maxAge:30*60*60*24*1000,httpOnly:true})
             res.cookie('accessToken',userData.accessToken, {maxAge:30*60*1000,httpOnly:true})
            // let temp = res.json(userData)
-            return res.json(userData)
+            return res.status(200).json(userData)
         } catch (error) {
             console.log(`Error: ${error}`);
             return res.status(500).json({ message: 'Internal server error' });

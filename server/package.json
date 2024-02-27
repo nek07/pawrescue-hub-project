@@ -4,10 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --detectOpenHandles"
   },
-  
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -24,8 +22,13 @@
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.1.0",
+    "node": "^21.6.2",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.0.3",
     "puppeteer": "^21.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
   }
 }

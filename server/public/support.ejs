@@ -88,7 +88,7 @@
                 },
         
                 createOrder: function(data, actions) { //https://developer.paypal.com/docs/api/orders/v2/#orders_create
-                    return fetch("http://localhost:3001/pets/create_order", {
+                    return fetch("https://pawrescue-hub-project.onrender.com/pets/create_order", {
                         method: "post", headers: { "Content-Type": "application/json; charset=utf-8" },
                         body: JSON.stringify({ "intent": intent })
                     })
@@ -98,7 +98,7 @@
         
                 onApprove: function(data, actions) {
                     let order_id = data.orderID;
-                    return fetch("http://localhost:3001/pets/complete_order", {
+                    return fetch("https://pawrescue-hub-project.onrender.com/pets/complete_order", {
                         method: "post", headers: { "Content-Type": "application/json; charset=utf-8" },
                         body: JSON.stringify({
                             "intent": intent,

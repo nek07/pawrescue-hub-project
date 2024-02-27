@@ -57,6 +57,15 @@
             text-align: center;
             padding: 30px 0;
         }
+        .form-container {
+            width: 400px;
+            height: 500px;
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin: auto;
+            margin-top: 50px;
+            margin-bottom: 20px;
+          }
     </style>
 </head>
 <body>
@@ -65,9 +74,9 @@
 
 <!-- Jumbotron -->
 <div class="jumbotron" id="home">
-    <h1 class="display-4">Welcome to Your Awesome Website</h1>
+    <h1 class="display-4">Welcome to Paw Rescue Community</h1>
     <p class="lead">Discover the power of creativity and innovation with us.</p>
-    <a class="btn btn-primary btn-lg" href="#features" role="button">Learn More</a>
+    <a class="btn btn-primary btn-lg" href="/pets/aboutus" role="button">Learn More</a>
 </div>
 
 <!-- Features -->
@@ -76,18 +85,18 @@
         <div class="row">
             <div class="col-md-4 feature-item">
                 <i class="fas fa-cogs feature-icon"></i>
-                <h3>Feature 1</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <h3>Pet adoption</h3>
+                <p>Paw Rescue Hub providing a platform where individuals can explore and connect with pets in need of a loving home.</p>
             </div>
             <div class="col-md-4 feature-item">
                 <i class="fas fa-chart-bar feature-icon"></i>
-                <h3>Feature 2</h3>
-                <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                <h3>Donation</h3>
+                <p>Your contributions to Paw Rescue Hub create a ripple of change, providing essential care, comfort, and a second chance for animals in need.</p>
             </div>
             <div class="col-md-4 feature-item">
                 <i class="fas fa-mobile-alt feature-icon"></i>
-                <h3>Feature 3</h3>
-                <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <h3>Education</h3>
+                <p>Every story shared inspires a community passionate about creating a brighter future for our furry friends.</p>
             </div>
         </div>
     </div>
@@ -98,33 +107,37 @@
     <div class="container">
         <h2>Ready to get started?</h2>
         <p>Contact us today and let's make something amazing together.</p>
-        <a class="btn btn-light btn-lg" href="#contact" role="button">Contact Us</a>
+        <a class="btn btn-light btn-lg" href="/auth/registration" role="button">Join</a>
     </div>
 </div>
 
 <!-- Contact -->
-<div class="container" id="contact" style="margin: 50px 0">
-    <div class="row">
-        <div class="col-md-6 mx-auto">
-            <h2>Contact Us</h2>
-            <form>
-                <div class="form-group">
-                    <label for="name">Your Name</label>
-                    <input type="text" class="form-control" id="name" placeholder="John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Your Email</label>
-                    <input type="email" class="form-control" id="email" placeholder="john@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Your Message</label>
-                    <textarea class="form-control" id="message" rows="4" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Send Message</button>
-            </form>
-        </div>
-    </div>
-</div>
+<div class="container form-container">
+    <h2 class="mb-4" style="text-align:center">Contact Us</h2>
+  
+    <form>
+      <!-- Name Input -->
+      <div class="form-group">
+        <label for="name">Your Name:</label>
+        <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+      </div>
+  
+      <!-- Email Input -->
+      <div class="form-group">
+        <label for="email">Email Address:</label>
+        <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+      </div>
+  
+      <!-- Message Textarea -->
+      <div class="form-group">
+        <label for="message">Your Message:</label>
+        <textarea class="form-control" id="message" rows="5" placeholder="Type your message" required></textarea>
+      </div>
+  
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
 
 <!-- Footer -->
 <%- include('footer.ejs') %>
