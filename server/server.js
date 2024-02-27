@@ -48,7 +48,7 @@ app.use('/pets', router)
 // });
 const start = async () => {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/pawrescue');
+        await mongoose.connect('mongodb+srv://ataytoleuov:220439@abylaidb.3jyfmar.mongodb.net/pawrescue');
         console.log('Connected to MongoDB');
         app.listen(PORT, () => {
             console.log(`Server started on port ${PORT}`);
