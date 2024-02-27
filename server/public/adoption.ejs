@@ -8,9 +8,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="style/adoptionPageStyle.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
@@ -80,7 +77,7 @@
         }
 
         hr {
-            margin: 1rem 0rem 0.5rem !important;
+            margin: 1rem 0.5rem;
         }
 
         .profile-age {
@@ -93,103 +90,101 @@
 <body>
 
     <!-- Navbar -->
-    <%- include('header.ejs') %>
-        <!-- Product Cards -->
-        <div class="container mt-5">
-            <div class="row">
-                <div class="container mt-5">
-                    <div class="row">
-                        <% animal.forEach(animal=> { %>
-
-                            <div class="profile-card">
-                                <!-- Image on the left side -->
-                                <img src="<%= animal.picture %>" alt="Profile Image" class="profile-image">
-
-                                <!-- Content on the right side -->
-                                <div class="profile-content">
-                                    <!-- Name -->
-                                    <div class="profile-name">
-                                        <%= animal.breed %>
-                                    </div>
-                                    <span class="profile-age">
-                                        <%= animal.breed %> •
-                                    </span>
-                                    <span class="profile-age">Age: <%= animal.age %></span>
-
-                                    <!-- Description -->
-                                    <div class="profile-description">
-
-                                        <%- (animal.description.split(/\s+/).slice(0,
-                                            15).join(' ').replace(/\*\*(.*?)\*\*/g, ' <strong>$1</strong>')) %>
-
-                                    </div>
-                                    <hr>
-                                    <span class="profile-location">• <%= animal.city %></span>
-
-                                </div>
+    <% include('header.ejs') %>
+    <!-- Product Cards -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="container mt-5">
+                <div class="row">
+                    <% animal.forEach(animal => { %>
+                    <div class="profile-card">
+                        <!-- Image on the left side -->
+                        <img src="<%= animal.picture %>" alt="Profile Image" class="profile-image">
+                        <!-- Content on the right side -->
+                        <div class="profile-content">
+                            <!-- Name -->
+                            <div class="profile-name">
+                                <%= animal.breed %>
                             </div>
-                            <% }); %>
-                                <nav aria-label="..." class="col-12">
-                                    <ul class="pagination">
-                                        <li class="page-item ">
-                                            <a href="" class="page-link-prev page-link" onclick="prevPage()">Previous</a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link" href="/pets/adoption?page=0">1</a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link" href="/pets/adoption?page=1">2</a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link" href="/pets/adoption?page=2">3</a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link" href="/pets/adoption?page=3">4</a>
-                                        </li>
-                                        <li class="page-item">
-                                            <div href="" class="page-link-next page-link" onclick="nextPage()">Next</div>
-                                        </li>
-                                    </ul>
-                                </nav>
+                            <span class="profile-age">
+                                <%= animal.breed %> •
+                            </span>
+                            <span class="profile-age">Age: <%= animal.age %></span>
+                            <!-- Description -->
+                            <div class="profile-description">
+                                <%- (animal.description.split(/\s+/).slice(0,
+                                15).join(' ').replace(/\*\*(.*?)\*\*/g, ' <strong>$1</strong>')) %>
+                            </div>
+                            <hr>
+                            <span class="profile-location">• <%= animal.city %></span>
+                        </div>
                     </div>
+                    <% }); %>
+                    <nav aria-label="..." class="col-12">
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a href="" class="page-link-prev page-link" onclick="prevPage()">Previous</a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="/pets/adoption?page=0">1</a></li>
+                            <li class="page-item"><a class="page-link" href="/pets/adoption?page=1">2</a></li>
+                            <li class="page-item"><a class="page-link" href="/pets/adoption?page=2">3</a></li>
+                            <li class="page-item"><a class="page-link" href="/pets/adoption?page=3">4</a></li>
+                            <li class="page-item">
+                                <div href="" class="page-link-next page-link" onclick="nextPage()">Next</div>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
-
             </div>
         </div>
+    </div>
 
-        <!-- Footer -->
-        <%- include('footer.ejs') %>
-        <script>
-            var page = parseInt(new URLSearchParams(window.location.search).get('page')) || 0;
+    <!-- Footer -->
+    <% include('footer.ejs') %>
+    <script>
+        var page = parseInt(new URLSearchParams(window.location.search).get('page')) || 0;
         
-            function addOrUpdateURLParam(key, value) {
-                const searchParams = new URLSearchParams(window.location.search);
-                searchParams.set(key, value);
-                const newRelativePathQuery = window.location.pathname + "?" + searchParams.toString();
-                history.pushState(null, "", newRelativePathQuery);
-            }
+        function addOrUpdateURLParam(key, value) {
+            const searchParams = new URLSearchParams(window.location.search);
+            searchParams.set(key, value);
+            const newRelativePathQuery = window.location.pathname + "?" + searchParams.toString();
+            history.pushState(null, "", newRelativePathQuery);
+            // Manually trigger the page update
+            updatePageContent();
+        }
         
-            function updatePageLinks() {
-                document.querySelector('.page-link-prev').href = "/pets/adoption?page=" + (page - 1);
-                document.querySelector('.page-link-next').href = "/pets/adoption?page=" + (page + 1);
-            }
+        function updatePageLinks() {
+            document.querySelector('.page-link-prev').href = "/pets/adoption?page=" + (page - 1);
+            document.querySelector('.page-link-next').href = "/pets/adoption?page=" + (page + 1);
+        }
         
-            function nextPage() {
-                page += 1;
+        function updatePageContent() {
+            // Implement logic to update the content of the page based on the current page parameter
+            // For example, fetch and replace content using AJAX, or reload the page if necessary
+            // ...
+            // In case of a full page reload, you can use location.reload();
+        }
+        
+        function nextPage() {
+            page += 1;
+            addOrUpdateURLParam("page", page);
+            updatePageLinks();
+        }
+        
+        function prevPage() {
+            if (page > 0) {
+                page -= 1;
                 addOrUpdateURLParam("page", page);
                 updatePageLinks();
             }
+        }
         
-            function prevPage() {
-                if (page > 0) {
-                    page -= 1;
-                    addOrUpdateURLParam("page", page);
-                    updatePageLinks();
-                }
-            }
+        // Listen for the popstate event to handle back/forward navigation
+        window.addEventListener('popstate', updatePageContent);
         
-            // Call the function initially
-            updatePageLinks();
-        </script>
-        
-        
-        
+        // Call the function initially
+        updatePageLinks();
+    </script>
 </body>
 
 </html>
