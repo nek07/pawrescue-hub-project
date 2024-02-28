@@ -2,6 +2,9 @@
 
 **Paw Rescue Hub** is a website dedicated to saving animals, providing resources for animal rescue, accepting donations, and sharing heartwarming news about animals. It serves as a platform to raise awareness about animal welfare and connect animal lovers with opportunities to make a positive impact.
 
+**View the website:** [click here](pawrescue-hub-project.onrender.com)
+
+
 
 ## Features
 - **Animal Adoption**: Browse animals available for adoption and learn more about them.
