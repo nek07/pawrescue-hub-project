@@ -28,34 +28,33 @@ app.use('/pets', router)
 
 // Create an instance of axios
 
-// Example route using axios instance
 
-// function verifyToken(token) {
-//     try {
-//         const decoded = jwt.verify(token, 'secret');
-//         return decoded.user;
-//     } catch (err) {
-//         return false;
-//     }
-// }
+function verifyToken(token) {
+    try {
+        const decoded = jwt.verify(token, 'secret');
+        return decoded.user;
+    } catch (err) {
+        return false;
+    }
+}
 
-// // Мидлвара для проверки авторизации
-// function requireAuth(req, res, next) {
-//     const token = req.headers.set-Cookie;
-//     const user = verifyToken(token);
-//     if (user) {
-//         req.user = user;
-//         next();
-//     } else {
-//         res.status(401).json({ error: 'Unauthorized' });
-//     }
-// }
-// app.get('/private', requireAuth, (req, res) => {
-//     res.json({ message: 'hello bro' });
-// });
+// Мидлвара для проверки авторизации
+function requireAuth(req, res, next) {
+    const token = req.headers.set-Cookie;
+    const user = verifyToken(token);
+    if (user) {
+        req.user = user;
+        next();
+    } else {
+        res.status(401).json({ error: 'Unauthorized' });
+    }
+}
+app.get('/private', requireAuth, (req, res) => {
+    res.json({ message: 'hello bro' });
+});
 const start = async () => {
     try {
-        await mongoose.connect('mongodb+srv://ataytoleuov:220439@abylaidb.3jyfmar.mongodb.net/pawrescue');
+        // await mongoose.connect('mongodb+srv://ataytoleuov:220439@abylaidb.3jyfmar.mongodb.net/pawrescue');
         console.log('Connected to MongoDB');
         app.listen(PORT, () => {
             console.log(`Server started on port ${PORT}`);
