@@ -8,6 +8,7 @@ from arq.connections import RedisSettings
 from app.core.config import get_settings
 from app.core.db import SessionFactory, engine
 from app.core.observability import configure_logging, init_sentry
+from app.core.pubsub import get_pubsub
 from app.core.storage import get_storage
 from app.core.telegram_bot import TelegramBot
 from app.workers.media import process_pet_photo
@@ -24,6 +25,7 @@ async def startup(ctx: dict[str, Any]) -> None:
     configure_logging(settings)
     init_sentry(settings)
     ctx["session_factory"] = SessionFactory
+    ctx["pubsub"] = get_pubsub()
     ctx["storage"] = get_storage()
     ctx["settings"] = settings
     ctx["http"] = httpx.AsyncClient(timeout=10)
@@ -33,6 +35,7 @@ async def startup(ctx: dict[str, Any]) -> None:
 
 async def shutdown(ctx: dict[str, Any]) -> None:
     await ctx["http"].aclose()
+    await ctx["pubsub"].close()
     await engine.dispose()
 
 

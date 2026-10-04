@@ -15,7 +15,7 @@ from app.workers.notifications import (
     notify_new_application,
     send_telegram_message,
 )
-from helpers import login
+from helpers import MemoryPubSub, login
 
 pytestmark = pytest.mark.usefixtures("seeded")
 
@@ -50,7 +50,13 @@ def _ctx(db_session: AsyncSession, bot: FakeBot | None) -> dict[str, Any]:
     async def factory() -> AsyncIterator[AsyncSession]:
         yield db_session  # тестовую сессию не закрываем — её откатит фикстура
 
-    return {"session_factory": factory, "telegram": bot, "redis": FakeRedis(), "job_try": 1}
+    return {
+        "session_factory": factory,
+        "telegram": bot,
+        "redis": FakeRedis(),
+        "pubsub": MemoryPubSub(),
+        "job_try": 1,
+    }
 
 
 async def _drain(ctx: dict[str, Any]) -> list[str]:

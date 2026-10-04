@@ -53,6 +53,7 @@ class MessageOut(BaseModel):
     kind: MessageKind
     side: ChatSide | None  # None — системное сообщение платформы
     sender_id: UUID | None
+    # Для kind=system — ключ перевода: application.sent, application.approved, …
     text: str
     created_at: datetime
 

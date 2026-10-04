@@ -15,12 +15,13 @@ from testcontainers.postgres import PostgresContainer
 from app.core.clock import get_today
 from app.core.config import Settings, get_settings
 from app.core.db import get_session
+from app.core.pubsub import get_pubsub
 from app.core.queue import get_queue
 from app.core.storage import get_storage
 from app.main import create_app
 from app.modules.auth.google import get_google_client
 from app.seed import seed
-from helpers import BOT_TOKEN, FakeGoogle, MemoryStorage, RecordingQueue
+from helpers import BOT_TOKEN, FakeGoogle, MemoryPubSub, MemoryStorage, RecordingQueue
 
 API_ROOT = Path(__file__).resolve().parents[1]
 TODAY = date(2026, 10, 4)
@@ -87,12 +88,18 @@ def storage() -> MemoryStorage:
 
 
 @pytest.fixture
+def pubsub() -> MemoryPubSub:
+    return MemoryPubSub()
+
+
+@pytest.fixture
 def app(
     db_session: AsyncSession,
     settings: Settings,
     queue: RecordingQueue,
     google: FakeGoogle,
     storage: MemoryStorage,
+    pubsub: MemoryPubSub,
 ) -> FastAPI:
     app = create_app(settings)
 
@@ -104,6 +111,7 @@ def app(
     app.dependency_overrides[get_queue] = lambda: queue
     app.dependency_overrides[get_google_client] = lambda: google
     app.dependency_overrides[get_storage] = lambda: storage
+    app.dependency_overrides[get_pubsub] = lambda: pubsub
     # Возрасты сид-питомцев считаются от фиксированной даты, а не от сегодняшней.
     app.dependency_overrides[get_today] = lambda: TODAY
     return app

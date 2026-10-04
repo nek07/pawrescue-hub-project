@@ -13,12 +13,15 @@ import httpx
 from arq import Retry
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.pubsub import PubSub
 from app.core.queue import Queue
 from app.modules.applications.models import ApplicationStatus
 from app.modules.applications.repository import ApplicationRepository
 from app.modules.applications.service import ApplicationService
 from app.modules.auth.repository import AuthRepository
 from app.modules.auth.service import AuthService
+from app.modules.chat.repository import ChatRepository
+from app.modules.chat.service import ChatService
 from app.modules.pets.dependencies import get_pet_service
 from app.modules.users.repository import UserRepository
 from app.modules.users.service import UserService
@@ -33,6 +36,12 @@ STATUS_TEXT = {
 }
 
 
+# Системные сообщения в диалоге — ключи перевода (chat.system.* на фронте),
+# а не готовый текст: интерфейс на русском и казахском.
+SYSTEM_KEYS = {status: f"application.{status}" for status in ApplicationStatus}
+SYSTEM_KEYS[ApplicationStatus.SENT] = "application.sent"
+
+
 class Bot(Protocol):
     async def send_message(self, chat_id: str, text: str) -> None: ...
 
@@ -45,12 +54,18 @@ class _NoQueue:
         return None
 
 
-def _services(session: AsyncSession) -> tuple[ApplicationService, AuthService]:
+def _services(
+    session: AsyncSession, pubsub: PubSub
+) -> tuple[ApplicationService, AuthService, ChatService]:
     pets = get_pet_service(session)
     queue: Queue = _NoQueue()
+    users = UserService(UserRepository(session))
     applications = ApplicationService(session, ApplicationRepository(session), pets, queue)
-    auth = AuthService(session, AuthRepository(session), UserService(UserRepository(session)))
-    return applications, auth
+    auth = AuthService(session, AuthRepository(session), users)
+    chat = ChatService(
+        session, ChatRepository(session), pets, pets.shelters, users, applications, pubsub
+    )
+    return applications, auth, chat
 
 
 class JobQueue(Protocol):
@@ -86,11 +101,14 @@ async def send_telegram_message(ctx: dict[str, Any], chat_id: str, text: str) ->
 async def notify_new_application(ctx: dict[str, Any], application_id: str) -> None:
     factory: SessionFactory = ctx["session_factory"]
     async with factory() as session:
-        applications, auth = _services(session)
+        applications, auth, chat = _services(session, ctx["pubsub"])
         application = await applications.get_raw(UUID(application_id))
         if application is None:
             return
         pet = await applications.pets.get_pet(application.pet_id)
+        # Заявка открывает диалог с куратором — дальше всё общение там.
+        conversation = await chat.ensure_for_pet(application.user_id, pet)
+        await chat.post_system(conversation, SYSTEM_KEYS[ApplicationStatus.SENT])
         if pet.volunteer_id is not None:
             curators = [pet.volunteer_id]
         else:
@@ -104,11 +122,15 @@ async def notify_new_application(ctx: dict[str, Any], application_id: str) -> No
 async def notify_application_status(ctx: dict[str, Any], application_id: str) -> None:
     factory: SessionFactory = ctx["session_factory"]
     async with factory() as session:
-        applications, auth = _services(session)
+        applications, auth, chat = _services(session, ctx["pubsub"])
         application = await applications.get_raw(UUID(application_id))
-        if application is None or application.status not in STATUS_TEXT:
+        if application is None:
             return
         pet = await applications.pets.get_pet(application.pet_id)
+        conversation = await chat.ensure_for_pet(application.user_id, pet)
+        await chat.post_system(conversation, SYSTEM_KEYS[application.status])
+        if application.status not in STATUS_TEXT:  # отзыв сам человек уже знает
+            return
         chat_ids = await auth.telegram_chat_ids([application.user_id])
     text = STATUS_TEXT[application.status].format(pet=pet.name)
     await _send(ctx, f"status:{application.id}:{application.status}", chat_ids, text)

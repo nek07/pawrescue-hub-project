@@ -109,3 +109,44 @@ def jpeg(
     buffer = io.BytesIO()
     image.save(buffer, "JPEG", exif=exif)
     return buffer.getvalue()
+
+
+class MemoryPubSub:
+    """Redis pub/sub в памяти: запоминает публикации и раздаёт их подписчикам."""
+
+    def __init__(self) -> None:
+        import asyncio
+        from collections import defaultdict
+
+        self.published: list[tuple[set[Any], dict[str, Any]]] = []
+        self._queues: dict[Any, list[asyncio.Queue[dict[str, Any]]]] = defaultdict(list)
+
+    async def publish(self, user_ids: Any, event: dict[str, Any]) -> None:
+        ids = set(user_ids)
+        self.published.append((ids, event))
+        for user_id in ids:
+            for queue in self._queues.get(user_id, []):
+                queue.put_nowait(event)
+
+    def subscribe(self, user_id: Any) -> Any:
+        import asyncio
+        from contextlib import asynccontextmanager
+
+        @asynccontextmanager
+        async def stream() -> Any:
+            queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+            self._queues[user_id].append(queue)
+
+            async def events() -> Any:
+                while True:
+                    yield await queue.get()
+
+            try:
+                yield events()
+            finally:
+                self._queues[user_id].remove(queue)
+
+        return stream()
+
+    def events_for(self, user_id: Any, kind: str | None = None) -> list[dict[str, Any]]:
+        return [e for ids, e in self.published if user_id in ids and kind in (None, e["type"])]
