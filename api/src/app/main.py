@@ -14,6 +14,7 @@ from app.core.errors import ERROR_RESPONSES, register_error_handlers
 from app.core.observability import add_request_context, configure_logging, init_sentry
 from app.core.queue import get_queue
 from app.core.storage import get_storage
+from app.modules.applications import router as applications_router
 from app.modules.auth import router as auth_router
 from app.modules.curators import router as curators_router
 from app.modules.pets import router as pets_router
@@ -77,6 +78,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(pets_router.router)
     v1.include_router(curators_router.router)
     v1.include_router(curators_router.shelters_router)
+    v1.include_router(applications_router.router)
     app.include_router(v1)
     return app
 
