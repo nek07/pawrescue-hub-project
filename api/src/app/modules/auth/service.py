@@ -2,6 +2,7 @@ from collections.abc import Collection
 from datetime import UTC, datetime
 from uuid import UUID
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import DomainError
@@ -37,11 +38,19 @@ class AuthService:
 
         identity = await self.repo.find_identity(provider, provider_user_id)
         if identity is None:
-            user = await self.users.create_user(name=name, role=role, avatar_url=avatar_url)
-            await self.repo.add_identity(
-                user_id=user.id, provider=provider, provider_user_id=provider_user_id
-            )
-        else:
+            try:
+                # Savepoint: если параллельный первый вход того же человека успел раньше,
+                # откатываем только своего пользователя и берём уже созданного.
+                async with self.session.begin_nested():
+                    user = await self.users.create_user(name=name, role=role, avatar_url=avatar_url)
+                    await self.repo.add_identity(
+                        user_id=user.id, provider=provider, provider_user_id=provider_user_id
+                    )
+            except IntegrityError:
+                identity = await self.repo.find_identity(provider, provider_user_id)
+                if identity is None:
+                    raise
+        if identity is not None:
             found = await self.users.get_user(identity.user_id)
             if found is None:  # невозможно при ON DELETE CASCADE, но mypy об этом не знает
                 raise DomainError("user_not_found", status=404)

@@ -1,5 +1,7 @@
 from datetime import UTC, datetime
+from typing import Any
 
+import pytest
 from httpx import ASGITransport, AsyncClient
 from pydantic import SecretStr
 from sqlalchemy import select, update
@@ -101,3 +103,22 @@ async def test_dev_login_is_absent_in_prod() -> None:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         r = await client.post(DEV_LOGIN, json={"name": "Асель"})
     assert r.status_code == 404
+
+
+async def test_concurrent_first_login_reuses_account(
+    client: AsyncClient, db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.modules.auth.repository import AuthRepository
+
+    await client.post(DEV_LOGIN, json={"name": "Асель"})  # «параллельный» запрос успел первым
+    original = AuthRepository.find_identity
+    calls = {"n": 0}
+
+    async def stale_first_lookup(self: AuthRepository, *args: Any) -> Any:
+        calls["n"] += 1
+        return None if calls["n"] == 1 else await original(self, *args)
+
+    monkeypatch.setattr(AuthRepository, "find_identity", stale_first_lookup)
+    r = await client.post(DEV_LOGIN, json={"name": "Асель"})
+    assert r.status_code == 200, r.text
+    assert len((await db_session.scalars(select(User))).all()) == 1  # лишнего пользователя нет
