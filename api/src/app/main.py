@@ -14,6 +14,7 @@ from app.core.errors import ERROR_RESPONSES, register_error_handlers
 from app.core.observability import add_request_context, configure_logging, init_sentry
 from app.core.queue import get_queue
 from app.core.storage import get_storage
+from app.modules.auth import router as auth_router
 
 
 def operation_id(route: APIRoute) -> str:
@@ -68,6 +69,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     v1 = APIRouter(prefix="/api/v1")
     v1.include_router(health.router)
+    v1.include_router(auth_router.router)
+    if settings.env != "prod":
+        v1.include_router(auth_router.dev_router)
     app.include_router(v1)
     return app
 

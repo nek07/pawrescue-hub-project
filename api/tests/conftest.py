@@ -18,7 +18,8 @@ from app.core.db import get_session
 from app.core.queue import get_queue
 from app.core.storage import get_storage
 from app.main import create_app
-from helpers import BOT_TOKEN, MemoryStorage, RecordingQueue
+from app.modules.auth.google import get_google_client
+from helpers import BOT_TOKEN, FakeGoogle, MemoryStorage, RecordingQueue
 
 API_ROOT = Path(__file__).resolve().parents[1]
 TODAY = date(2026, 10, 4)
@@ -75,6 +76,11 @@ def queue() -> RecordingQueue:
 
 
 @pytest.fixture
+def google() -> FakeGoogle:
+    return FakeGoogle()
+
+
+@pytest.fixture
 def storage() -> MemoryStorage:
     return MemoryStorage()
 
@@ -84,6 +90,7 @@ def app(
     db_session: AsyncSession,
     settings: Settings,
     queue: RecordingQueue,
+    google: FakeGoogle,
     storage: MemoryStorage,
 ) -> FastAPI:
     app = create_app(settings)
@@ -94,6 +101,7 @@ def app(
     app.dependency_overrides[get_session] = _session
     app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_queue] = lambda: queue
+    app.dependency_overrides[get_google_client] = lambda: google
     app.dependency_overrides[get_storage] = lambda: storage
     # Возрасты сид-питомцев считаются от фиксированной даты, а не от сегодняшней.
     app.dependency_overrides[get_today] = lambda: TODAY
