@@ -8,7 +8,7 @@ from app.core.errors import DomainError
 from app.core.security import SESSION_TTL, hash_token, new_session_token
 from app.modules.auth.models import AuthProvider
 from app.modules.auth.repository import AuthRepository
-from app.modules.users.models import User, UserRole
+from app.modules.users.models import AVATAR_URL_MAX, NAME_MAX, User, UserRole
 from app.modules.users.service import UserService
 
 
@@ -29,6 +29,12 @@ class AuthService:
 
         Провайдер уже проверен вызывающим кодом (подпись Telegram, id_token Google).
         """
+        # Данные провайдера не ограничены нашими колонками: Telegram даёт имя + фамилию
+        # до 129 символов, у Google ссылки на аватар бывают длинными.
+        name = name.strip()[:NAME_MAX] or "—"
+        if avatar_url is not None and len(avatar_url) > AVATAR_URL_MAX:
+            avatar_url = None  # обрезанная ссылка всё равно не откроется
+
         identity = await self.repo.find_identity(provider, provider_user_id)
         if identity is None:
             user = await self.users.create_user(name=name, role=role, avatar_url=avatar_url)

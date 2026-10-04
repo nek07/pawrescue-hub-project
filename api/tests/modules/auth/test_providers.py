@@ -78,3 +78,19 @@ async def test_google_state_mismatch(client: AsyncClient, google: FakeGoogle) ->
     google.error = OAuthError(error="mismatching_state")
     location = await _google_round_trip(client, "/ru")
     assert parse_qs(urlparse(location).query) == {"error": ["google_failed"]}
+
+
+async def test_telegram_long_name_is_truncated(client: AsyncClient) -> None:
+    # Telegram: имя и фамилия до 64 символов каждое — вместе больше колонки users.name
+    r = await client.post(TELEGRAM, json=telegram_payload(first_name="А" * 64, last_name="Б" * 64))
+    assert r.status_code == 200, r.text
+    assert len(r.json()["name"]) == 100
+
+
+async def test_google_long_name_and_avatar(client: AsyncClient, google: FakeGoogle) -> None:
+    google.userinfo = {**VERIFIED, "name": "Я" * 300, "picture": "https://g.test/" + "x" * 600}
+    location = await _google_round_trip(client, "/ru")
+    assert location == "http://web.test/ru"
+    me = (await client.get("/api/v1/auth/me")).json()
+    assert len(me["name"]) == 100
+    assert me["avatar_url"] is None  # обрезанная ссылка сломается — лучше без аватара
