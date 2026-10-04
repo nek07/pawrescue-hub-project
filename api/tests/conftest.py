@@ -19,6 +19,7 @@ from app.core.queue import get_queue
 from app.core.storage import get_storage
 from app.main import create_app
 from app.modules.auth.google import get_google_client
+from app.seed import seed
 from helpers import BOT_TOKEN, FakeGoogle, MemoryStorage, RecordingQueue
 
 API_ROOT = Path(__file__).resolve().parents[1]
@@ -106,6 +107,11 @@ def app(
     # Возрасты сид-питомцев считаются от фиксированной даты, а не от сегодняшней.
     app.dependency_overrides[get_today] = lambda: TODAY
     return app
+
+
+@pytest.fixture
+async def seeded(db_session: AsyncSession) -> None:
+    await seed(db_session)
 
 
 @pytest.fixture
