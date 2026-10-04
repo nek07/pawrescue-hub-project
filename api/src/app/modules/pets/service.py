@@ -9,6 +9,7 @@ from app.modules.pets.repository import CatalogRow, PetRepository
 from app.modules.pets.schemas import (
     CuratorCounts,
     CuratorOut,
+    FavoriteOut,
     PetCardOut,
     PetDetailOut,
     PetFilters,
@@ -25,20 +26,35 @@ class PetService:
         self.repo, self.shelters, self.users = repo, shelters, users
 
     async def list_catalog(
-        self, filters: PetFilters, params: PageParams, *, today: date
+        self, filters: PetFilters, params: PageParams, *, today: date, viewer_id: UUID | None = None
     ) -> Page[PetCardOut]:
         rows, next_cursor, total = await self.repo.list_catalog(filters, params, today=today)
-        return Page(items=await self._cards(rows), next_cursor=next_cursor, total=total)
+        items = await self._cards(rows, viewer_id)
+        return Page(items=items, next_cursor=next_cursor, total=total)
 
-    async def get_detail(self, pet_id: UUID) -> PetDetailOut:
+    async def get_detail(self, pet_id: UUID, viewer_id: UUID | None = None) -> PetDetailOut:
         pet = await self.get_pet(pet_id)
         curators = await self._curators([pet])
-        return PetDetailOut.build_detail(
+        detail = PetDetailOut.build_detail(
             pet,
             curator=curators[pet.id],
             photos=await self.repo.photos(pet.id),
-            similar=await self._cards(await self.repo.similar(pet, limit=SIMILAR_LIMIT)),
+            similar=await self._cards(await self.repo.similar(pet, limit=SIMILAR_LIMIT), viewer_id),
         )
+        if viewer_id is not None:
+            detail.is_favorite = pet.id in await self.repo.favorite_ids(viewer_id, [pet.id])
+        return detail
+
+    async def set_favorite(self, pet_id: UUID, user_id: UUID, *, favorite: bool) -> FavoriteOut:
+        pet = await self.get_pet(pet_id)
+        await self.repo.set_favorite(pet.id, user_id, favorite)
+        await self.repo.commit()
+        return FavoriteOut(favorite=favorite)
+
+    async def list_favorites(self, user_id: UUID, params: PageParams) -> Page[PetCardOut]:
+        rows, next_cursor, total = await self.repo.favorites_page(user_id, params)
+        items = await self._cards(rows, user_id)
+        return Page(items=items, next_cursor=next_cursor, total=total)
 
     async def get_pet(self, pet_id: UUID, *, for_update: bool = False) -> Pet:
         """Опубликованный питомец. Черновик для всех выглядит как несуществующий."""
@@ -98,10 +114,19 @@ class PetService:
             shelter_ids=shelter_ids, volunteer_ids=volunteer_ids
         )
 
-    async def _cards(self, rows: list[CatalogRow]) -> list[PetCardOut]:
+    async def _cards(
+        self, rows: list[CatalogRow], viewer_id: UUID | None = None
+    ) -> list[PetCardOut]:
         curators = await self._curators([row.pet for row in rows])
+        favorites = (
+            await self.repo.favorite_ids(viewer_id, [row.pet.id for row in rows])
+            if viewer_id
+            else set()
+        )
         return [
-            PetCardOut.build(row.pet, cover_url=row.cover_url, curator=curators[row.pet.id])
+            PetCardOut.build(
+                row.pet, cover_url=row.cover_url, curator=curators[row.pet.id]
+            ).model_copy(update={"is_favorite": row.pet.id in favorites})
             for row in rows
         ]
 

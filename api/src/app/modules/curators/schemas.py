@@ -29,6 +29,7 @@ class CuratorCardOut(BaseModel):
     verified: bool
     seeking_count: int
     adopted_count: int
+    subscribed: bool = False  # только для приютов и вошедших
 
 
 class ShelterProfileOut(BaseModel):
@@ -46,3 +47,10 @@ class ShelterProfileOut(BaseModel):
     on_platform_since: int  # «на платформе с 2026»
     seeking_count: int
     adopted_count: int
+    subscribers_count: int
+    subscribed: bool
+
+
+class SubscriptionOut(BaseModel):
+    subscribed: bool
+    subscribers_count: int

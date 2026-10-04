@@ -34,3 +34,16 @@ class ShelterService:
 
     async def is_member(self, shelter_id: UUID, user_id: UUID) -> bool:
         return shelter_id in await self.repo.member_shelter_ids(user_id)
+
+    async def subscriber_counts(self, shelter_ids: Collection[UUID]) -> dict[UUID, int]:
+        return await self.repo.subscriber_counts(shelter_ids)
+
+    async def subscribed_ids(self, user_id: UUID) -> set[UUID]:
+        return await self.repo.subscribed_ids(user_id)
+
+    async def set_subscription(self, shelter_id: UUID, user_id: UUID, *, subscribed: bool) -> int:
+        """Подписывает или отписывает; возвращает новое число подписчиков."""
+        shelter = await self.get_shelter(shelter_id)
+        await self.repo.set_subscription(shelter.id, user_id, subscribed)
+        await self.repo.commit()
+        return (await self.repo.subscriber_counts([shelter.id])).get(shelter.id, 0)

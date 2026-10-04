@@ -31,7 +31,9 @@ class CuratorService:
     def __init__(self, shelters: ShelterService, users: UserService, pets: PetService) -> None:
         self.shelters, self.users, self.pets = shelters, users, pets
 
-    async def list_curators(self, f: CuratorFilters) -> Page[CuratorCardOut]:
+    async def list_curators(
+        self, f: CuratorFilters, viewer_id: UUID | None = None
+    ) -> Page[CuratorCardOut]:
         shelters: list[Shelter] = []
         volunteers: list[User] = []
         if f.type in (None, CuratorType.SHELTER):
@@ -69,15 +71,45 @@ class CuratorService:
             )
             for v in volunteers
         ]
+        if viewer_id is not None:
+            subscribed = await self.shelters.subscribed_ids(viewer_id)
+            for item in items:
+                item.subscribed = item.type == "shelter" and item.id in subscribed
         # Сначала те, у кого больше питомцев ищут дом.
         items.sort(key=lambda c: (-c.seeking_count, c.name))
         items = items[:MAX_CURATORS]
         return Page(items=items, next_cursor=None, total=len(items))
 
-    async def shelter_profile(self, shelter_id: UUID) -> ShelterProfileOut:
+    async def my_subscriptions(self, user_id: UUID) -> Page[CuratorCardOut]:
+        ids = await self.shelters.subscribed_ids(user_id)
+        shelters = list((await self.shelters.get_shelters(ids)).values())
+        counts = await self.pets.count_by_curator(shelter_ids=ids, volunteer_ids=[])
+        items = [
+            CuratorCardOut(
+                type="shelter",
+                id=s.id,
+                name=s.name,
+                city=s.city,
+                avatar_url=s.avatar_url,
+                verified=s.verified_at is not None,
+                seeking_count=counts.get(s.id, NO_PETS).seeking,
+                adopted_count=counts.get(s.id, NO_PETS).adopted,
+                subscribed=True,
+            )
+            for s in sorted(shelters, key=lambda s: s.name)
+        ]
+        return Page(items=items, next_cursor=None, total=len(items))
+
+    async def shelter_profile(
+        self, shelter_id: UUID, viewer_id: UUID | None = None
+    ) -> ShelterProfileOut:
         shelter = await self.shelters.get_shelter(shelter_id)
         counts = await self.pets.count_by_curator(shelter_ids=[shelter.id], volunteer_ids=[])
         stats = counts.get(shelter.id, NO_PETS)
+        subscribers = (await self.shelters.subscriber_counts([shelter.id])).get(shelter.id, 0)
+        subscribed = viewer_id is not None and shelter.id in await self.shelters.subscribed_ids(
+            viewer_id
+        )
         return ShelterProfileOut(
             id=shelter.id,
             name=shelter.name,
@@ -91,4 +123,6 @@ class CuratorService:
             on_platform_since=shelter.created_at.year,
             seeking_count=stats.seeking,
             adopted_count=stats.adopted,
+            subscribers_count=subscribers,
+            subscribed=subscribed,
         )

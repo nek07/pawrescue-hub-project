@@ -4,13 +4,14 @@ from datetime import date
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import ColumnElement, ScalarSelect, func, or_, select
+from sqlalchemy import ColumnElement, ScalarSelect, delete, func, or_, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.clock import years_ago
 from app.core.db import like_escape
 from app.core.pagination import PageParams, apply_cursor, cut_page
-from app.modules.pets.models import Pet, PetPhoto, PetStatus, PetTrait
+from app.modules.pets.models import Pet, PetFavorite, PetPhoto, PetStatus, PetTrait
 from app.modules.pets.schemas import AgeBucket, CuratorCounts, PetFilters, PetSort
 
 # В каталоге — те, кого можно забрать или взять на передержку.
@@ -75,6 +76,9 @@ def _catalog_conditions(f: PetFilters, today: date) -> list[ColumnElement[bool]]
 class PetRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+
+    async def commit(self) -> None:
+        await self.session.commit()
 
     async def get(self, pet_id: UUID, *, for_update: bool = False) -> Pet | None:
         return await self.session.get(
@@ -178,3 +182,45 @@ class PetRepository:
         )
         rows = (await self.session.execute(stmt)).tuples().all()
         return {cid: CuratorCounts(seeking=s, adopted=a) for cid, s, a in rows}
+
+    async def favorite_ids(self, user_id: UUID, pet_ids: Collection[UUID]) -> set[UUID]:
+        if not pet_ids:
+            return set()
+        stmt = select(PetFavorite.pet_id).where(
+            PetFavorite.user_id == user_id, PetFavorite.pet_id.in_(pet_ids)
+        )
+        return set(await self.session.scalars(stmt))
+
+    async def set_favorite(self, pet_id: UUID, user_id: UUID, favorite: bool) -> None:
+        if favorite:
+            stmt = insert(PetFavorite).values(pet_id=pet_id, user_id=user_id)
+            await self.session.execute(stmt.on_conflict_do_nothing())
+        else:
+            await self.session.execute(
+                delete(PetFavorite).where(
+                    PetFavorite.pet_id == pet_id, PetFavorite.user_id == user_id
+                )
+            )
+
+    async def favorites_page(
+        self, user_id: UUID, params: PageParams
+    ) -> tuple[list[CatalogRow], str | None, int]:
+        """Избранное — новые сверху; черновики и снятые с публикации не показываем."""
+        conds = [PetFavorite.user_id == user_id, Pet.status != PetStatus.DRAFT]
+        stmt = apply_cursor(
+            select(Pet, _cover(), PetFavorite.created_at)
+            .join(PetFavorite, PetFavorite.pet_id == Pet.id)
+            .where(*conds),
+            created_at=PetFavorite.created_at,
+            id_=Pet.id,
+            params=params,
+        )
+        rows = (await self.session.execute(stmt)).tuples().all()
+        page, next_cursor = cut_page(rows, params=params, key=lambda r: (r[2], r[0].id))
+        total = await self.session.scalar(
+            select(func.count())
+            .select_from(PetFavorite)
+            .join(Pet, Pet.id == PetFavorite.pet_id)
+            .where(*conds)
+        )
+        return [CatalogRow(pet=p, cover_url=url) for p, url, _ in page], next_cursor, total or 0

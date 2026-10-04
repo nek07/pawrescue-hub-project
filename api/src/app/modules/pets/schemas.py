@@ -79,6 +79,7 @@ class PetCardOut(BaseModel):
     traits: list[PetTrait]
     cover_url: str | None
     curator: CuratorOut
+    is_favorite: bool = False  # всегда False для гостя
 
     @classmethod
     def build(cls, pet: Pet, *, cover_url: str | None, curator: CuratorOut) -> "PetCardOut":
@@ -151,3 +152,7 @@ class PetDetailOut(PetCardOut):
             photos=[PetPhotoOut.from_photo(ph) for ph in photos],
             similar=similar,
         )
+
+
+class FavoriteOut(BaseModel):
+    favorite: bool

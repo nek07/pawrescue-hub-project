@@ -131,3 +131,17 @@ class PetPhoto(Base):
     original_url: Mapped[str | None] = mapped_column(String(500))
     position: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class PetFavorite(Base):
+    """♡ «В избранное» на карточке и странице питомца."""
+
+    __tablename__ = "pet_favorites"
+
+    pet_id: Mapped[UUID] = mapped_column(
+        ForeignKey("pets.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(server_default=func.clock_timestamp())

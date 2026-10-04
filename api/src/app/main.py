@@ -84,6 +84,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(pets_router.router)
     v1.include_router(curators_router.router)
     v1.include_router(curators_router.shelters_router)
+    v1.include_router(curators_router.me_router)
+    v1.include_router(pets_router.me_router)
     v1.include_router(applications_router.router)
     v1.include_router(media_router.router)
     v1.include_router(chat_router.router)

@@ -41,3 +41,17 @@ class ShelterMember(Base):
     )
     role: Mapped[ShelterRole] = mapped_column(pg_enum(ShelterRole, "shelter_role"))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class ShelterSubscription(Base):
+    """«Подписаться» на приют: его посты в ленте и счётчик «Подписчики»."""
+
+    __tablename__ = "shelter_subscriptions"
+
+    shelter_id: Mapped[UUID] = mapped_column(
+        ForeignKey("shelters.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
