@@ -53,16 +53,33 @@ def _services(session: AsyncSession) -> tuple[ApplicationService, AuthService]:
     return applications, auth
 
 
-async def _send(ctx: dict[str, Any], chat_ids: list[str], text: str) -> None:
-    bot: Bot | None = ctx.get("telegram")
-    if bot is None:
+class JobQueue(Protocol):
+    """ArqRedis из ctx["redis"]: воркер ставит задачи сам себе."""
+
+    async def enqueue_job(self, function: str, *args: Any, _job_id: str | None = None) -> Any: ...
+
+
+async def _send(ctx: dict[str, Any], event: str, chat_ids: list[str], text: str) -> None:
+    """Каждому получателю — своя задача: при сбое повторяется только его сообщение,
+    а не вся рассылка. _job_id не даёт поставить одно и то же сообщение дважды."""
+    if ctx.get("telegram") is None:
         logger.info("Telegram bot is not configured, skip: %s", text)
         return
+    redis: JobQueue = ctx["redis"]
+    for chat_id in chat_ids:
+        await redis.enqueue_job(
+            "send_telegram_message", chat_id, text, _job_id=f"tg:{event}:{chat_id}"
+        )
+
+
+async def send_telegram_message(ctx: dict[str, Any], chat_id: str, text: str) -> None:
+    bot: Bot | None = ctx.get("telegram")
+    if bot is None:
+        return
     try:
-        for chat_id in chat_ids:
-            await bot.send_message(chat_id, text)
+        await bot.send_message(chat_id, text)
     except httpx.HTTPError as exc:
-        # arq повторит задачу; задержка растёт с каждой попыткой.
+        # arq повторит только это сообщение; задержка растёт с каждой попыткой.
         raise Retry(defer=ctx.get("job_try", 1) * 30) from exc
 
 
@@ -81,7 +98,7 @@ async def notify_new_application(ctx: dict[str, Any], application_id: str) -> No
             curators = await applications.pets.shelters.member_user_ids(pet.shelter_id)
         chat_ids = await auth.telegram_chat_ids(curators)
     text = f"Новая заявка на {pet.name} от {application.name}. Откройте Paw Rescue Hub."
-    await _send(ctx, chat_ids, text)
+    await _send(ctx, f"new:{application.id}", chat_ids, text)
 
 
 async def notify_application_status(ctx: dict[str, Any], application_id: str) -> None:
@@ -93,4 +110,5 @@ async def notify_application_status(ctx: dict[str, Any], application_id: str) ->
             return
         pet = await applications.pets.get_pet(application.pet_id)
         chat_ids = await auth.telegram_chat_ids([application.user_id])
-    await _send(ctx, chat_ids, STATUS_TEXT[application.status].format(pet=pet.name))
+    text = STATUS_TEXT[application.status].format(pet=pet.name)
+    await _send(ctx, f"status:{application.id}:{application.status}", chat_ids, text)

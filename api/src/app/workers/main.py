@@ -11,7 +11,11 @@ from app.core.observability import configure_logging, init_sentry
 from app.core.storage import get_storage
 from app.core.telegram_bot import TelegramBot
 from app.workers.media import process_pet_photo
-from app.workers.notifications import notify_application_status, notify_new_application
+from app.workers.notifications import (
+    notify_application_status,
+    notify_new_application,
+    send_telegram_message,
+)
 
 settings = get_settings()
 
@@ -36,6 +40,7 @@ class WorkerSettings:
     functions: ClassVar[list[Any]] = [
         notify_new_application,
         notify_application_status,
+        send_telegram_message,
         process_pet_photo,
     ]
     on_startup = startup
