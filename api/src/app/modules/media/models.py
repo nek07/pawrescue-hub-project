@@ -6,10 +6,12 @@ from sqlalchemy import ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base, pg_enum
+from app.modules.feed.models import PhotoLabel
 
 
 class UploadPurpose(StrEnum):
     PET_PHOTO = "pet_photo"
+    POST_PHOTO = "post_photo"
 
 
 class UploadStatus(StrEnum):
@@ -30,6 +32,12 @@ class MediaUpload(Base):
     pet_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("pets.id", ondelete="CASCADE"), index=True
     )
+    post_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("posts.id", ondelete="CASCADE"), index=True
+    )
+    # Для фото поста: «до/после» и подпись под фото.
+    label: Mapped[PhotoLabel | None] = mapped_column(pg_enum(PhotoLabel, "photo_label"))
+    caption: Mapped[str | None] = mapped_column(String(80))
     key: Mapped[str] = mapped_column(String(255))
     content_type: Mapped[str] = mapped_column(String(64))
     status: Mapped[UploadStatus] = mapped_column(

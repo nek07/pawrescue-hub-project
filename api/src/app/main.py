@@ -20,6 +20,7 @@ from app.modules.auth import router as auth_router
 from app.modules.chat import realtime as chat_realtime
 from app.modules.chat import router as chat_router
 from app.modules.curators import router as curators_router
+from app.modules.feed import router as feed_router
 from app.modules.media import router as media_router
 from app.modules.pets import router as pets_router
 
@@ -87,6 +88,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(media_router.router)
     v1.include_router(chat_router.router)
     v1.include_router(chat_realtime.router)
+    v1.include_router(feed_router.router)
     app.include_router(v1)
     return app
 

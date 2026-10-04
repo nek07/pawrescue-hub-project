@@ -118,6 +118,10 @@ class ApplicationService:
         cards = await self.pets.get_cards([pet.id])
         return self._out(application, cards[pet.id], is_curator=is_curator)
 
+    async def has_adopted(self, pet_id: UUID, user_id: UUID) -> bool:
+        """Забрал ли человек этого питомца через платформу — право на историю «Нашёл дом»."""
+        return await self.repo.has_status(pet_id=pet_id, user_id=user_id, status=S.COMPLETED)
+
     async def latest_for_pairs(
         self, pairs: Collection[tuple[UUID, UUID]]
     ) -> dict[tuple[UUID, UUID], Application]:

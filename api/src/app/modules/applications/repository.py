@@ -87,3 +87,11 @@ class ApplicationRepository:
             .order_by(Application.pet_id, Application.user_id, Application.created_at.desc())
         )
         return {(a.pet_id, a.user_id): a for a in await self.session.scalars(stmt)}
+
+    async def has_status(self, *, pet_id: UUID, user_id: UUID, status: ApplicationStatus) -> bool:
+        stmt = select(Application.id).where(
+            Application.pet_id == pet_id,
+            Application.user_id == user_id,
+            Application.status == status,
+        )
+        return await self.session.scalar(stmt.limit(1)) is not None

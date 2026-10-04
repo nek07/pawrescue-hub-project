@@ -17,8 +17,10 @@ from app.core.config import Settings
 from app.core.errors import DomainError
 from app.core.queue import Queue
 from app.core.storage import Storage
+from app.modules.feed.schemas import PostPhotoOut
+from app.modules.feed.service import FeedService
 from app.modules.media.images import InvalidImageError, render_variants
-from app.modules.media.models import MediaUpload, UploadStatus
+from app.modules.media.models import MediaUpload, UploadPurpose, UploadStatus
 from app.modules.media.repository import MediaRepository
 from app.modules.media.schemas import (
     MAX_UPLOAD_BYTES,
@@ -27,6 +29,7 @@ from app.modules.media.schemas import (
     UploadOut,
     UploadTicketOut,
 )
+from app.modules.pets.schemas import PetPhotoOut
 from app.modules.pets.service import PetService
 from app.modules.users.models import User
 
@@ -42,26 +45,35 @@ class MediaService:
         session: AsyncSession,
         repo: MediaRepository,
         pets: PetService,
+        feed: FeedService,
         storage: Storage,
         queue: Queue,
         settings: Settings,
     ) -> None:
-        self.session, self.repo, self.pets = session, repo, pets
+        self.session, self.repo, self.pets, self.feed = session, repo, pets, feed
         self.storage, self.queue = storage, queue
         self.uploads_bucket = settings.s3_uploads_bucket
         self.photos_bucket = settings.s3_photos_bucket
 
     async def create_upload(self, user: User, data: UploadCreate) -> UploadTicketOut:
-        pet = await self.pets.get_managed_pet(data.pet_id, user.id)
         upload_id = uuid4()
-        key = f"pets/{pet.id}/{upload_id}"
+        if data.purpose == UploadPurpose.PET_PHOTO:
+            assert data.pet_id is not None  # проверено схемой
+            pet = await self.pets.get_managed_pet(data.pet_id, user.id)
+            target: dict[str, object] = {"pet_id": pet.id}
+            key = f"pets/{pet.id}/{upload_id}"
+        else:
+            assert data.post_id is not None
+            post = await self.feed.get_editable_post(data.post_id, user.id)
+            target = {"post_id": post.id, "label": data.label, "caption": data.caption}
+            key = f"posts/{post.id}/{upload_id}"
         upload = await self.repo.create(
             id=upload_id,
             owner_id=user.id,
             purpose=data.purpose,
-            pet_id=pet.id,
             key=key,
             content_type=data.content_type,
+            **target,
         )
         url = self.storage.presign_put(
             self.uploads_bucket, key, content_type=data.content_type, expires=UPLOAD_URL_TTL
@@ -108,7 +120,7 @@ class MediaService:
         Строка заблокирована до коммита: дубль задачи дождётся и увидит статус DONE.
         """
         upload = await self.repo.get(upload_id, for_update=True)
-        if upload is None or upload.status != UploadStatus.PROCESSING or upload.pet_id is None:
+        if upload is None or upload.status != UploadStatus.PROCESSING:
             return
         staged = _staged_key(upload)
         info = await self.storage.head(self.uploads_bucket, staged)
@@ -127,9 +139,24 @@ class MediaService:
             key = f"{upload.key}/{name}.webp"
             await self.storage.put(self.photos_bucket, key, blob, content_type="image/webp")
             urls[name] = self.storage.public_url(self.photos_bucket, key)
-        photo = await self.pets.add_photo(
-            upload.pet_id, url=urls["page"], card_url=urls["card"], original_url=urls["original"]
-        )
+        if upload.purpose == UploadPurpose.PET_PHOTO:
+            assert upload.pet_id is not None
+            photo: PetPhotoOut | PostPhotoOut = await self.pets.add_photo(
+                upload.pet_id,
+                url=urls["page"],
+                card_url=urls["card"],
+                original_url=urls["original"],
+            )
+        else:
+            assert upload.post_id is not None
+            photo = await self.feed.add_photo(
+                upload.post_id,
+                url=urls["page"],
+                card_url=urls["card"],
+                original_url=urls["original"],
+                label=upload.label,
+                caption=upload.caption,
+            )
         upload.status, upload.result_id = UploadStatus.DONE, photo.id
         await self.session.commit()
         await self.storage.delete(self.uploads_bucket, staged)
@@ -146,5 +173,9 @@ class MediaService:
         return upload
 
     async def _out(self, upload: MediaUpload) -> UploadOut:
-        photo = await self.pets.get_photo(upload.result_id) if upload.result_id else None
+        photo: PetPhotoOut | PostPhotoOut | None = None
+        if upload.result_id and upload.purpose == UploadPurpose.PET_PHOTO:
+            photo = await self.pets.get_photo(upload.result_id)
+        elif upload.result_id:
+            photo = await self.feed.get_photo(upload.result_id)
         return UploadOut(id=upload.id, status=upload.status, error=upload.error, photo=photo)

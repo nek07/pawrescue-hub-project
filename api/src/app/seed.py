@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.cities import City
 from app.core.db import Base, SessionFactory
 from app.modules.auth.models import AuthIdentity, AuthProvider
+from app.modules.feed.models import Comment, Post, PostAuthorType, PostKind
 from app.modules.pets.models import ChipStatus, Pet, PetKind, PetSex, PetStatus
 from app.modules.pets.models import PetTrait as T
 from app.modules.shelters.models import Shelter, ShelterMember, ShelterRole
@@ -166,6 +167,90 @@ async def _upsert(session: AsyncSession, model: type[Base], rows: list[dict[str,
         await session.execute(insert(model).values(**row).on_conflict_do_nothing())
 
 
+# Люди из ленты макета: новые хозяева и комментаторы.
+OWNERS: list[dict[str, Any]] = [
+    {"id": sid("user:asel-k"), "name": "Асель К.", "city": City.PAVLODAR},
+    {"id": sid("user:aigerim"), "name": "Айгерим", "city": City.PAVLODAR},
+]
+ASEL_K, AIGERIM = (o["id"] for o in OWNERS)
+GULNARA = sid("user:gulnara")
+# Сотрудник «Лапы помощи» — автор поста про Жулдыз.
+MADINA = sid("user:madina")
+LAPA_STAFF = [{"id": MADINA, "name": "Мадина", "city": City.ASTANA}]
+
+
+def _post(key: str, hours_ago: int, **fields: Any) -> dict[str, Any]:
+    return {
+        "id": sid(f"post:{key}"),
+        "created_at": PUBLISHED - timedelta(hours=hours_ago),
+        **fields,
+    }
+
+
+POSTS: list[dict[str, Any]] = [
+    _post(
+        "tosha", 48, author_id=GULNARA, author_type=PostAuthorType.SHELTER, shelter_id=TEPLY,
+        pet_id=sid("pet:Тоша"), kind=PostKind.STORY, title="Тоша уехал домой",
+        body=(
+            "Полгода назад его нашли у трассы с травмой лапы. Две операции, долгая "
+            "реабилитация — и сегодня он живёт в семье Айгерим. Спасибо всем, кто делился "
+            "его анкетой."
+        ),
+    ),
+    _post(
+        "veter-help", 96, author_id=GULNARA, author_type=PostAuthorType.SHELTER, shelter_id=TEPLY,
+        pet_id=sid("pet:Ветер"), kind=PostKind.HELP, title="Ветру нужна передержка",
+        body=(
+            "После лечения ему нужен месяц в тёплом доме без других собак. "
+            "Корм и лекарства — от приюта."
+        ),
+    ),
+    _post(
+        "dana-puppies", 120, author_id=DANA, author_type=PostAuthorType.VOLUNTEER,
+        kind=PostKind.HELP, title="Ищу передержку для двух щенков",
+        body=(
+            "На две недели, пока они проходят карантин. Корм, пелёнки и лекарства — "
+            "от меня, нужна только тёплая комната и внимание."
+        ),
+    ),
+    _post(
+        "businka", 168, author_id=ASEL_K, author_type=PostAuthorType.OWNER,
+        pet_id=sid("pet:Бусинка"), kind=PostKind.STORY, title="Месяц дома: Бусинка",
+        body=(
+            "Первую неделю Бусинка пряталась под шкафом. Теперь встречает у двери и требует "
+            "завтрак ровно в семь. Спасибо Дане за терпение и советы."
+        ),
+    ),
+    _post(
+        "zhuldyz", 336, author_id=MADINA, author_type=PostAuthorType.SHELTER, shelter_id=LAPA,
+        pet_id=sid("pet:Жулдыз"), kind=PostKind.STORY, title="Первая зима Жулдыз",
+        body=(
+            "Собака, которая боялась людей, теперь гуляет с тремя детьми. "
+            "Рассказываем, как это было."
+        ),
+    ),
+]  # fmt: skip
+
+COMMENTS: list[dict[str, Any]] = [
+    {
+        "id": sid("comment:tosha-1"), "post_id": sid("post:tosha"), "author_id": ASEL_K,
+        "body": "Спасибо вам за него! Помню его анкету ещё с весны.",
+        "created_at": PUBLISHED - timedelta(hours=3),
+    },
+    {
+        "id": sid("comment:tosha-2"), "post_id": sid("post:tosha"), "author_id": GULNARA,
+        "shelter_id": TEPLY, "parent_id": sid("comment:tosha-1"),
+        "body": "Асель, спасибо, что делились! Без репостов его бы не нашли.",
+        "created_at": PUBLISHED - timedelta(hours=2),
+    },
+    {
+        "id": sid("comment:tosha-3"), "post_id": sid("post:tosha"), "author_id": AIGERIM,
+        "body": "Он уже выучил команду «к ноге» и спит только на диване. Фото на следующей неделе!",
+        "created_at": PUBLISHED - timedelta(hours=1),
+    },
+]  # fmt: skip
+
+
 async def seed(session: AsyncSession) -> None:
     volunteers = [{**v, "role": UserRole.VOLUNTEER, "verified_at": VERIFIED} for v in VOLUNTEERS]
     await _upsert(session, User, volunteers)
@@ -193,13 +278,24 @@ async def seed(session: AsyncSession) -> None:
     )
     pets = [{**p, "created_at": _created_at(p["name"], i)} for i, p in enumerate(PETS)]
     await _upsert(session, Pet, pets)
+    await _upsert(session, User, [{**o, "role": UserRole.USER} for o in OWNERS + LAPA_STAFF])
+    await _upsert(
+        session,
+        ShelterMember,
+        [{"shelter_id": LAPA, "user_id": MADINA, "role": ShelterRole.ADMIN}],
+    )
+    await _upsert(session, Post, POSTS)
+    await _upsert(session, Comment, COMMENTS)
     await session.commit()
 
 
 async def main() -> None:
     async with SessionFactory() as session:
         await seed(session)
-    print(f"Seeded: {len(SHELTERS)} shelters, {len(VOLUNTEERS)} volunteers, {len(PETS)} pets")
+    print(
+        f"Seeded: {len(SHELTERS)} shelters, {len(VOLUNTEERS)} volunteers, {len(PETS)} pets, "
+        f"{len(POSTS)} posts"
+    )
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 
 from app.core.config import get_settings
 from app.core.queue import Queue
+from app.modules.feed.router import get_feed_service
 from app.modules.media.repository import MediaRepository
 from app.modules.media.service import MediaService
 from app.modules.pets.dependencies import get_pet_service
@@ -25,6 +26,7 @@ async def process_pet_photo(ctx: dict[str, Any], upload_id: str) -> None:
             session,
             MediaRepository(session),
             get_pet_service(session),
+            get_feed_service(session, queue),
             ctx["storage"],
             queue,
             ctx.get("settings") or get_settings(),

@@ -8,6 +8,7 @@ from app.core.db import DbSession
 from app.core.queue import QueueDep
 from app.core.storage import StorageDep
 from app.modules.auth.dependencies import CurrentUser
+from app.modules.feed.router import get_feed_service
 from app.modules.media.repository import MediaRepository
 from app.modules.media.schemas import UploadCreate, UploadOut, UploadTicketOut
 from app.modules.media.service import MediaService
@@ -23,7 +24,13 @@ def get_media_service(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> MediaService:
     return MediaService(
-        session, MediaRepository(session), get_pet_service(session), storage, queue, settings
+        session,
+        MediaRepository(session),
+        get_pet_service(session),
+        get_feed_service(session, queue),
+        storage,
+        queue,
+        settings,
     )
 
 
