@@ -1,0 +1,65 @@
+/*
+ * Токены дизайн-системы, тема «Письмо».
+ * Единственное место, где живут hex-значения: в компонентах пишем роли
+ * (bg-primary, text-ink-muted), а не цвета.
+ */
+
+:root {
+  --surface: #faf7f2;
+  --surface-raised: #ffffff;
+  --surface-sunken: #e5ddd1; /* плейсхолдеры фото, скелетоны */
+  --surface-inverse: #161616; /* тёмная полоса «Как это работает» */
+
+  --ink: #161616;
+  --ink-muted: #5e5a55;
+  --on-inverse: #faf7f2;
+  --line: #e3ddd3;
+
+  --primary: #c03a29;
+  --primary-hover: #a3301f;
+  --on-primary: #ffffff;
+
+  --accent: #f3e1c7;
+  --on-accent: #3a2410;
+
+  --success: #2c6a44;
+  --success-surface: #e4efe6;
+  --warning: #8a4b00;
+  --danger: #b3261e;
+  --danger-surface: #fbeaea;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-inverse: var(--surface-inverse);
+
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-on-inverse: var(--on-inverse);
+  --color-line: var(--line);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+
+  /* Переменные шрифтов задаёт next/font в shared/styles/fonts.ts */
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-literata), ui-serif, Georgia, serif;
+}
+
+@theme {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-pill: 9999px;
+}

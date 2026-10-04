@@ -12,10 +12,12 @@ from app.core.csrf import add_origin_check
 from app.core.db import engine
 from app.core.errors import ERROR_RESPONSES, register_error_handlers
 from app.core.observability import add_request_context, configure_logging, init_sentry
+from app.core.pubsub import get_pubsub
 from app.core.queue import get_queue
 from app.core.storage import get_storage
 from app.modules.applications import router as applications_router
 from app.modules.auth import router as auth_router
+from app.modules.chat import router as chat_router
 from app.modules.curators import router as curators_router
 from app.modules.media import router as media_router
 from app.modules.pets import router as pets_router
@@ -35,6 +37,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         await storage.ensure_buckets(settings.s3_uploads_bucket, settings.s3_photos_bucket)
     yield
     await get_queue().close()
+    await get_pubsub().close()
     await engine.dispose()
 
 
@@ -81,6 +84,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(curators_router.shelters_router)
     v1.include_router(applications_router.router)
     v1.include_router(media_router.router)
+    v1.include_router(chat_router.router)
     app.include_router(v1)
     return app
 

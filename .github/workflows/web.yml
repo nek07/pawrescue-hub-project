@@ -1,0 +1,63 @@
+name: web
+
+on:
+  push:
+    branches: [main]
+    # api/** — смена контракта бэкенда тоже должна прогнать фронт
+    paths: ["web/**", "api/**", ".github/workflows/web.yml"]
+  pull_request:
+    paths: ["web/**", "api/**", ".github/workflows/web.yml"]
+
+defaults:
+  run:
+    working-directory: web
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+
+      # Настоящий бэкенд из api/: postgres, redis, s3, миграции, API и сид из макета
+      - name: Start API
+        run: |
+          docker compose -f ../api/docker-compose.yml up -d --build api
+          curl --retry 60 --retry-connrefused --retry-delay 2 -fsS http://localhost:8000/api/v1/health
+          docker compose -f ../api/docker-compose.yml exec -T api python -m app.seed
+
+      - name: Contract — types match the running API
+        run: |
+          npm run gen:api
+          git diff --exit-code src/shared/api/schema.d.ts || {
+            echo "::error::Контракт API изменился: запустите npm run gen:api и закоммитьте schema.d.ts"
+            exit 1
+          }
+
+      - run: npm run build
+        env:
+          # Нужны уже при сборке: /api/v1 проксируется rewrites, dev-вход для e2e
+          API_URL: http://localhost:8000
+          NEXT_PUBLIC_DEV_LOGIN: "1"
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+        env:
+          CI: true
+      - name: API logs
+        if: failure()
+        run: docker compose -f ../api/docker-compose.yml logs api --tail 200
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report
+          retention-days: 7

@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import ColumnElement, func, select, update
+from sqlalchemy import ColumnElement, func, select, tuple_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination import PageParams, apply_cursor, cut_page
@@ -73,3 +73,17 @@ class ApplicationRepository:
             select(func.count()).select_from(Application).where(*conds)
         )
         return items, next_cursor, total or 0
+
+    async def latest_for_pairs(
+        self, pairs: Collection[tuple[UUID, UUID]]
+    ) -> dict[tuple[UUID, UUID], Application]:
+        """Последняя заявка на каждую пару (pet_id, user_id) — для панели в чате."""
+        if not pairs:
+            return {}
+        stmt = (
+            select(Application)
+            .where(tuple_(Application.pet_id, Application.user_id).in_(list(pairs)))
+            .distinct(Application.pet_id, Application.user_id)
+            .order_by(Application.pet_id, Application.user_id, Application.created_at.desc())
+        )
+        return {(a.pet_id, a.user_id): a for a in await self.session.scalars(stmt)}

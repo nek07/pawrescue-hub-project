@@ -5,6 +5,7 @@
 завершили → «Нашёл дом»; отменили одобренную → питомец снова ищет дом.
 """
 
+from collections.abc import Collection
 from uuid import UUID
 
 from sqlalchemy.exc import IntegrityError
@@ -116,6 +117,11 @@ class ApplicationService:
             raise _not_found()
         cards = await self.pets.get_cards([pet.id])
         return self._out(application, cards[pet.id], is_curator=is_curator)
+
+    async def latest_for_pairs(
+        self, pairs: Collection[tuple[UUID, UUID]]
+    ) -> dict[tuple[UUID, UUID], Application]:
+        return await self.repo.latest_for_pairs(pairs)
 
     async def get_raw(self, application_id: UUID) -> Application | None:
         """Для фоновых задач: без проверки прав."""
