@@ -1,0 +1,13 @@
+{
+  "identities": [
+    {
+      "name": "paw",
+      "credentials": [{ "accessKey": "paw", "secretKey": "pawpawpaw" }],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write"]
+    },
+    {
+      "name": "anonymous",
+      "actions": ["Read:pet-photos"]
+    }
+  ]
+}

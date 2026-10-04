@@ -1,0 +1,81 @@
+name: pawrescue-hub
+
+x-api-env: &api-env
+  ENV: dev
+  DATABASE_URL: postgresql+asyncpg://paw:paw@postgres:5432/paw
+  REDIS_URL: redis://redis:6379/0
+  S3_ENDPOINT_URL: http://s3:8333
+  S3_PUBLIC_URL: http://localhost:8333
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: paw
+      POSTGRES_PASSWORD: paw
+      POSTGRES_DB: paw
+    ports:
+      - "5433:5432" # 5432 часто занят локальным Postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paw -d paw"]
+      interval: 2s
+      retries: 15
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      retries: 15
+
+  # S3-совместимое хранилище для разработки (MinIO больше не публикует образы).
+  # Бакеты: uploads — приватный, сюда браузер грузит по presigned URL;
+  # pet-photos — публичное чтение, сюда воркер кладёт WebP.
+  s3:
+    image: chrislusf/seaweedfs:latest
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "8333:8333"
+    volumes:
+      - s3data:/data
+      - ./deploy/s3.json:/etc/seaweedfs/s3.json:ro
+
+  migrate:
+    build: .
+    command: alembic upgrade head
+    environment: *api-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src --no-access-log
+    environment: *api-env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: arq app.workers.main.WorkerSettings
+    environment: *api-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  s3data:
