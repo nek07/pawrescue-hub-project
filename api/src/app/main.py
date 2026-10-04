@@ -15,6 +15,7 @@ from app.core.observability import add_request_context, configure_logging, init_
 from app.core.queue import get_queue
 from app.core.storage import get_storage
 from app.modules.auth import router as auth_router
+from app.modules.curators import router as curators_router
 from app.modules.pets import router as pets_router
 
 
@@ -74,6 +75,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     if settings.env != "prod":
         v1.include_router(auth_router.dev_router)
     v1.include_router(pets_router.router)
+    v1.include_router(curators_router.router)
+    v1.include_router(curators_router.shelters_router)
     app.include_router(v1)
     return app
 
