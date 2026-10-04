@@ -62,10 +62,11 @@ class ApplicationService:
             raise DomainError("application_exists", status=409, message="Already applied")
 
         fields = data.model_dump(exclude={"consent"})
-        application = await self.repo.create(pet_id=pet.id, user_id=user.id, **fields)
         try:
+            # flush внутри create уже упирается в уникальный индекс — ловим и его
+            application = await self.repo.create(pet_id=pet.id, user_id=user.id, **fields)
             await self.session.commit()
-        except IntegrityError as exc:  # гонка двух одновременных заявок
+        except IntegrityError as exc:  # гонка двух одновременных заявок (двойной клик)
             await self.session.rollback()
             raise DomainError("application_exists", status=409, message="Already applied") from exc
 

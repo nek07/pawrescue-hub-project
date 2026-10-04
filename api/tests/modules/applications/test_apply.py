@@ -130,3 +130,23 @@ async def test_my_applications(client: AsyncClient) -> None:
     body = (await client.get("/api/v1/applications/me")).json()
     assert body["total"] == 2
     assert {a["pet"]["name"] for a in body["items"]} == {"Айна", "Мурка"}
+
+
+async def test_concurrent_double_submit_is_409_not_500(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Второй запрос проскочил проверку exists_active одновременно с первым —
+    # дубль ловит только уникальный индекс в БД.
+    from app.modules.applications.repository import ApplicationRepository
+
+    async def never_exists(self: ApplicationRepository, **_: Any) -> bool:
+        return False
+
+    monkeypatch.setattr(ApplicationRepository, "exists_active", never_exists)
+    await login(client, "Асель")
+    pet = await _pet_id(client, "Мурка")
+    assert (await _apply(client, pet)).status_code == 201
+    r = await _apply(client, pet)
+    assert r.status_code == 409
+    assert r.json()["error"]["code"] == "application_exists"
+    assert (await client.get("/api/v1/applications/me")).json()["total"] == 1
