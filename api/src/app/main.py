@@ -17,6 +17,7 @@ from app.core.queue import get_queue
 from app.core.storage import get_storage
 from app.modules.applications import router as applications_router
 from app.modules.auth import router as auth_router
+from app.modules.chat import realtime as chat_realtime
 from app.modules.chat import router as chat_router
 from app.modules.curators import router as curators_router
 from app.modules.media import router as media_router
@@ -85,6 +86,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(applications_router.router)
     v1.include_router(media_router.router)
     v1.include_router(chat_router.router)
+    v1.include_router(chat_realtime.router)
     app.include_router(v1)
     return app
 
