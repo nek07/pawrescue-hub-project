@@ -31,6 +31,11 @@ from app.modules.pets.service import PetService
 from app.modules.users.models import User
 
 
+def _staged_key(upload: MediaUpload) -> str:
+    """Проверенная копия файла: presigned URL на этот ключ никто не получал."""
+    return f"confirmed/{upload.id}"
+
+
 class MediaService:
     def __init__(
         self,
@@ -72,15 +77,20 @@ class MediaService:
         )
 
     async def confirm(self, upload_id: UUID, user: User) -> UploadOut:
-        upload = await self._own(upload_id, user)
+        # Блокировка строки: повторный confirm ждёт первый и видит, что он уже прошёл.
+        upload = await self._own(upload_id, user, for_update=True)
         if upload.status != UploadStatus.PENDING:
             raise DomainError("upload_not_pending", status=409, message="Upload already confirmed")
-        info = await self.storage.head(self.uploads_bucket, upload.key)
-        if info is None:
+        if await self.storage.head(self.uploads_bucket, upload.key) is None:
             raise DomainError("upload_missing", status=409, message="File was not uploaded")
-        if info.size > MAX_UPLOAD_BYTES:
-            # Presigned PUT не ограничивает размер — проверяем по факту.
-            await self.storage.delete(self.uploads_bucket, upload.key)
+        # Presigned URL живёт ещё 15 минут — по нему можно перезалить файл после проверки.
+        # Поэтому сначала копируем под ключ, на который ссылок не выдавали, и проверяем копию.
+        staged = _staged_key(upload)
+        await self.storage.copy(self.uploads_bucket, upload.key, staged)
+        await self.storage.delete(self.uploads_bucket, upload.key)
+        info = await self.storage.head(self.uploads_bucket, staged)
+        if info is None or info.size > MAX_UPLOAD_BYTES:
+            await self.storage.delete(self.uploads_bucket, staged)
             upload.status, upload.error = UploadStatus.FAILED, "file_too_large"
         else:
             upload.status = UploadStatus.PROCESSING
@@ -93,17 +103,23 @@ class MediaService:
         return await self._out(await self._own(upload_id, user))
 
     async def process(self, upload_id: UUID) -> None:
-        """Для воркера. Ошибки хранилища пробрасываются — воркер повторит задачу."""
-        upload = await self.repo.get(upload_id)
+        """Для воркера. Ошибки хранилища пробрасываются — воркер повторит задачу.
+
+        Строка заблокирована до коммита: дубль задачи дождётся и увидит статус DONE.
+        """
+        upload = await self.repo.get(upload_id, for_update=True)
         if upload is None or upload.status != UploadStatus.PROCESSING or upload.pet_id is None:
             return
-        data = await self.storage.get(self.uploads_bucket, upload.key)
+        staged = _staged_key(upload)
+        info = await self.storage.head(self.uploads_bucket, staged)
+        if info is None or info.size > MAX_UPLOAD_BYTES:  # не читаем в память что попало
+            await self._fail(upload, staged, "file_too_large")
+            return
+        data = await self.storage.get(self.uploads_bucket, staged)
         try:
             variants = await asyncio.to_thread(render_variants, data)  # CPU — не в event loop
         except InvalidImageError:
-            upload.status, upload.error = UploadStatus.FAILED, "image_invalid"
-            await self.session.commit()
-            await self.storage.delete(self.uploads_bucket, upload.key)
+            await self._fail(upload, staged, "image_invalid")
             return
 
         urls: dict[str, str] = {}
@@ -116,10 +132,15 @@ class MediaService:
         )
         upload.status, upload.result_id = UploadStatus.DONE, photo.id
         await self.session.commit()
-        await self.storage.delete(self.uploads_bucket, upload.key)
+        await self.storage.delete(self.uploads_bucket, staged)
 
-    async def _own(self, upload_id: UUID, user: User) -> MediaUpload:
-        upload = await self.repo.get(upload_id)
+    async def _fail(self, upload: MediaUpload, staged: str, error: str) -> None:
+        upload.status, upload.error = UploadStatus.FAILED, error
+        await self.session.commit()
+        await self.storage.delete(self.uploads_bucket, staged)
+
+    async def _own(self, upload_id: UUID, user: User, *, for_update: bool = False) -> MediaUpload:
+        upload = await self.repo.get(upload_id, for_update=for_update)
         if upload is None or upload.owner_id != user.id:
             raise DomainError("upload_not_found", status=404, message="Upload not found")
         return upload

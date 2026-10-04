@@ -32,6 +32,8 @@ class Storage(Protocol):
 
     async def put(self, bucket: str, key: str, data: bytes, *, content_type: str) -> None: ...
 
+    async def copy(self, bucket: str, source_key: str, target_key: str) -> None: ...
+
     async def delete(self, bucket: str, key: str) -> None: ...
 
     def public_url(self, bucket: str, key: str) -> str: ...
@@ -85,6 +87,14 @@ class S3Storage:
             Body=data,
             ContentType=content_type,
             CacheControl="public, max-age=31536000, immutable",
+        )
+
+    async def copy(self, bucket: str, source_key: str, target_key: str) -> None:
+        await asyncio.to_thread(
+            self._client.copy_object,
+            Bucket=bucket,
+            Key=target_key,
+            CopySource={"Bucket": bucket, "Key": source_key},
         )
 
     async def delete(self, bucket: str, key: str) -> None:

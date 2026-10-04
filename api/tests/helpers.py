@@ -82,6 +82,9 @@ class MemoryStorage:
     async def put(self, bucket: str, key: str, data: bytes, *, content_type: str) -> None:
         self.objects[(bucket, key)] = (data, content_type)
 
+    async def copy(self, bucket: str, source_key: str, target_key: str) -> None:
+        self.objects[(bucket, target_key)] = self.objects[(bucket, source_key)]
+
     async def delete(self, bucket: str, key: str) -> None:
         self.objects.pop((bucket, key), None)
 
