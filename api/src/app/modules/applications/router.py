@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query
 from app.core.db import DbSession
 from app.core.pagination import Page
 from app.core.queue import QueueDep
+from app.core.ratelimit import rate_limit
 from app.modules.applications.repository import ApplicationRepository
 from app.modules.applications.schemas import (
     ApplicationCreate,
@@ -29,7 +30,11 @@ def get_application_service(session: DbSession, queue: QueueDep) -> ApplicationS
 ServiceDep = Annotated[ApplicationService, Depends(get_application_service)]
 
 
-@router.post("/pets/{pet_id}/applications", status_code=201)
+@router.post(
+    "/pets/{pet_id}/applications",
+    status_code=201,
+    dependencies=[Depends(rate_limit("applications", limit=10, window=3600))],
+)
 async def apply(
     pet_id: UUID, body: ApplicationCreate, user: CurrentUser, service: ServiceDep
 ) -> ApplicationOut:

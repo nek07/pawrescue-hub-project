@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 
 from app.core.config import Settings, get_settings
 from app.core.db import DbSession
+from app.core.ratelimit import rate_limit
 from app.core.storage import StorageDep
 from app.modules.auth.dependencies import CurrentUser
 from app.modules.onboarding.repository import OnboardingRepository
@@ -62,7 +63,11 @@ async def update_onboarding(
     return await service.update(user, body)
 
 
-@router.post("/me/documents", status_code=201)
+@router.post(
+    "/me/documents",
+    status_code=201,
+    dependencies=[Depends(rate_limit("documents", limit=30, window=3600))],
+)
 async def add_document(
     body: DocumentCreate, user: CurrentUser, service: ServiceDep
 ) -> DocumentTicketOut:

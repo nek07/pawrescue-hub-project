@@ -14,6 +14,7 @@ from app.core.errors import ERROR_RESPONSES, register_error_handlers
 from app.core.observability import add_request_context, configure_logging, init_sentry
 from app.core.pubsub import get_pubsub
 from app.core.queue import get_queue
+from app.core.ratelimit import get_rate_limiter
 from app.core.storage import get_storage
 from app.modules.applications import router as applications_router
 from app.modules.auth import router as auth_router
@@ -44,6 +45,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
     await get_queue().close()
     await get_pubsub().close()
+    await get_rate_limiter().close()
     await engine.dispose()
 
 

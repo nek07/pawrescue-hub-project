@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from app.core.config import Settings, get_settings
 from app.core.db import DbSession
 from app.core.queue import QueueDep
+from app.core.ratelimit import rate_limit
 from app.core.storage import StorageDep
 from app.modules.auth.dependencies import CurrentUser
 from app.modules.feed.router import get_feed_service
@@ -37,7 +38,11 @@ def get_media_service(
 ServiceDep = Annotated[MediaService, Depends(get_media_service)]
 
 
-@router.post("/uploads", status_code=201)
+@router.post(
+    "/uploads",
+    status_code=201,
+    dependencies=[Depends(rate_limit("uploads", limit=30, window=3600))],
+)
 async def create_upload(
     body: UploadCreate, user: CurrentUser, service: ServiceDep
 ) -> UploadTicketOut:

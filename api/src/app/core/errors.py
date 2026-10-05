@@ -24,8 +24,10 @@ class DomainError(Exception):
         status: int = 400,
         message: str | None = None,
         fields: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         super().__init__(code)
+        self.headers = headers
         self.code = code
         self.status = status
         self.message = message or code
@@ -61,15 +63,21 @@ _HTTP_CODES = {
 
 
 def error_response(
-    status: int, code: str, message: str, fields: dict[str, str] | None = None
+    status: int,
+    code: str,
+    message: str,
+    fields: dict[str, str] | None = None,
+    headers: dict[str, str] | None = None,
 ) -> JSONResponse:
     body = ErrorResponse(error=ErrorBody(code=code, message=message, fields=fields))
-    return JSONResponse(status_code=status, content=body.model_dump(exclude_none=True))
+    return JSONResponse(
+        status_code=status, content=body.model_dump(exclude_none=True), headers=headers
+    )
 
 
 async def _domain_error(_: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, DomainError)
-    return error_response(exc.status, exc.code, exc.message, exc.fields)
+    return error_response(exc.status, exc.code, exc.message, exc.fields, exc.headers)
 
 
 async def _validation_error(_: Request, exc: Exception) -> JSONResponse:

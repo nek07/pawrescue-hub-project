@@ -9,6 +9,7 @@ from joserfc.errors import JoseError
 
 from app.core.config import Settings, get_settings
 from app.core.errors import DomainError
+from app.core.ratelimit import rate_limit
 from app.core.security import clear_session_cookie, safe_next_path, set_session_cookie
 from app.modules.auth.dependencies import AuthServiceDep, CurrentUser, SessionToken
 from app.modules.auth.google import GoogleDep
@@ -39,7 +40,7 @@ async def logout(
     clear_session_cookie(response, settings)
 
 
-@router.post("/telegram")
+@router.post("/telegram", dependencies=[Depends(rate_limit("login", limit=20, window=60, by="ip"))])
 async def telegram_login(
     body: TelegramLoginIn, response: Response, auth: AuthServiceDep, settings: SettingsDep
 ) -> MeOut:
@@ -65,7 +66,12 @@ async def google_login(
     return await google.authorize_redirect(request, redirect_uri)
 
 
-@router.get("/google/callback", status_code=302, response_class=RedirectResponse)
+@router.get(
+    "/google/callback",
+    status_code=302,
+    response_class=RedirectResponse,
+    dependencies=[Depends(rate_limit("login", limit=20, window=60, by="ip"))],
+)
 async def google_callback(
     request: Request, google: GoogleDep, auth: AuthServiceDep, settings: SettingsDep
 ) -> RedirectResponse:
@@ -103,7 +109,9 @@ async def google_callback(
 dev_router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@dev_router.post("/dev-login")
+@dev_router.post(
+    "/dev-login", dependencies=[Depends(rate_limit("login", limit=20, window=60, by="ip"))]
+)
 async def dev_login(
     body: DevLoginIn, response: Response, auth: AuthServiceDep, settings: SettingsDep
 ) -> MeOut:

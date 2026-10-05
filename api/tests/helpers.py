@@ -153,3 +153,14 @@ class MemoryPubSub:
 
     def events_for(self, user_id: Any, kind: str | None = None) -> list[dict[str, Any]]:
         return [e for ids, e in self.published if user_id in ids and kind in (None, e["type"])]
+
+
+class MemoryRateLimiter:
+    """Фиксированное окно в памяти; окно в тестах не истекает."""
+
+    def __init__(self) -> None:
+        self.counts: dict[str, int] = {}
+
+    async def hit(self, key: str, *, limit: int, window: int) -> int | None:
+        self.counts[key] = self.counts.get(key, 0) + 1
+        return window if self.counts[key] > limit else None

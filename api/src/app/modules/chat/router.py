@@ -7,6 +7,7 @@ from app.core.db import DbSession
 from app.core.pagination import Page
 from app.core.pubsub import PubSubDep
 from app.core.queue import QueueDep
+from app.core.ratelimit import rate_limit
 from app.modules.applications.router import get_application_service
 from app.modules.auth.dependencies import CurrentUser
 from app.modules.chat.repository import ChatRepository
@@ -81,7 +82,11 @@ async def list_messages(
     return await service.messages(conversation_id, user, q)
 
 
-@router.post("/{conversation_id}/messages", status_code=201)
+@router.post(
+    "/{conversation_id}/messages",
+    status_code=201,
+    dependencies=[Depends(rate_limit("messages", limit=30, window=60))],
+)
 async def send_message(
     conversation_id: UUID, body: MessageIn, user: CurrentUser, service: ServiceDep
 ) -> MessageOut:

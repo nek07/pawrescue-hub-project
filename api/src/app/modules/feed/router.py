@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query
 from app.core.db import DbSession
 from app.core.pagination import Page, PageQuery
 from app.core.queue import QueueDep
+from app.core.ratelimit import rate_limit
 from app.modules.applications.router import get_application_service
 from app.modules.auth.dependencies import CurrentUser, OptionalUser
 from app.modules.feed.repository import FeedRepository
@@ -49,7 +50,9 @@ async def list_posts(
     return await service.list_posts(filters, viewer)
 
 
-@router.post("/posts", status_code=201)
+@router.post(
+    "/posts", status_code=201, dependencies=[Depends(rate_limit("posts", limit=10, window=3600))]
+)
 async def create_post(body: PostCreate, user: CurrentUser, service: ServiceDep) -> PostOut:
     return await service.create_post(user, body)
 
@@ -81,7 +84,11 @@ async def list_comments(
     return await service.list_comments(post_id, viewer, q)
 
 
-@router.post("/posts/{post_id}/comments", status_code=201)
+@router.post(
+    "/posts/{post_id}/comments",
+    status_code=201,
+    dependencies=[Depends(rate_limit("comments", limit=10, window=60))],
+)
 async def add_comment(
     post_id: UUID, body: CommentCreate, user: CurrentUser, service: ServiceDep
 ) -> CommentOut:
