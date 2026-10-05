@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cities import City
 from app.core.db import like_escape
-from app.modules.shelters.models import Shelter, ShelterMember, ShelterSubscription
+from app.modules.shelters.models import Shelter, ShelterMember, ShelterRole, ShelterSubscription
 
 
 class ShelterRepository:
@@ -66,3 +66,14 @@ class ShelterRepository:
                     ShelterSubscription.user_id == user_id,
                 )
             )
+
+    async def create(self, **fields: object) -> Shelter:
+        shelter = Shelter(**fields)
+        self.session.add(shelter)
+        await self.session.flush()
+        await self.session.refresh(shelter)
+        return shelter
+
+    async def add_member(self, shelter_id: UUID, user_id: UUID, role: ShelterRole) -> None:
+        self.session.add(ShelterMember(shelter_id=shelter_id, user_id=user_id, role=role))
+        await self.session.flush()

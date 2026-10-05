@@ -1,9 +1,10 @@
 from collections.abc import Collection
+from datetime import UTC, datetime
 from uuid import UUID
 
 from app.core.cities import City
 from app.core.errors import DomainError
-from app.modules.shelters.models import Shelter
+from app.modules.shelters.models import Shelter, ShelterRole
 from app.modules.shelters.repository import ShelterRepository
 
 
@@ -47,3 +48,26 @@ class ShelterService:
         await self.repo.set_subscription(shelter.id, user_id, subscribed)
         await self.repo.commit()
         return (await self.repo.subscriber_counts([shelter.id])).get(shelter.id, 0)
+
+    async def create_verified(
+        self,
+        *,
+        admin_id: UUID,
+        name: str,
+        city: City,
+        address: str | None,
+        about: str | None,
+        visit_hours: str | None,
+    ) -> Shelter:
+        """Модератор одобрил подключение: приют сразу «Проверен платформой»,
+        автор заявки — его администратор. Коммитит вызывающий."""
+        shelter = await self.repo.create(
+            name=name,
+            city=city,
+            address=address,
+            about=about,
+            visit_hours=visit_hours,
+            verified_at=datetime.now(UTC),
+        )
+        await self.repo.add_member(shelter.id, admin_id, ShelterRole.ADMIN)
+        return shelter

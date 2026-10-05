@@ -214,9 +214,13 @@ class FeedRepository:
                 result[reply.parent_id].append(reply)
         return result
 
-    async def get_comment(self, comment_id: UUID) -> Comment | None:
+    async def get_comment(
+        self, comment_id: UUID, *, include_hidden: bool = False
+    ) -> Comment | None:
         comment = await self.session.get(Comment, comment_id)
-        return None if comment is None or comment.hidden_at is not None else comment
+        if comment is None or (comment.hidden_at is not None and not include_hidden):
+            return None
+        return comment
 
     async def add_comment(self, **fields: Any) -> Comment:
         comment = Comment(**fields)

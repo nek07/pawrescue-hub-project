@@ -8,7 +8,7 @@ from app.core.errors import DomainError
 from app.core.security import SESSION_COOKIE
 from app.modules.auth.repository import AuthRepository
 from app.modules.auth.service import AuthService
-from app.modules.users.models import User
+from app.modules.users.models import User, UserRole
 from app.modules.users.repository import UserRepository
 from app.modules.users.service import UserService
 
@@ -34,5 +34,12 @@ async def current_user(user: Annotated[User | None, Depends(optional_user)]) -> 
     return user
 
 
+async def moderator_user(user: Annotated[User, Depends(current_user)]) -> User:
+    if user.role != UserRole.MODERATOR:
+        raise DomainError("forbidden", status=403, message="Moderators only")
+    return user
+
+
 OptionalUser = Annotated[User | None, Depends(optional_user)]
 CurrentUser = Annotated[User, Depends(current_user)]
+ModeratorUser = Annotated[User, Depends(moderator_user)]

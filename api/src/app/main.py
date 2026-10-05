@@ -22,6 +22,8 @@ from app.modules.chat import router as chat_router
 from app.modules.curators import router as curators_router
 from app.modules.feed import router as feed_router
 from app.modules.media import router as media_router
+from app.modules.moderation import router as moderation_router
+from app.modules.onboarding import router as onboarding_router
 from app.modules.pets import router as pets_router
 
 
@@ -36,7 +38,9 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     if settings.env == "dev":
         storage = get_storage()
-        await storage.ensure_buckets(settings.s3_uploads_bucket, settings.s3_photos_bucket)
+        await storage.ensure_buckets(
+            settings.s3_uploads_bucket, settings.s3_photos_bucket, settings.s3_docs_bucket
+        )
     yield
     await get_queue().close()
     await get_pubsub().close()
@@ -91,6 +95,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(chat_router.router)
     v1.include_router(chat_realtime.router)
     v1.include_router(feed_router.router)
+    v1.include_router(onboarding_router.router)
+    v1.include_router(moderation_router.router)
     app.include_router(v1)
     return app
 

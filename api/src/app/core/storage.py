@@ -26,6 +26,8 @@ class ObjectInfo:
 class Storage(Protocol):
     def presign_put(self, bucket: str, key: str, *, content_type: str, expires: int) -> str: ...
 
+    def presign_get(self, bucket: str, key: str, *, expires: int) -> str: ...
+
     async def head(self, bucket: str, key: str) -> ObjectInfo | None: ...
 
     async def get(self, bucket: str, key: str) -> bytes: ...
@@ -62,6 +64,12 @@ class S3Storage:
             "put_object",
             Params={"Bucket": bucket, "Key": key, "ContentType": content_type},
             ExpiresIn=expires,
+        )
+        return url
+
+    def presign_get(self, bucket: str, key: str, *, expires: int) -> str:
+        url: str = self._signer.generate_presigned_url(
+            "get_object", Params={"Bucket": bucket, "Key": key}, ExpiresIn=expires
         )
         return url
 

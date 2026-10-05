@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     s3_secret_key: SecretStr = SecretStr("pawpawpaw")
     s3_uploads_bucket: str = "uploads"  # приватный: сырые загрузки
     s3_photos_bucket: str = "pet-photos"  # публичное чтение: готовые WebP
+    s3_docs_bucket: str = "shelter-docs"  # приватный: документы приютов для модератора
     # В проде — CDN перед бакетом с фото; по умолчанию {s3_public_url}/{bucket}
     photos_public_url: str | None = None
 

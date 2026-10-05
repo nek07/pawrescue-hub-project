@@ -70,6 +70,9 @@ class MemoryStorage:
     def presign_put(self, bucket: str, key: str, *, content_type: str, expires: int) -> str:
         return f"http://s3.test/{bucket}/{key}?X-Amz-Expires={expires}"
 
+    def presign_get(self, bucket: str, key: str, *, expires: int) -> str:
+        return f"http://s3.test/{bucket}/{key}?X-Amz-Expires={expires}&get=1"
+
     async def head(self, bucket: str, key: str) -> Any:
         from app.core.storage import ObjectInfo
 

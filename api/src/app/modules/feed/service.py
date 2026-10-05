@@ -6,6 +6,7 @@
 - историю — куратор или новый хозяин, забравший питомца через платформу.
 """
 
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -260,6 +261,15 @@ class FeedService:
         counts = await self.repo.like_counts(CommentLike, [comment_id])
         return LikeOut(liked=liked, likes_count=counts.get(comment_id, 0))
 
+    # --- модерация
+
+    async def set_post_hidden(self, post_id: UUID, *, hidden: bool) -> None:
+        """Скрытый пост пропадает из ленты для всех; автор его не видит тоже."""
+        await _hide(self, await self.repo.get_post(post_id, include_hidden=True), hidden)
+
+    async def set_comment_hidden(self, comment_id: UUID, *, hidden: bool) -> None:
+        await _hide(self, await self.repo.get_comment(comment_id, include_hidden=True), hidden)
+
     # --- сборка ответа
 
     async def _post_outs(self, posts: list[Post], viewer: User | None) -> list[PostOut]:
@@ -346,3 +356,10 @@ class FeedService:
                 created_at=c.created_at,
             )
         return result
+
+
+async def _hide(service: FeedService, target: Post | Comment | None, hidden: bool) -> None:
+    if target is None:
+        raise DomainError("not_found", status=404, message="Not found")
+    target.hidden_at = datetime.now(UTC) if hidden else None
+    await service.session.commit()

@@ -40,3 +40,8 @@ class UserRepository:
         self.session.add(user)
         await self.session.flush()
         return user
+
+    async def update(self, user: User, fields: dict[str, object]) -> None:
+        for key, value in fields.items():
+            setattr(user, key, value)
+        await self.session.flush()

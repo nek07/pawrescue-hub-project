@@ -276,3 +276,14 @@ class PetService:
         return PetDetailOut.build_detail(
             pet, curator=curators[pet.id], photos=await self.repo.photos(pet.id), similar=[]
         )
+
+    async def unpublish(self, pet_id: UUID) -> PetDetailOut:
+        """Модератор снимает анкету с публикации (обратно в черновик куратору)."""
+        pet = await self.get_pet(pet_id, for_update=True)
+        if pet.status not in MANUAL_STATUSES:
+            raise DomainError(
+                "status_not_allowed", status=409, message="Reserved or adopted pets stay published"
+            )
+        await self.repo.update(pet, {"status": PetStatus.DRAFT})
+        await self.repo.commit()
+        return await self._managed_detail(pet)
