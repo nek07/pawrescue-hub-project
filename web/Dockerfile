@@ -19,7 +19,8 @@ ENV API_URL=$API_URL \
     NEXT_PUBLIC_DEV_LOGIN=$NEXT_PUBLIC_DEV_LOGIN \
     NEXT_PUBLIC_TELEGRAM_BOT_ID=$NEXT_PUBLIC_TELEGRAM_BOT_ID \
     NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+# public/ может отсутствовать (пустые папки git не хранит), а runtime её копирует
+RUN mkdir -p public && npm run build
 
 FROM node:22-alpine AS runtime
 WORKDIR /app
