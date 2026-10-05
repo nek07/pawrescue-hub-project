@@ -1,7 +1,7 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { FileText, Heart, Inbox, LogOut, MessageSquare } from "lucide-react";
+import { FileText, Heart, Inbox, LogOut, MessageSquare, PawPrint } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import type { User } from "@/entities/user";
@@ -41,6 +41,14 @@ export function UserMenu({ user, isCurator }: { user: User; isCurator: boolean }
               {t("userMenu.myApplications")}
             </Link>
           </DropdownMenu.Item>
+          {isCurator && (
+            <DropdownMenu.Item asChild className={itemClass}>
+              <Link href="/cabinet">
+                <PawPrint aria-hidden className="size-4" />
+                {t("userMenu.cabinet")}
+              </Link>
+            </DropdownMenu.Item>
+          )}
           {isCurator && (
             <DropdownMenu.Item asChild className={itemClass}>
               <Link href="/applications/incoming">

@@ -5,7 +5,7 @@ import { storyParagraphs } from "@/entities/pet";
 import { getPet } from "@/entities/pet/server";
 import { getSession } from "@/entities/user";
 import { Link, type Locale } from "@/shared/i18n";
-import { SectionHeader } from "@/shared/ui";
+import { SectionHeader, SITE_NAME } from "@/shared/ui";
 import { PetGrid } from "@/widgets/pet-grid";
 import {
   AdoptionProcess,
@@ -21,7 +21,7 @@ export async function generateMetadata({
 }: PageProps<"/[locale]/pets/[id]">): Promise<Metadata> {
   const pet = await getPet((await params).id);
   return pet
-    ? { title: `${pet.name} — Paw Rescue Hub`, description: storyParagraphs(pet.story)[0] }
+    ? { title: `${pet.name} — ${SITE_NAME}`, description: storyParagraphs(pet.story)[0] }
     : {};
 }
 

@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 STATUS_TEXT = {
     ApplicationStatus.MEETING: "Куратор предлагает познакомиться с {pet}. Ответьте в сообщениях.",
     ApplicationStatus.APPROVED: "Заявку на {pet} одобрили! Куратор свяжется с вами.",
-    ApplicationStatus.COMPLETED: "{pet} теперь дома. Спасибо, что выбрали Paw Rescue Hub!",
+    ApplicationStatus.COMPLETED: "{pet} теперь дома. Спасибо, что выбрали Pana!",
     ApplicationStatus.REJECTED: "К сожалению, заявку на {pet} отклонили.",
 }
 
@@ -115,7 +115,7 @@ async def notify_new_application(ctx: dict[str, Any], application_id: str) -> No
             assert pet.shelter_id is not None
             curators = await applications.pets.shelters.member_user_ids(pet.shelter_id)
         chat_ids = await auth.telegram_chat_ids(curators)
-    text = f"Новая заявка на {pet.name} от {application.name}. Откройте Paw Rescue Hub."
+    text = f"Новая заявка на {pet.name} от {application.name}. Откройте Pana."
     await _send(ctx, f"new:{application.id}", chat_ids, text)
 
 

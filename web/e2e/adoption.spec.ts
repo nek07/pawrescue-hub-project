@@ -8,7 +8,7 @@ test("каталог → питомец → вход → заявка → соо
   await expect(page.getByRole("heading", { level: 1, name: "Мурка" })).toBeVisible();
   await expect(page.getByText("Её нашли у подъезда в феврале")).toBeVisible();
   // При клиентском переходе Next подставляет <title> чуть позже содержимого
-  await expect(page).toHaveTitle("Мурка — Paw Rescue Hub");
+  await expect(page).toHaveTitle("Мурка — Pana");
   await noSeriousViolations(page);
 
   // Гость видит кнопку, но попадает на вход с возвратом обратно

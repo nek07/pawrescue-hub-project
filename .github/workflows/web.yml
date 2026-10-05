@@ -28,10 +28,10 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
-      # Настоящий бэкенд из api/: postgres, redis, s3, миграции, API и сид из макета
+      # Настоящий бэкенд из api/: postgres, redis, s3, миграции, API, воркер фото и сид из макета
       - name: Start API
         run: |
-          docker compose -f ../api/docker-compose.yml up -d --build api
+          docker compose -f ../api/docker-compose.yml up -d --build api worker
           curl --retry 60 --retry-all-errors --retry-delay 2 -fsS http://localhost:8000/api/v1/health
           docker compose -f ../api/docker-compose.yml exec -T api python -m app.seed
 

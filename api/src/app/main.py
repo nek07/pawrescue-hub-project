@@ -80,7 +80,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     configure_logging(settings)
     init_sentry(settings)
     app = FastAPI(
-        title="Paw Rescue Hub API",
+        title="Pana API",
         version="1",
         lifespan=lifespan,
         generate_unique_id_function=operation_id,

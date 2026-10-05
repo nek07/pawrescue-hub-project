@@ -8,6 +8,8 @@ from uuid import UUID
 
 from app.core.pagination import Page
 from app.modules.curators.schemas import (
+    CuratingOut,
+    CuratingShelterOut,
     CuratorCardOut,
     CuratorFilters,
     CuratorType,
@@ -17,7 +19,7 @@ from app.modules.pets.schemas import CuratorCounts
 from app.modules.pets.service import PetService
 from app.modules.shelters.models import Shelter
 from app.modules.shelters.service import ShelterService
-from app.modules.users.models import User
+from app.modules.users.models import User, UserRole
 from app.modules.users.service import UserService
 
 # Участников десятки, а не тысячи: отдаём одной страницей в формате Page,
@@ -139,4 +141,16 @@ class CuratorService:
             adopted_count=stats.adopted,
             subscribers_count=subscribers,
             subscribed=subscribed,
+        )
+
+    async def curating(self, user: User) -> CuratingOut:
+        ids = await self.shelters.member_shelter_ids(user.id)
+        shelters = await self.shelters.get_shelters(ids)
+        return CuratingOut(
+            shelters=[
+                CuratingShelterOut(id=s.id, name=s.name, city=s.city)
+                for s in sorted(shelters.values(), key=lambda s: s.name)
+                if s.verified_at is not None  # анкеты публикуют только проверенные приюты
+            ],
+            volunteer=user.role == UserRole.VOLUNTEER and user.verified_at is not None,
         )

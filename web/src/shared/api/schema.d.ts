@@ -315,6 +315,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/curating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Curating
+         * @description Кабинет куратора: приюты, от имени которых можно вести анкеты, и статус волонтёра.
+         */
+        get: operations["me-curating"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/favorites": {
         parameters: {
             query?: never;
@@ -1164,6 +1184,27 @@ export interface components {
             avatar_url: string | null;
             /** Verified */
             verified: boolean;
+        };
+        /**
+         * CuratingOut
+         * @description Может ли человек вести анкеты и от чьего имени — для кабинета куратора.
+         */
+        CuratingOut: {
+            /** Shelters */
+            shelters: components["schemas"]["CuratingShelterOut"][];
+            /** Volunteer */
+            volunteer: boolean;
+        };
+        /** CuratingShelterOut */
+        CuratingShelterOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            city: components["schemas"]["City"];
         };
         /**
          * CuratorCardOut
@@ -2928,6 +2969,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Page_CuratorCardOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "me-curating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CuratingOut"];
                 };
             };
             /** @description Client error */

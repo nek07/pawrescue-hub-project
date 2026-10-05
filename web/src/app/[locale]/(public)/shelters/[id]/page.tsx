@@ -7,7 +7,7 @@ import { getPosts } from "@/entities/post/server";
 import { getShelter } from "@/entities/shelter/server";
 import { getSession } from "@/entities/user";
 import { Link, type Locale } from "@/shared/i18n";
-import { EmptyState } from "@/shared/ui";
+import { EmptyState, SITE_NAME } from "@/shared/ui";
 import { FeedList } from "@/widgets/feed-list";
 import { PetGrid } from "@/widgets/pet-grid";
 import {
@@ -24,7 +24,7 @@ type Props = PageProps<"/[locale]/shelters/[id]">;
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const shelter = await getShelter((await params).id);
   return shelter
-    ? { title: `${shelter.name} — Paw Rescue Hub`, description: shelter.about ?? undefined }
+    ? { title: `${shelter.name} — ${SITE_NAME}`, description: shelter.about ?? undefined }
     : {};
 }
 

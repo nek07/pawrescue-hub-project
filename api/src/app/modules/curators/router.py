@@ -7,6 +7,7 @@ from app.core.db import DbSession
 from app.core.pagination import Page
 from app.modules.auth.dependencies import CurrentUser, OptionalUser
 from app.modules.curators.schemas import (
+    CuratingOut,
     CuratorCardOut,
     CuratorFilters,
     ShelterProfileOut,
@@ -65,3 +66,9 @@ async def unsubscribe(shelter_id: UUID, user: CurrentUser, service: ServiceDep) 
 @me_router.get("/subscriptions")
 async def list_subscriptions(user: CurrentUser, service: ServiceDep) -> Page[CuratorCardOut]:
     return await service.my_subscriptions(user.id)
+
+
+@me_router.get("/curating")
+async def curating(user: CurrentUser, service: ServiceDep) -> CuratingOut:
+    """Кабинет куратора: приюты, от имени которых можно вести анкеты, и статус волонтёра."""
+    return await service.curating(user)

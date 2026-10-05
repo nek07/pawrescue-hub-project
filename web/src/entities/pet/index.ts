@@ -9,8 +9,11 @@ export {
 } from "./model/filters";
 export {
   PET_AGES,
+  PET_CHIPS,
   PET_KINDS,
+  PET_SEXES,
   PET_SORTS,
+  PET_TRAITS,
   type Curator,
   type Pet,
   type PetDetails,

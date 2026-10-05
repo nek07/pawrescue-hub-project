@@ -83,3 +83,22 @@ async def test_card_previews_newest_catalog_pets(
     ]
     assert by_name["Дана"]["preview_covers"] == []
     assert isinstance(by_name["Дана"]["on_platform_since"], int)
+
+
+@pytest.mark.parametrize(
+    ("who", "role", "shelters", "volunteer"),
+    [
+        ("Гульнара", "user", ["Тёплый угол"], False),  # сотрудник приюта
+        ("Дана", "volunteer", [], True),  # проверенный волонтёр
+        ("Асель", "user", [], False),  # обычный человек
+    ],
+)
+async def test_curating_context(
+    client: AsyncClient, who: str, role: str, shelters: list[str], volunteer: bool
+) -> None:
+    from helpers import login
+
+    await login(client, who, role)
+    body = (await client.get("/api/v1/me/curating")).json()
+    assert [s["name"] for s in body["shelters"]] == shelters
+    assert body["volunteer"] is volunteer

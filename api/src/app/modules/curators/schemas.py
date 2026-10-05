@@ -56,3 +56,16 @@ class ShelterProfileOut(BaseModel):
 class SubscriptionOut(BaseModel):
     subscribed: bool
     subscribers_count: int
+
+
+class CuratingShelterOut(BaseModel):
+    id: UUID
+    name: str
+    city: City
+
+
+class CuratingOut(BaseModel):
+    """Может ли человек вести анкеты и от чьего имени — для кабинета куратора."""
+
+    shelters: list[CuratingShelterOut]  # проверенные приюты, где он сотрудник
+    volunteer: bool  # проверенный волонтёр: может вести анкеты от своего имени

@@ -7,5 +7,6 @@ export { EmptyState } from "./empty-state";
 export { ErrorState } from "./error-state";
 export { Field, useFieldControl } from "./field";
 export { Input, Select, Textarea } from "./input";
+export { Logo, SITE_NAME } from "./logo";
 export { Skeleton } from "./skeleton";
 export { SectionHeader } from "./section-header";

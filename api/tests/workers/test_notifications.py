@@ -112,7 +112,7 @@ async def test_new_application_goes_to_shelter_staff(
     ctx = _ctx(db_session, bot)
     await notify_new_application(ctx, app_id)
     assert await _drain(ctx) == []
-    assert bot.sent == [("5001", "Новая заявка на Мурка от Асель. Откройте Paw Rescue Hub.")]
+    assert bot.sent == [("5001", "Новая заявка на Мурка от Асель. Откройте Pana.")]
 
 
 async def test_status_change_goes_to_applicant(

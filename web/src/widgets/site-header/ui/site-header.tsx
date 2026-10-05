@@ -1,8 +1,7 @@
-import { PawPrint } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { User } from "@/entities/user";
 import { Link } from "@/shared/i18n";
-import { Button } from "@/shared/ui";
+import { Button, Logo } from "@/shared/ui";
 import type { NavKey } from "../model/nav";
 import { LocaleSwitcher } from "./locale-switcher";
 import { MainNav } from "./main-nav";
@@ -29,10 +28,9 @@ export function SiteHeader({
         <Link
           href="/"
           aria-label={t("layout.home")}
-          className="flex items-center gap-2 font-display text-lg font-semibold whitespace-nowrap"
+          className="text-xl leading-none whitespace-nowrap"
         >
-          <PawPrint aria-hidden className="size-5 text-primary" />
-          Paw Rescue Hub
+          <Logo />
         </Link>
 
         <MainNav

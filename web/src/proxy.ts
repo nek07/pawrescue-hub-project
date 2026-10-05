@@ -12,6 +12,7 @@ const PROTECTED = [
   /^\/messages(\/|$)/,
   /^\/applications(\/|$)/,
   /^\/favorites$/,
+  /^\/cabinet(\/|$)/,
   /^\/onboarding$/,
   /^\/profile$/,
 ];
