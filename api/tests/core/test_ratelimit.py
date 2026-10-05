@@ -6,7 +6,7 @@ import pytest
 from httpx import AsyncClient
 
 from app.seed import sid
-from helpers import login
+from helpers import login, telegram_payload
 
 pytestmark = pytest.mark.usefixtures("seeded")
 MakeClient = Callable[[], Awaitable[AsyncClient]]
@@ -35,7 +35,15 @@ async def test_message_flood_is_limited_per_session(make_client: MakeClient) -> 
 async def test_login_is_limited_per_ip(client: AsyncClient) -> None:
     for _ in range(20):
         assert (
+            await client.post("/api/v1/auth/telegram", json=telegram_payload())
+        ).status_code == 200
+    r = await client.post("/api/v1/auth/telegram", json=telegram_payload())
+    assert r.status_code == 429
+
+
+async def test_dev_login_is_not_limited(client: AsyncClient) -> None:
+    # Только вне прода; e2e входят десятки раз с одного IP
+    for _ in range(25):
+        assert (
             await client.post("/api/v1/auth/dev-login", json={"name": "Асель"})
         ).status_code == 200
-    r = await client.post("/api/v1/auth/dev-login", json={"name": "Асель"})
-    assert r.status_code == 429

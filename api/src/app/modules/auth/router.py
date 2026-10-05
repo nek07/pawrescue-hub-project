@@ -109,9 +109,8 @@ async def google_callback(
 dev_router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@dev_router.post(
-    "/dev-login", dependencies=[Depends(rate_limit("login", limit=20, window=60, by="ip"))]
-)
+# Без лимита частоты: эндпоинт есть только вне прода, а e2e входят десятки раз с одного IP.
+@dev_router.post("/dev-login")
 async def dev_login(
     body: DevLoginIn, response: Response, auth: AuthServiceDep, settings: SettingsDep
 ) -> MeOut:
