@@ -142,19 +142,20 @@
     "curator": "{kind, select, shelter {«{name}»} other {Волонтёр {name}}}",
     "verified": "{kind, select, shelter {Приют проверен} other {Волонтёр проверен}}",
     "photoPlaceholder": "Фото питомца",
-    "more": "Подробнее"
+    "sex": "{sex, select, female {Девочка} other {Мальчик}}"
   },
   "shelter": {
     "kind": "{kind, select, shelter {Приют} other {Волонтёр}}",
     "name": "{kind, select, shelter {«{name}»} other {{name}}}",
     "seeking": "{count, plural, one {# питомец ищет дом} few {# питомца ищут дом} many {# питомцев ищут дом} other {# питомца ищут дом}}",
-    "verified": "Проверен платформой"
+    "verified": "Проверен платформой",
+    "noneSeeking": "Сейчас все питомцы дома",
+    "since": "На платформе с {year}"
   },
   "catalog": {
     "metaTitle": "Питомцы ищут дом — Paw Rescue Hub",
-    "eyebrow": "Анкеты",
     "title": "Питомцы, которые ищут дом",
-    "lead": "Все анкеты размещены проверенными приютами и волонтёрами. Фильтры применяются сразу.",
+    "lead": "Все анкеты размещены проверенными приютами и волонтёрами.",
     "found": "Найдено: <b>{count, plural, one {# питомец} few {# питомца} many {# питомцев} other {# питомца}}</b>",
     "showMore": "Показать ещё",
     "empty": {
@@ -166,7 +167,7 @@
   "filterPets": {
     "label": "Фильтры анкет",
     "search": "Поиск",
-    "searchPlaceholder": "Имя питомца",
+    "searchPlaceholder": "Имя, порода, характер",
     "city": "Город",
     "allCities": "Все города",
     "kind": "Вид",
@@ -244,9 +245,8 @@
   },
   "shelters": {
     "metaTitle": "Приюты и волонтёры — Paw Rescue Hub",
-    "eyebrow": "Партнёры платформы",
     "title": "Приюты и волонтёры",
-    "lead": "Каждый участник прошёл проверку: документы, рекомендация от проверенного партнёра и отзывы людей, которые уже забрали питомцев.",
+    "lead": "Каждый участник прошёл проверку документов и рекомендаций.",
     "found": "Найдено: <b>{count, plural, one {# участник} few {# участника} many {# участников} other {# участника}}</b>",
     "seekingStat": "<b>{count}</b> ищут дом",
     "adoptedStat": "<b>{count}</b> пристроено",

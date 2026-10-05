@@ -1,23 +1,25 @@
-import { Check, PawPrint } from "lucide-react";
+import { MapPin, Mars, PawPrint, Venus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { Link } from "@/shared/i18n";
-import { Card } from "@/shared/ui";
+import { cn } from "@/shared/lib";
 import { getPetAge } from "../model/age";
 import type { Pet } from "../model/pet";
 import { StatusBadge } from "./status-badge";
-import { HAS_CITY_CHOICE } from "@/shared/config";
 
 type PetCardProps = {
   pet: Pet;
-  /** На главной показываем город, в каталоге он уже выбран в фильтре */
-  showCity?: boolean;
-  /** Слот для действий: «Подробнее», избранное */
-  actions?: ReactNode;
+  /** Слот в правом верхнем углу фото: ♡ «В избранное» */
+  favorite?: ReactNode;
+  className?: string;
 };
 
-/** Вся карточка кликабельна: ссылка на имени растянута на карточку. */
-export function PetCard({ pet, showCity = false, actions }: PetCardProps) {
+/**
+ * Карточка-фото: вся карточка — ссылка (растянута с имени), кнопок нет.
+ * Статус показываем только когда он отличается от обычного «Ищет дом»,
+ * отметку «проверен» — на странице питомца: в каталоге она у всех.
+ */
+export function PetCard({ pet, favorite, className }: PetCardProps) {
   const t = useTranslations();
   const age = getPetAge(pet.birth_date);
   const highlight = pet.traits[0]
@@ -32,45 +34,64 @@ export function PetCard({ pet, showCity = false, actions }: PetCardProps) {
     highlight,
   ].filter(Boolean);
 
-  const curator = t("pet.curator", { kind: pet.curator.type, name: pet.curator.name });
+  const SexIcon = pet.sex === "female" ? Venus : Mars;
 
   return (
-    <Card className="relative flex w-full flex-col transition-shadow focus-within:shadow-md hover:shadow-md">
-      <div className="relative flex aspect-[4/3] flex-col items-center justify-center gap-2 bg-surface-sunken text-xs text-ink-muted">
+    <article className={cn("group relative flex w-full flex-col", className)}>
+      <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-surface-sunken sm:aspect-square">
         {pet.cover_url ? (
           // Размеры нарезает бэкенд, оптимизация next/image не нужна
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={pet.cover_url} alt="" className="absolute inset-0 size-full object-cover" />
+          <img
+            src={pet.cover_url}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
+          />
         ) : (
-          <>
-            <PawPrint aria-hidden className="size-6 text-surface-raised" />
+          <div className="flex size-full flex-col items-center justify-center gap-2 text-xs text-ink-muted">
+            <PawPrint aria-hidden className="size-8 text-surface-raised" />
             {t("pet.photoPlaceholder")}
-          </>
+          </div>
         )}
-        <StatusBadge status={pet.status} sex={pet.sex} className="absolute top-3 left-3" />
+        {pet.status !== "seeking" && (
+          <StatusBadge
+            status={pet.status}
+            sex={pet.sex}
+            className="absolute top-3 left-3 rounded-pill px-2.5 py-1 shadow-sm"
+          />
+        )}
+        {favorite && <div className="absolute top-2 right-2 z-10">{favorite}</div>}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <h3 className="font-display text-lg font-semibold">
-          <Link
-            href={`/pets/${pet.id}`}
-            className="after:absolute after:inset-0 after:rounded-sm focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-ink"
-          >
-            {pet.name}
-          </Link>
-        </h3>
-        <p className="text-sm text-ink-muted">{facts.join(" · ")}</p>
-        <p className="text-sm text-ink-muted">
-          {showCity && HAS_CITY_CHOICE ? `${t(`cities.${pet.city}`)} · ${curator}` : curator}
+      <div className="flex flex-col gap-0.5 px-0.5 pt-3">
+        <div className="flex items-center gap-1.5">
+          <h3 className="min-w-0 truncate font-display text-lg leading-snug font-semibold">
+            <Link
+              href={`/pets/${pet.id}`}
+              className="group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4 after:absolute after:-inset-1 after:rounded-md focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-ink"
+            >
+              {pet.name}
+            </Link>
+          </h3>
+          <SexIcon
+            role="img"
+            aria-label={t("pet.sex", { sex: pet.sex })}
+            className="size-4 shrink-0 text-ink-muted"
+          />
+        </div>
+        <p className="line-clamp-2 text-sm text-ink-muted">{facts.join(" · ")}</p>
+        <p className="mt-1 flex min-w-0 items-center gap-1 text-sm">
+          <MapPin aria-hidden className="size-3.5 shrink-0 text-ink-muted" />
+          <span className="truncate">
+            <span className="font-semibold">{t(`cities.${pet.city}`)}</span>
+            <span className="text-ink-muted">
+              {" · "}
+              {t("pet.curator", { kind: pet.curator.type, name: pet.curator.name })}
+            </span>
+          </span>
         </p>
-        {pet.curator.verified && (
-          <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-success">
-            <Check aria-hidden className="size-4" />
-            {t("pet.verified", { kind: pet.curator.type })}
-          </p>
-        )}
-        {actions && <div className="relative z-10 mt-auto flex gap-2 pt-3">{actions}</div>}
       </div>
-    </Card>
+    </article>
   );
 }

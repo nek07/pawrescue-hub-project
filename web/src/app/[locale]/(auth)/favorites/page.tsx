@@ -5,6 +5,7 @@ import { getFavoritePets } from "@/entities/pet/server";
 import { ShelterCard } from "@/entities/shelter";
 import { getSubscriptions } from "@/entities/shelter/server";
 import { requireSession } from "@/entities/user";
+import { SubscribeButton } from "@/features/subscribe-shelter";
 import { Link, type Locale } from "@/shared/i18n";
 import { Button, EmptyState, SectionHeader } from "@/shared/ui";
 import { PetGrid } from "@/widgets/pet-grid";
@@ -29,7 +30,7 @@ export default async function FavoritesPage({ params }: PageProps<"/[locale]/fav
       <section className="flex flex-col gap-4">
         <h2 className="font-display text-2xl font-semibold">{t("pets")}</h2>
         {pets.items.length > 0 ? (
-          <PetGrid pets={pets.items} showCity />
+          <PetGrid pets={pets.items} signedIn />
         ) : (
           <EmptyState
             visual={<Heart aria-hidden className="size-8" />}
@@ -47,10 +48,13 @@ export default async function FavoritesPage({ params }: PageProps<"/[locale]/fav
       <section className="flex flex-col gap-4">
         <h2 className="font-display text-2xl font-semibold">{t("shelters")}</h2>
         {shelters.items.length > 0 ? (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {shelters.items.map((shelter) => (
               <li key={shelter.id} className="flex">
-                <ShelterCard shelter={shelter} />
+                <ShelterCard
+                  shelter={shelter}
+                  action={<SubscribeButton shelterId={shelter.id} subscribed signedIn size="sm" />}
+                />
               </li>
             ))}
           </ul>

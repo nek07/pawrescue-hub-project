@@ -32,7 +32,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           title={t("pets.title")}
           action={<MoreLink href="/pets">{t("pets.link")}</MoreLink>}
         />
-        <PetGrid pets={pets.items} showCity />
+        <PetGrid pets={pets.items} />
       </section>
       <HowItWorks />
       {stories.items.length > 0 && (

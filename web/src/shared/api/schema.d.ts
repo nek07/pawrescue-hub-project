@@ -1191,6 +1191,13 @@ export interface components {
             seeking_count: number;
             /** Adopted Count */
             adopted_count: number;
+            /** On Platform Since */
+            on_platform_since: number;
+            /**
+             * Preview Covers
+             * @default []
+             */
+            preview_covers: string[];
             /**
              * Subscribed
              * @default false
