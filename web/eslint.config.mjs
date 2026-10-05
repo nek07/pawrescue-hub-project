@@ -51,8 +51,10 @@ const eslintConfig = defineConfig([
         {
           patterns: [
             {
-              regex: "^@/(widgets|features|entities|shared)/[^/]+/.+",
-              message: "Импортируйте срез через его index.ts: @/<слой>/<срез>",
+              // Разрешён только второй вход среза — /server (серверные запросы с cookie)
+              regex: "^@/(widgets|features|entities|shared)/[^/]+/(?!server$).+",
+              message:
+                "Импортируйте срез через index.ts (@/<слой>/<срез>) или его серверный вход @/<слой>/<срез>/server",
             },
           ],
         },

@@ -1,5 +1,4 @@
-export { getPet } from "./api/get-pet";
-export { getPets } from "./api/get-pets";
+// Серверные запросы — @/entities/pet/server
 export { getPetAge } from "./model/age";
 export {
   countHiddenFilters,

@@ -15,9 +15,11 @@ const userNav: NavKey[] = [...guestNav, "messages"];
 export function SiteHeader({
   user,
   isCurator = false,
+  unread = 0,
 }: {
   user: User | null;
   isCurator?: boolean;
+  unread?: number;
 }) {
   const t = useTranslations();
 
@@ -33,7 +35,11 @@ export function SiteHeader({
           Paw Rescue Hub
         </Link>
 
-        <MainNav items={user ? userNav : guestNav} className="ml-auto hidden md:block" />
+        <MainNav
+          items={user ? userNav : guestNav}
+          unread={unread}
+          className="ml-auto hidden md:block"
+        />
 
         <div className="ml-auto flex items-center gap-4 md:ml-0">
           <LocaleSwitcher />

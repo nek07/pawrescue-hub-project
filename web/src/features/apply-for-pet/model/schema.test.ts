@@ -5,7 +5,7 @@ const valid = {
   petId: "murka",
   name: "Асель",
   phone: "+7 701 234 56 78",
-  city: "pavlodar",
+  city: "astana",
   housing: "flat",
   household: ["kids"],
   about: "",

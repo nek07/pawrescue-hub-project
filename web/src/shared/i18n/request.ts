@@ -8,8 +8,12 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
   const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
 
+  // Один часовой пояс на сервере и в браузере: иначе «2 дня назад» и даты
+  // расходятся при гидратации. Казахстан с 2024 года — единый UTC+5.
+  const common = { timeZone: "Asia/Almaty", now: new Date() };
+
   if (locale === routing.defaultLocale) {
-    return { locale, messages: ru };
+    return { locale, messages: ru, ...common };
   }
 
   const translation = (await import(`../../../messages/${locale}.json`)).default;
@@ -21,5 +25,5 @@ export default getRequestConfig(async ({ requestLocale }) => {
     );
   }
 
-  return { locale, messages };
+  return { locale, messages, ...common };
 });

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getPet, isOpenForApplications, PetCard } from "@/entities/pet";
+import { isOpenForApplications, PetCard } from "@/entities/pet";
+import { getPet } from "@/entities/pet/server";
 import { requireSession } from "@/entities/user";
 import { ApplyForm } from "@/features/apply-for-pet";
 import { Link, type Locale } from "@/shared/i18n";

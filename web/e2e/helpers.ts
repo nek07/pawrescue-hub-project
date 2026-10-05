@@ -57,6 +57,6 @@ export async function applyAsNewUser(page: Page, petId: string) {
   await page.getByLabel("Квартира").check();
   await page.getByLabel(/Соглашаюсь, что куратор свяжется со мной/).check();
   await page.getByRole("button", { name: "Отправить заявку" }).click();
-  await page.waitForURL(/\/ru\/messages\?sent=/);
+  await page.waitForURL(/\/ru\/messages(\/[\w-]+|\?sent=)/);
   return name;
 }

@@ -3,7 +3,7 @@ import { devLogin, noSeriousViolations, SEED } from "./helpers";
 
 test("каталог → питомец → вход → заявка → сообщения", async ({ page }) => {
   await page.goto("/ru/pets");
-  await page.getByRole("link", { name: "Мурка" }).click();
+  await page.getByRole("link", { name: "Мурка", exact: true }).click();
 
   await expect(page.getByRole("heading", { level: 1, name: "Мурка" })).toBeVisible();
   await expect(page.getByText("Её нашли у подъезда в феврале")).toBeVisible();
@@ -18,7 +18,8 @@ test("каталог → питомец → вход → заявка → соо
 
   await expect(page).toHaveURL(`/ru/pets/${SEED.murka}/apply`);
   await expect(page.getByLabel("Имя", { exact: true })).toHaveValue(name);
-  await expect(page.getByLabel("Город")).toHaveValue("pavlodar");
+  // Город один (Астана) — поле скрыто, значение подставлено
+  await expect(page.getByLabel("Город")).toHaveCount(0);
 
   // Ошибки — под полями, как на листе «Состояния»
   await page.getByLabel("Телефон").fill("+7 701 23");
@@ -34,8 +35,15 @@ test("каталог → питомец → вход → заявка → соо
   await page.getByLabel(/Соглашаюсь, что куратор свяжется со мной/).check();
   await page.getByRole("button", { name: "Отправить заявку" }).click();
 
-  await expect(page).toHaveURL(`/ru/messages?sent=${SEED.murka}`);
-  await expect(page.getByRole("status")).toContainText("Заявка отправлена: Мурка");
+  // Беседу о питомце заводит воркер бэкенда: успел — сразу диалог, нет — список с пометкой
+  await expect(page).toHaveURL(/\/ru\/messages(\/[\w-]+|\?sent=)/);
+  // На телефоне список бесед скрыт — ищем видимое сообщение
+  await expect(
+    page
+      .getByText(/Заявка отправлена/)
+      .filter({ visible: true })
+      .first(),
+  ).toBeVisible();
 
   // Повторная заявка на того же питомца — ошибка бэкенда над кнопкой
   await page.goto(`/ru/pets/${SEED.murka}/apply`);
@@ -46,6 +54,13 @@ test("каталог → питомец → вход → заявка → соо
   await expect(
     page.getByRole("alert").filter({ hasText: "Вы уже отправили заявку на этого питомца" }),
   ).toBeVisible();
+
+  // Убираем за собой: отзываем заявку, чтобы она не копилась у куратора
+  await page.goto("/ru/applications");
+  const card = page.getByRole("listitem").filter({ hasText: "Мурка" }).first();
+  page.once("dialog", (dialog) => dialog.accept());
+  await card.getByRole("button", { name: "Отозвать заявку" }).click();
+  await expect(card.getByText("Отозвана")).toBeVisible();
 });
 
 test("питомец на лечении: кнопка недоступна, причина рядом", async ({ page, isMobile }) => {
@@ -56,7 +71,7 @@ test("питомец на лечении: кнопка недоступна, п�
   await expect(apply).toHaveAccessibleDescription("Заявки на этого питомца больше не принимаются.");
 });
 
-test("снятая анкета — 404 со ссылкой в каталог", async ({ page }) => {
+test("снятая анкета — 404 со ссылкой ко всем питомцам", async ({ page }) => {
   for (const path of ["/ru/pets/net-takogo", "/ru/pets/00000000-0000-0000-0000-000000000000"]) {
     const response = await page.goto(path);
     expect(response?.status()).toBe(404);
@@ -110,16 +125,16 @@ test("приюты: фильтр по типу и профиль с вкладк
   await expect(page).toHaveURL(/type=volunteer/);
   await expect(page.getByText(/Найдено: 3 участника/)).toBeVisible();
 
-  // У волонтёра нет своей страницы — карточка ведёт в каталог его питомцев
+  // У волонтёра нет своей страницы — карточка ведёт к его питомцам
   await page.getByRole("link", { name: "Асем" }).click();
   await expect(page).toHaveURL(/\/ru\/pets\?volunteer_id=/);
-  await expect(page.getByRole("link", { name: "Снежок" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Снежок", exact: true })).toBeVisible();
 
   await page.goto(`/ru/shelters/${SEED.teplyiUgol}`);
   await expect(page.getByRole("heading", { level: 1, name: "«Тёплый угол»" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Мурка" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Мурка", exact: true })).toBeVisible();
   await page.getByRole("link", { name: "О приюте" }).click();
   await expect(page).toHaveURL(/tab=about/);
-  await expect(page.getByText("Павлодар, ул. Луговая, 16")).toBeVisible();
+  await expect(page.getByText("ул. Луговая, 16", { exact: true })).toBeVisible();
   await noSeriousViolations(page);
 });

@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { countHiddenFilters, PET_AGES, PET_KINDS, type PetFilters } from "@/entities/pet";
-import { CITIES, type City } from "@/shared/config";
+import { CITIES, HAS_CITY_CHOICE } from "@/shared/config";
 import { cn } from "@/shared/lib";
 import { Button, Chip, Field, Input, Select } from "@/shared/ui";
 import { useFiltersNavigation } from "../model/use-filters-navigation";
@@ -52,20 +52,22 @@ export function PetFiltersBar({ value }: { value: PetFilters }) {
             />
           </Field>
         </form>
-        <Field label={t("city")} className="sm:w-56">
-          <Select
-            value={value.city ?? ""}
-            onChange={(event) => update({ city: (event.target.value || undefined) as City })}
-            className="rounded-pill pl-4"
-          >
-            <option value="">{t("allCities")}</option>
-            {CITIES.map((city) => (
-              <option key={city} value={city}>
-                {tCity(city)}
-              </option>
-            ))}
-          </Select>
-        </Field>
+        {HAS_CITY_CHOICE && (
+          <Field label={t("city")} className="sm:w-56">
+            <Select
+              value={value.city ?? ""}
+              onChange={(event) => update({ city: CITIES.find((c) => c === event.target.value) })}
+              className="rounded-pill pl-4"
+            >
+              <option value="">{t("allCities")}</option>
+              {CITIES.map((city) => (
+                <option key={city} value={city}>
+                  {tCity(city)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
       </div>
 
       <Button

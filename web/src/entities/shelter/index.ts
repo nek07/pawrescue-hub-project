@@ -1,5 +1,4 @@
-export { getShelter } from "./api/get-shelter";
-export { getShelters } from "./api/get-shelters";
+// Серверные запросы — @/entities/shelter/server
 export { parseShelterFilters, toShelterSearchParams, type ShelterFilters } from "./model/filters";
 export {
   SHELTER_KINDS,

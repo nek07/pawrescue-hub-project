@@ -7,13 +7,22 @@ import {
   type PetFilters,
   type PetPage,
 } from "@/entities/pet";
+import { FavoriteButton } from "@/features/favorite-pet";
 import { PetSortSelect } from "@/features/filter-pets";
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { Button, buttonVariants, EmptyState } from "@/shared/ui";
 
 /** Результаты каталога: счётчик, сортировка, сетка, пустое состояние и «Показать ещё». */
-export function PetCatalogResults({ page, filters }: { page: PetPage; filters: PetFilters }) {
+export function PetCatalogResults({
+  page,
+  filters,
+  signedIn,
+}: {
+  page: PetPage;
+  filters: PetFilters;
+  signedIn: boolean;
+}) {
   const t = useTranslations();
 
   if (page.total === 0) {
@@ -53,9 +62,17 @@ export function PetCatalogResults({ page, filters }: { page: PetPage; filters: P
               pet={pet}
               actions={
                 // Вся карточка — ссылка; кнопка здесь только визуальная подсказка
-                <span aria-hidden className={cn(buttonVariants(), "pointer-events-none flex-1")}>
-                  {t("pet.more")}
-                </span>
+                <>
+                  <span aria-hidden className={cn(buttonVariants(), "pointer-events-none flex-1")}>
+                    {t("pet.more")}
+                  </span>
+                  <FavoriteButton
+                    petId={pet.id}
+                    petName={pet.name}
+                    favorite={pet.is_favorite}
+                    signedIn={signedIn}
+                  />
+                </>
               }
             />
           </li>

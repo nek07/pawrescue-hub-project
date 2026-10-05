@@ -8,7 +8,7 @@ import {
   type ShelterFilters,
   type ShelterKind,
 } from "@/entities/shelter";
-import { CITIES, type City } from "@/shared/config";
+import { CITIES, HAS_CITY_CHOICE } from "@/shared/config";
 import { useReplaceQuery } from "@/shared/lib";
 import { Field, Input, Select } from "@/shared/ui";
 
@@ -56,20 +56,22 @@ export function ShelterFiltersBar({ value }: { value: ShelterFilters }) {
           />
         </Field>
       </form>
-      <Field label={t("city")} className="sm:w-48">
-        <Select
-          value={value.city ?? ""}
-          onChange={(event) => update({ city: (event.target.value || undefined) as City })}
-          className="rounded-pill pl-4"
-        >
-          <option value="">{t("allCities")}</option>
-          {CITIES.map((city) => (
-            <option key={city} value={city}>
-              {tCity(city)}
-            </option>
-          ))}
-        </Select>
-      </Field>
+      {HAS_CITY_CHOICE && (
+        <Field label={t("city")} className="sm:w-48">
+          <Select
+            value={value.city ?? ""}
+            onChange={(event) => update({ city: CITIES.find((c) => c === event.target.value) })}
+            className="rounded-pill pl-4"
+          >
+            <option value="">{t("allCities")}</option>
+            {CITIES.map((city) => (
+              <option key={city} value={city}>
+                {tCity(city)}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
       <Field label={t("kind")} className="sm:w-56">
         <Select
           value={value.type ?? ""}

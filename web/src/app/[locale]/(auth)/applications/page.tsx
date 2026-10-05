@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { FileText } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getMyApplications } from "@/entities/application";
+import { getMyApplications } from "@/entities/application/server";
 import { isCurator, requireSession } from "@/entities/user";
 import { Link, type Locale } from "@/shared/i18n";
 import { Button, EmptyState, SectionHeader } from "@/shared/ui";

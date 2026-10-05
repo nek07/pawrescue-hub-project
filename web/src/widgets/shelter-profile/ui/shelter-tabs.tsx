@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 
-export const SHELTER_TABS = ["pets", "about"] as const;
+export const SHELTER_TABS = ["pets", "feed", "about"] as const;
 export type ShelterTab = (typeof SHELTER_TABS)[number];
 
 /** Вкладки — ссылки с ?tab=: открытую вкладку можно отправить ссылкой. */

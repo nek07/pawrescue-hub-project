@@ -5,7 +5,15 @@ import { Link, usePathname } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { isActive, navHref, type NavKey } from "../model/nav";
 
-export function MainNav({ items, className }: { items: NavKey[]; className?: string }) {
+export function MainNav({
+  items,
+  unread = 0,
+  className,
+}: {
+  items: NavKey[];
+  unread?: number;
+  className?: string;
+}) {
   const t = useTranslations("nav");
   const pathname = usePathname();
 
@@ -26,6 +34,14 @@ export function MainNav({ items, className }: { items: NavKey[]; className?: str
                 )}
               >
                 {t(key)}
+                {key === "messages" && unread > 0 && (
+                  <span
+                    className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-pill bg-primary px-1.5 text-xs font-semibold text-on-primary"
+                    aria-label={t("unread", { count: unread })}
+                  >
+                    {unread}
+                  </span>
+                )}
               </Link>
             </li>
           );

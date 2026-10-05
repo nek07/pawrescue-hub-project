@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getPet, storyParagraphs } from "@/entities/pet";
+import { storyParagraphs } from "@/entities/pet";
+import { getPet } from "@/entities/pet/server";
+import { getSession } from "@/entities/user";
 import { Link, type Locale } from "@/shared/i18n";
 import { SectionHeader } from "@/shared/ui";
 import { PetGrid } from "@/widgets/pet-grid";
@@ -29,7 +31,7 @@ export default async function PetPage({ params }: PageProps<"/[locale]/pets/[id]
   const pet = await getPet(id);
   if (!pet) notFound();
 
-  const t = await getTranslations("petProfile");
+  const [t, user] = await Promise.all([getTranslations("petProfile"), getSession()]);
   const others = pet.similar.slice(0, 4);
 
   return (
@@ -49,7 +51,7 @@ export default async function PetPage({ params }: PageProps<"/[locale]/pets/[id]
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
         <PetGallery pet={pet} />
         <div className="flex flex-col gap-4">
-          <PetSummary pet={pet} />
+          <PetSummary pet={pet} signedIn={Boolean(user)} />
           <PetCurator pet={pet} />
           <AdoptionProcess />
         </div>

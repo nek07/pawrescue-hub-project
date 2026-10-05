@@ -1,7 +1,10 @@
 import { ArrowRight } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getPets } from "@/entities/pet";
-import { getShelters, ShelterMiniCard } from "@/entities/shelter";
+import { getPets } from "@/entities/pet/server";
+import { StoryCard } from "@/entities/post";
+import { getPosts } from "@/entities/post/server";
+import { ShelterMiniCard } from "@/entities/shelter";
+import { getShelters } from "@/entities/shelter/server";
 import { Link, type Locale } from "@/shared/i18n";
 import { SectionHeader } from "@/shared/ui";
 import { HomeHero } from "@/widgets/home-hero";
@@ -13,9 +16,10 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
   setRequestLocale(locale as Locale); // локаль уже проверена в layout
 
-  const [t, pets, shelters] = await Promise.all([
+  const [t, pets, stories, shelters] = await Promise.all([
     getTranslations("home"),
     getPets({ limit: 4 }),
+    getPosts({ kind: "story", limit: 3 }),
     getShelters({ type: "shelter" }),
   ]);
 
@@ -31,6 +35,22 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <PetGrid pets={pets.items} showCity />
       </section>
       <HowItWorks />
+      {stories.items.length > 0 && (
+        <section className="page-container flex flex-col gap-6 py-12">
+          <SectionHeader
+            eyebrow={t("stories.eyebrow")}
+            title={t("stories.title")}
+            action={<MoreLink href="/feed">{t("stories.link")}</MoreLink>}
+          />
+          <ul className="grid gap-4 md:grid-cols-3">
+            {stories.items.map((post) => (
+              <li key={post.id} className="flex">
+                <StoryCard post={post} href="/feed" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <section className="page-container flex flex-col gap-6 py-12">
         <SectionHeader
           eyebrow={t("shelters.eyebrow")}
