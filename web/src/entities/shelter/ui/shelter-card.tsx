@@ -1,6 +1,7 @@
 import { ArrowRight, BadgeCheck, PawPrint } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { Avatar } from "@/shared/ui";
@@ -23,7 +24,7 @@ export function ShelterCard({ shelter, action }: ShelterCardProps) {
   const isShelter = shelter.type === "shelter";
   const meta = [
     t("shelter.kind", { kind: shelter.type }),
-    shelter.city && t(`cities.${shelter.city}`),
+    HAS_CITY_CHOICE && shelter.city && t(`cities.${shelter.city}`),
   ].filter(Boolean);
   const bold = (chunks: ReactNode) => <strong className="text-ink">{chunks}</strong>;
 

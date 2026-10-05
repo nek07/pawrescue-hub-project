@@ -1,6 +1,7 @@
 import { MapPin, Mars, PawPrint, Venus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { getPetAge } from "../model/age";
@@ -84,9 +85,10 @@ export function PetCard({ pet, favorite, className }: PetCardProps) {
         <p className="mt-1 flex min-w-0 items-center gap-1 text-sm">
           <MapPin aria-hidden className="size-3.5 shrink-0 text-ink-muted" />
           <span className="truncate">
-            <span className="font-semibold">{t(`cities.${pet.city}`)}</span>
+            {/* Город — только когда платформа работает в нескольких (сейчас одна Астана) */}
+            {HAS_CITY_CHOICE && <span className="font-semibold">{t(`cities.${pet.city}`)}</span>}
             <span className="text-ink-muted">
-              {" · "}
+              {HAS_CITY_CHOICE && " · "}
               {t("pet.curator", { kind: pet.curator.type, name: pet.curator.name })}
             </span>
           </span>

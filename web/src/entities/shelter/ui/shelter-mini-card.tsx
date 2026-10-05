@@ -1,5 +1,6 @@
 import { BadgeCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 import { cn } from "@/shared/lib";
 import { Avatar, Card } from "@/shared/ui";
 import type { ShelterListItem } from "../model/shelter";
@@ -37,7 +38,7 @@ export function ShelterMiniCard({ shelter }: { shelter: ShelterListItem }) {
           )}
         </h3>
         <p className="text-sm text-ink-muted">
-          {shelter.city && `${t(`cities.${shelter.city}`)} · `}
+          {HAS_CITY_CHOICE && shelter.city && `${t(`cities.${shelter.city}`)} · `}
           {t("shelter.seeking", { count: shelter.seeking_count })}
         </p>
       </div>
