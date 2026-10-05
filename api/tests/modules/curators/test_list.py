@@ -5,8 +5,10 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cities import City
+from app.modules.pets.models import PetPhoto
 from app.modules.shelters.models import Shelter
 from app.modules.users.models import User, UserRole
+from app.seed import sid
 
 CURATORS = "/api/v1/curators"
 
@@ -55,3 +57,29 @@ async def test_unverified_are_hidden(client: AsyncClient, db_session: AsyncSessi
     await db_session.flush()
     names = {c["name"] for c in (await client.get(CURATORS)).json()["items"]}
     assert {"Новый приют", "Новичок", "Заблокированный"}.isdisjoint(names)
+
+
+async def test_card_previews_newest_catalog_pets(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    # Каталог «Сначала новые» у «Тёплого угла»: Мурка, Айна, Граф, Тыква…; Тоша уже дома.
+    db_session.add_all(
+        PetPhoto(pet_id=sid(f"pet:{name}"), url=f"https://cdn/{name}.webp", card_url=card)
+        for name, card in [
+            ("Тоша", None),
+            ("Тыква", None),
+            ("Граф", "https://cdn/Граф-card.webp"),
+            ("Айна", None),
+            ("Мурка", None),
+        ]
+    )
+    await db_session.flush()
+    body = (await client.get(CURATORS)).json()
+    by_name = {c["name"]: c for c in body["items"]}
+    assert by_name["Тёплый угол"]["preview_covers"] == [
+        "https://cdn/Мурка.webp",
+        "https://cdn/Айна.webp",
+        "https://cdn/Граф-card.webp",
+    ]
+    assert by_name["Дана"]["preview_covers"] == []
+    assert isinstance(by_name["Дана"]["on_platform_since"], int)

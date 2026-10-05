@@ -142,6 +142,13 @@ class PetService:
             shelter_ids=shelter_ids, volunteer_ids=volunteer_ids
         )
 
+    async def preview_covers(
+        self, *, shelter_ids: Collection[UUID], volunteer_ids: Collection[UUID], per_curator: int
+    ) -> dict[UUID, list[str]]:
+        return await self.repo.preview_covers(
+            shelter_ids=shelter_ids, volunteer_ids=volunteer_ids, per_curator=per_curator
+        )
+
     async def _cards(
         self, rows: list[CatalogRow], viewer_id: UUID | None = None
     ) -> list[PetCardOut]:
