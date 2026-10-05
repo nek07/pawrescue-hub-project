@@ -3,6 +3,11 @@ import { defineConfig, devices } from "@playwright/test";
 // Не 3000, чтобы не конфликтовать с запущенным `npm run dev`
 const port = 3100;
 
+const desktop = { ...devices["Desktop Chrome"] };
+const mobile = { ...devices["iPhone 13"], defaultBrowserType: "chromium" as const };
+/** Спеки, которые меняют общий каталог (создают и публикуют анкеты) */
+const MUTATES_CATALOG = /cabinet\.spec\.ts/;
+
 export default defineConfig({
   testDir: "./e2e",
   forbidOnly: !!process.env.CI,
@@ -15,9 +20,23 @@ export default defineConfig({
     channel: process.env.PW_CHANNEL,
   },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    { name: "desktop", use: desktop, testIgnore: MUTATES_CATALOG },
     // 390px — ширина, на которой проверяем каждый экран
-    { name: "mobile", use: { ...devices["iPhone 13"], defaultBrowserType: "chromium" } },
+    { name: "mobile", use: mobile, testIgnore: MUTATES_CATALOG },
+    // Спеки, которые публикуют анкеты, — после остальных: тесты каталога считают
+    // питомцев точно («Найдено: 14») и не должны видеть временную анкету
+    {
+      name: "desktop-catalog-writes",
+      use: desktop,
+      testMatch: MUTATES_CATALOG,
+      dependencies: ["desktop", "mobile"],
+    },
+    {
+      name: "mobile-catalog-writes",
+      use: mobile,
+      testMatch: MUTATES_CATALOG,
+      dependencies: ["desktop", "mobile"],
+    },
   ],
   // Настоящий бэкенд: `docker compose up` в api/ и сид `python -m app.seed`
   webServer: {
