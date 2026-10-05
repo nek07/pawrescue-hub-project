@@ -5,7 +5,10 @@ test("неизвестный адрес показывает локализов�
   const response = await page.goto("/kk/net-takoi-stranicy");
   expect(response?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "Мұндай бет жоқ" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Каталогқа" })).toHaveAttribute("href", "/kk/pets");
+  await expect(page.getByRole("link", { name: "Барлық жануарлар" })).toHaveAttribute(
+    "href",
+    "/kk/pets",
+  );
 
   const { violations } = await new AxeBuilder({ page }).analyze();
   expect(violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
@@ -36,4 +39,16 @@ test("первый Tab — ссылка «Перейти к содержимом
   const skip = page.getByRole("link", { name: "Перейти к содержимому" });
   await expect(skip).toBeFocused();
   await expect(skip).toBeVisible();
+});
+
+test("на телефоне нет горизонтальной прокрутки", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "проверяется на ширине 390px");
+  for (const path of ["/ru", "/ru/pets", "/ru/feed", "/ru/shelters", "/kk/feed"]) {
+    await page.goto(path);
+    const [scroll, viewport] = await page.evaluate(() => [
+      document.documentElement.scrollWidth,
+      window.innerWidth,
+    ]);
+    expect(scroll, path).toBeLessThanOrEqual(viewport);
+  }
 });

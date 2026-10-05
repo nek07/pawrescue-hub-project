@@ -5,8 +5,12 @@ import { countHiddenFilters, parsePetFilters, toPetSearchParams } from "./filter
 describe("parsePetFilters", () => {
   it("читает фильтры из URL", () => {
     expect(
-      parsePetFilters({ kind: "cat", city: "pavlodar", sterilized: "true", q: "  Мурка " }),
-    ).toEqual({ kind: "cat", city: "pavlodar", sterilized: true, q: "Мурка" });
+      parsePetFilters({ kind: "cat", city: "astana", sterilized: "true", q: "  Мурка " }),
+    ).toEqual({ kind: "cat", city: "astana", sterilized: true, q: "Мурка" });
+  });
+
+  it("город вне списка платформы игнорируется", () => {
+    expect(parsePetFilters({ city: "pavlodar" })).toEqual({});
   });
 
   it("игнорирует мусор вместо падения страницы", () => {
@@ -26,7 +30,7 @@ describe("toPetSearchParams", () => {
   });
 
   it("переживает круг URL → фильтры → URL", () => {
-    const query = "kind=cat&age=1to5&city=almaty&good_with_kids=true&sort=old&limit=48";
+    const query = "kind=cat&age=1to5&city=astana&good_with_kids=true&sort=old&limit=48";
     const filters = parsePetFilters(Object.fromEntries(new URLSearchParams(query)));
     expect(toPetSearchParams(filters).toString()).toBe(query);
   });
@@ -34,7 +38,7 @@ describe("toPetSearchParams", () => {
 
 describe("countHiddenFilters", () => {
   it("считает фильтры под кнопкой «Фильтры», без поиска и города", () => {
-    expect(countHiddenFilters({ kind: "cat", needs_foster: true, city: "almaty", q: "x" })).toBe(2);
+    expect(countHiddenFilters({ kind: "cat", needs_foster: true, city: "astana", q: "x" })).toBe(2);
   });
 });
 

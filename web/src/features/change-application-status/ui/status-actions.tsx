@@ -52,8 +52,7 @@ export function StatusActions({ application }: { application: Application }) {
   );
 }
 
-// Порядок кнопок — путь заявки. Значения не импортируем из entities/application:
-// его index тянет серверные запросы (server-only), а это клиентский компонент
+// Порядок кнопок — путь заявки, отказ и отзыв — последними
 const ORDER: ApplicationStatus[] = [
   "meeting",
   "approved",

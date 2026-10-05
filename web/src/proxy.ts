@@ -11,6 +11,7 @@ const PROTECTED = [
   /^\/pets\/[^/]+\/apply$/,
   /^\/messages(\/|$)/,
   /^\/applications(\/|$)/,
+  /^\/favorites$/,
   /^\/onboarding$/,
   /^\/profile$/,
 ];

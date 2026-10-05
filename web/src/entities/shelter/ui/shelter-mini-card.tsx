@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Avatar, Card } from "@/shared/ui";
 import type { ShelterListItem } from "../model/shelter";
 import { ShelterLink } from "./shelter-link";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 
 /** Компактная карточка для главной: аватар, город и сколько питомцев ищут дом. */
 export function ShelterMiniCard({ shelter }: { shelter: ShelterListItem }) {
@@ -18,7 +19,7 @@ export function ShelterMiniCard({ shelter }: { shelter: ShelterListItem }) {
           </ShelterLink>
         </h3>
         <p className="text-sm text-ink-muted">
-          {shelter.city && `${t(`cities.${shelter.city}`)} · `}
+          {HAS_CITY_CHOICE && shelter.city && `${t(`cities.${shelter.city}`)} · `}
           {t("shelter.seeking", { count: shelter.seeking_count })}
         </p>
         {shelter.verified && (

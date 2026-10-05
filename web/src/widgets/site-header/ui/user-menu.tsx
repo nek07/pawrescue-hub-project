@@ -1,7 +1,7 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { FileText, Inbox, LogOut, MessageSquare } from "lucide-react";
+import { FileText, Heart, Inbox, LogOut, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import type { User } from "@/entities/user";
@@ -49,6 +49,12 @@ export function UserMenu({ user, isCurator }: { user: User; isCurator: boolean }
               </Link>
             </DropdownMenu.Item>
           )}
+          <DropdownMenu.Item asChild className={itemClass}>
+            <Link href="/favorites">
+              <Heart aria-hidden className="size-4" />
+              {t("userMenu.favorites")}
+            </Link>
+          </DropdownMenu.Item>
           <DropdownMenu.Item asChild className={itemClass}>
             <Link href="/messages">
               <MessageSquare aria-hidden className="size-4" />

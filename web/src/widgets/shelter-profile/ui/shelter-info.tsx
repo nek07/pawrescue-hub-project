@@ -2,13 +2,16 @@ import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ShelterDetails } from "@/entities/shelter";
 import { Card } from "@/shared/ui";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 
 export function ShelterAbout({ shelter }: { shelter: ShelterDetails }) {
   const t = useTranslations();
   const rows = [
     {
       label: t("shelterProfile.about.address"),
-      value: shelter.address && `${t(`cities.${shelter.city}`)}, ${shelter.address}`,
+      value:
+        shelter.address &&
+        (HAS_CITY_CHOICE ? `${t(`cities.${shelter.city}`)}, ${shelter.address}` : shelter.address),
     },
     { label: t("shelterProfile.about.visits"), value: shelter.visit_hours },
     { label: t("shelterProfile.about.contacts"), value: t("shelterProfile.about.contactsValue") },

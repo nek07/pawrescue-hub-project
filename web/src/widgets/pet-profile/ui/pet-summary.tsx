@@ -2,15 +2,18 @@ import { ArrowRight } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { getPetAge, isOpenForApplications, StatusBadge, type PetDetails } from "@/entities/pet";
+import { FavoriteButton } from "@/features/favorite-pet";
 import { ShareButton } from "@/features/share-pet";
+import { StartChatButton } from "@/features/start-conversation";
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { Button, Card } from "@/shared/ui";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 
 type Fact = { label: string; value: ReactNode; tone?: "success" | "warning" };
 
 /** Карточка справа: статус, факты, «Хочу забрать», вопрос куратору. */
-export function PetSummary({ pet }: { pet: PetDetails }) {
+export function PetSummary({ pet, signedIn }: { pet: PetDetails; signedIn: boolean }) {
   const t = useTranslations();
   const format = useFormatter();
   const age = getPetAge(pet.birth_date);
@@ -62,8 +65,10 @@ export function PetSummary({ pet }: { pet: PetDetails }) {
           {[
             t("pet.kind", { kind: pet.kind, sex: pet.sex }),
             t(`pet.age.${age.unit}`, { count: age.count }),
-            t(`cities.${pet.city}`),
-          ].join(" · ")}
+            HAS_CITY_CHOICE && t(`cities.${pet.city}`),
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         </p>
       </div>
 
@@ -91,15 +96,26 @@ export function PetSummary({ pet }: { pet: PetDetails }) {
       <div className="flex flex-col gap-3 border-t border-line pt-4">
         <p className="flex flex-wrap items-center justify-between gap-2 text-sm">
           <span className="text-ink-muted">{t("petProfile.question")}</span>
-          <Link
-            href={`/messages?to=${pet.curator.id}&pet=${pet.id}`}
-            className="flex items-center gap-1 font-semibold text-primary hover:underline"
+          <StartChatButton
+            target={{ pet_id: pet.id }}
+            signedIn={signedIn}
+            variant="link"
+            className="inline-flex items-center gap-1"
           >
             {t("petProfile.ask")}
             <ArrowRight aria-hidden className="size-4" />
-          </Link>
+          </StartChatButton>
         </p>
-        <ShareButton title={pet.name} />
+        <div className="grid grid-cols-2 gap-2">
+          <FavoriteButton
+            petId={pet.id}
+            petName={pet.name}
+            favorite={pet.is_favorite}
+            signedIn={signedIn}
+            variant="label"
+          />
+          <ShareButton title={pet.name} />
+        </div>
       </div>
     </Card>
   );

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inbox } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { APPLICATION_STATUS_LIST, getIncomingApplications } from "@/entities/application";
+import { APPLICATION_STATUS_LIST } from "@/entities/application";
+import { getIncomingApplications } from "@/entities/application/server";
 import { isCurator, requireSession } from "@/entities/user";
 import type { Locale } from "@/shared/i18n";
 import { EmptyState, SectionHeader } from "@/shared/ui";

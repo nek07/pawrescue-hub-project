@@ -1,11 +1,13 @@
 """Сид-данные из макета «Письмо»: uv run python -m app.seed
 
 Идемпотентно: id детерминированы, повторный запуск ничего не дублирует.
+Фото берутся из seed_assets/ (авторы и лицензии — в seed_assets/CREDITS.md).
 """
 
 import asyncio
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid5
 
@@ -13,10 +15,13 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cities import City
+from app.core.config import get_settings
 from app.core.db import Base, SessionFactory
+from app.core.storage import Storage, get_storage
 from app.modules.auth.models import AuthIdentity, AuthProvider
-from app.modules.feed.models import Comment, Post, PostAuthorType, PostKind
-from app.modules.pets.models import ChipStatus, Pet, PetKind, PetSex, PetStatus
+from app.modules.feed.models import Comment, PhotoLabel, Post, PostAuthorType, PostKind, PostPhoto
+from app.modules.media.images import render_variants
+from app.modules.pets.models import ChipStatus, Pet, PetKind, PetPhoto, PetSex, PetStatus
 from app.modules.pets.models import PetTrait as T
 from app.modules.shelters.models import Shelter, ShelterMember, ShelterRole
 from app.modules.users.models import User, UserRole
@@ -250,6 +255,26 @@ COMMENTS: list[dict[str, Any]] = [
     },
 ]  # fmt: skip
 
+ASSETS = Path(__file__).with_name("seed_assets")
+
+# Файлы из seed_assets/ по питомцам; первое фото — обложка карточки.
+PET_PHOTOS: dict[str, list[str]] = {
+    "Мурка": ["murka-1", "murka-2", "murka-3"],
+    "Айна": ["aina"], "Граф": ["graf"], "Тыква": ["tykva"], "Майя": ["maya"],
+    "Лорд": ["lord"], "Ветер": ["veter"], "Малыш": ["malysh"], "Тоша": ["tosha"],
+    "Персик": ["persik"], "Бусинка": ["businka"], "Снежок": ["snezhok"], "Барсик": ["barsik"],
+    "Сабыр": ["sabyr"], "Жулдыз": ["zhuldyz"], "Буран": ["buran"], "Кнопка": ["knopka"],
+}  # fmt: skip
+
+# Фото к постам ленты: (файл, метка «до/после», подпись).
+POST_PHOTOS: dict[str, list[tuple[str, PhotoLabel | None, str | None]]] = {
+    "tosha": [("tosha", None, None)],
+    "veter-help": [("veter", None, None)],
+    "dana-puppies": [("puppies", None, None)],
+    "businka": [("businka", PhotoLabel.AFTER, "Сегодня, дома")],
+    "zhuldyz": [("zhuldyz", None, None)],
+}
+
 
 async def seed(session: AsyncSession) -> None:
     volunteers = [{**v, "role": UserRole.VOLUNTEER, "verified_at": VERIFIED} for v in VOLUNTEERS]
@@ -289,12 +314,63 @@ async def seed(session: AsyncSession) -> None:
     await session.commit()
 
 
+async def _publish_asset(storage: Storage, bucket: str, name: str) -> dict[str, str]:
+    """Тот же конвейер, что у воркера: три WebP без EXIF. Уже выложенное не перекодируем."""
+    keys = {variant: f"seed/{name}/{variant}.webp" for variant in ("card", "page", "original")}
+    if await storage.head(bucket, keys["original"]) is None:  # original кладётся последним
+        data = (ASSETS / f"{name}.jpg").read_bytes()
+        variants = await asyncio.to_thread(render_variants, data)
+        for variant in ("card", "page", "original"):
+            await storage.put(bucket, keys[variant], variants[variant], content_type="image/webp")
+    return {variant: storage.public_url(bucket, key) for variant, key in keys.items()}
+
+
+async def seed_photos(session: AsyncSession, storage: Storage, bucket: str) -> None:
+    """Фото питомцев и постов. Отдельно от seed(): тестам каталога хранилище не нужно."""
+    names = {n for files in PET_PHOTOS.values() for n in files}
+    names |= {n for photos in POST_PHOTOS.values() for n, _, _ in photos}
+    urls = {name: await _publish_asset(storage, bucket, name) for name in sorted(names)}
+
+    def files(name: str) -> dict[str, str]:
+        u = urls[name]
+        return {"url": u["page"], "card_url": u["card"], "original_url": u["original"]}
+
+    await _upsert(
+        session,
+        PetPhoto,
+        [
+            {"id": sid(f"photo:{pet}:{i}"), "pet_id": sid(f"pet:{pet}"), "position": i, **files(n)}
+            for pet, pet_files in PET_PHOTOS.items()
+            for i, n in enumerate(pet_files)
+        ],
+    )
+    await _upsert(
+        session,
+        PostPhoto,
+        [
+            {
+                "id": sid(f"post-photo:{key}:{i}"),
+                "post_id": sid(f"post:{key}"),
+                "position": i,
+                "label": label,
+                "caption": caption,
+                **files(n),
+            }
+            for key, photos in POST_PHOTOS.items()
+            for i, (n, label, caption) in enumerate(photos)
+        ],
+    )
+    await session.commit()
+
+
 async def main() -> None:
+    settings = get_settings()
     async with SessionFactory() as session:
         await seed(session)
+        await seed_photos(session, get_storage(), settings.s3_photos_bucket)
     print(
         f"Seeded: {len(SHELTERS)} shelters, {len(VOLUNTEERS)} volunteers, {len(PETS)} pets, "
-        f"{len(POSTS)} posts"
+        f"{len(POSTS)} posts, {sum(map(len, PET_PHOTOS.values()))} pet photos"
     )
 
 

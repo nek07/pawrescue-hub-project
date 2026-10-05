@@ -1,10 +1,18 @@
 import { Check } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import type { ShelterDetails } from "@/entities/shelter";
-import { Link } from "@/shared/i18n";
-import { Avatar, Button } from "@/shared/ui";
+import { StartChatButton } from "@/features/start-conversation";
+import { SubscribeButton } from "@/features/subscribe-shelter";
+import { Avatar } from "@/shared/ui";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 
-export function ShelterHeader({ shelter }: { shelter: ShelterDetails }) {
+export function ShelterHeader({
+  shelter,
+  signedIn,
+}: {
+  shelter: ShelterDetails;
+  signedIn: boolean;
+}) {
   const t = useTranslations();
   const format = useFormatter();
   const name = t("shelter.name", { kind: "shelter", name: shelter.name });
@@ -12,6 +20,7 @@ export function ShelterHeader({ shelter }: { shelter: ShelterDetails }) {
   const stats = [
     { label: t("shelterProfile.stats.seeking"), value: format.number(shelter.seeking_count) },
     { label: t("shelterProfile.stats.adopted"), value: format.number(shelter.adopted_count) },
+    { label: t("shelterProfile.stats.followers"), value: format.number(shelter.subscribers_count) },
   ];
 
   return (
@@ -36,10 +45,9 @@ export function ShelterHeader({ shelter }: { shelter: ShelterDetails }) {
           />
           <div className="flex flex-col gap-1">
             <p className="text-xs font-semibold tracking-wider text-ink-muted uppercase">
-              {t("shelterProfile.meta", {
-                kind: "shelter",
-                city: t(`cities.${shelter.city}`),
-              })}
+              {HAS_CITY_CHOICE
+                ? t("shelterProfile.meta", { kind: "shelter", city: t(`cities.${shelter.city}`) })
+                : t("shelter.kind", { kind: "shelter" })}
             </p>
             <h1 className="font-display text-3xl font-semibold sm:text-4xl">{name}</h1>
             {shelter.verified && (
@@ -50,9 +58,16 @@ export function ShelterHeader({ shelter }: { shelter: ShelterDetails }) {
             )}
           </div>
         </div>
-        <Button asChild>
-          <Link href={`/messages?to=${shelter.id}`}>{t("shelterProfile.write")}</Link>
-        </Button>
+        <div className="flex gap-2">
+          <StartChatButton target={{ shelter_id: shelter.id }} signedIn={signedIn}>
+            {t("shelterProfile.write")}
+          </StartChatButton>
+          <SubscribeButton
+            shelterId={shelter.id}
+            subscribed={shelter.subscribed}
+            signedIn={signedIn}
+          />
+        </div>
       </div>
 
       <dl

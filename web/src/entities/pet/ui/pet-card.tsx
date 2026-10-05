@@ -6,6 +6,7 @@ import { Card } from "@/shared/ui";
 import { getPetAge } from "../model/age";
 import type { Pet } from "../model/pet";
 import { StatusBadge } from "./status-badge";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 
 type PetCardProps = {
   pet: Pet;
@@ -60,7 +61,7 @@ export function PetCard({ pet, showCity = false, actions }: PetCardProps) {
         </h3>
         <p className="text-sm text-ink-muted">{facts.join(" · ")}</p>
         <p className="text-sm text-ink-muted">
-          {showCity ? `${t(`cities.${pet.city}`)} · ${curator}` : curator}
+          {showCity && HAS_CITY_CHOICE ? `${t(`cities.${pet.city}`)} · ${curator}` : curator}
         </p>
         {pet.curator.verified && (
           <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-success">

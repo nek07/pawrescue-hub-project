@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PawPrint } from "lucide-react";
-import { getPets } from "@/entities/pet";
-import { getShelter } from "@/entities/shelter";
+import { getPets } from "@/entities/pet/server";
+import { getPosts } from "@/entities/post/server";
+import { getShelter } from "@/entities/shelter/server";
+import { getSession } from "@/entities/user";
 import { Link, type Locale } from "@/shared/i18n";
 import { EmptyState } from "@/shared/ui";
+import { FeedList } from "@/widgets/feed-list";
 import { PetGrid } from "@/widgets/pet-grid";
 import {
   SHELTER_TABS,
@@ -33,7 +36,7 @@ export default async function ShelterPage({ params, searchParams }: Props) {
 
   const { tab: rawTab } = await searchParams;
   const tab: ShelterTab = SHELTER_TABS.find((value) => value === rawTab) ?? "pets";
-  const t = await getTranslations();
+  const [t, user] = await Promise.all([getTranslations(), getSession()]);
 
   return (
     <div className="page-container flex flex-col gap-6 py-6">
@@ -47,12 +50,13 @@ export default async function ShelterPage({ params, searchParams }: Props) {
         </span>
       </nav>
 
-      <ShelterHeader shelter={shelter} />
+      <ShelterHeader shelter={shelter} signedIn={Boolean(user)} />
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-6">
           <ShelterTabs shelterId={shelter.id} active={tab} />
           {tab === "pets" && <ShelterPets shelterId={shelter.id} />}
+          {tab === "feed" && <ShelterFeed shelterId={shelter.id} />}
           {tab === "about" && <ShelterAbout shelter={shelter} />}
         </div>
         <aside className="flex flex-col gap-4">
@@ -78,4 +82,9 @@ async function ShelterPets({ shelterId }: { shelterId: string }) {
     );
   }
   return <PetGrid pets={page.items} columns={3} />;
+}
+
+async function ShelterFeed({ shelterId }: { shelterId: string }) {
+  const [user, page] = await Promise.all([getSession(), getPosts({ shelter_id: shelterId })]);
+  return <FeedList query={{ shelter_id: shelterId }} initialPage={page} signedIn={Boolean(user)} />;
 }

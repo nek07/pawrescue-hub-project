@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useId, useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
-import { CITIES, type City } from "@/shared/config";
+import { CITIES, HAS_CITY_CHOICE, type City } from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { Button, ErrorState, Field, Input, Select, Textarea } from "@/shared/ui";
@@ -41,7 +41,8 @@ export function ApplyForm({ petId, defaultName = "", defaultCity }: ApplyFormPro
       petId,
       name: defaultName,
       phone: "",
-      city: defaultCity,
+      // Город питомца, если платформа там работает; иначе, пока город один, — он
+      city: CITIES.find((c) => c === defaultCity) ?? (HAS_CITY_CHOICE ? undefined : CITIES[0]),
       household: [],
       about: "",
     },
@@ -88,16 +89,20 @@ export function ApplyForm({ petId, defaultName = "", defaultCity }: ApplyFormPro
             />
           </Field>
         </div>
-        <Field label={t("fields.city")} error={errorText(errors.city?.message)}>
-          <Select {...register("city")}>
-            <option value="">{t("fields.selectCity")}</option>
-            {CITIES.map((city) => (
-              <option key={city} value={city}>
-                {tCity(city)}
-              </option>
-            ))}
-          </Select>
-        </Field>
+        {HAS_CITY_CHOICE ? (
+          <Field label={t("fields.city")} error={errorText(errors.city?.message)}>
+            <Select {...register("city")}>
+              <option value="">{t("fields.selectCity")}</option>
+              {CITIES.map((city) => (
+                <option key={city} value={city}>
+                  {tCity(city)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        ) : (
+          <input type="hidden" {...register("city")} />
+        )}
       </Section>
 
       <Section legend={t("sections.home")}>

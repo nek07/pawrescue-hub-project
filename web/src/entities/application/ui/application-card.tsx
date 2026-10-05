@@ -6,6 +6,7 @@ import { cn } from "@/shared/lib";
 import { Card } from "@/shared/ui";
 import { APPLICATION_STATUSES, isClosed, type Application } from "../model/application";
 import { ApplicationStatusBadge } from "./application-status-badge";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 
 const STEPS = ["sent", "meeting", "approved", "completed"] as const;
 
@@ -93,7 +94,9 @@ export function ApplicationCard({ application, actions }: ApplicationCardProps) 
             <Fact label={t("applyForPet.fields.phone")}>
               {application.phone ?? t("application.phoneHidden")}
             </Fact>
-            <Fact label={t("applyForPet.fields.city")}>{t(`cities.${application.city}`)}</Fact>
+            {HAS_CITY_CHOICE && (
+              <Fact label={t("applyForPet.fields.city")}>{t(`cities.${application.city}`)}</Fact>
+            )}
             <Fact label={t("applyForPet.fields.housing")}>
               {t(`applyForPet.fields.housingOption.${application.housing}`)}
             </Fact>

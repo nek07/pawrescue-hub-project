@@ -1,5 +1,4 @@
-// get-applications — только для сервера (cookie сессии)
-export { getIncomingApplications, getMyApplications } from "./api/get-applications";
+// Серверные запросы — @/entities/application/server
 export {
   APPLICATION_STATUS_LIST,
   APPLICATION_STATUSES,

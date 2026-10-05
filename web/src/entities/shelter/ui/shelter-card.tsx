@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Avatar, Card } from "@/shared/ui";
 import type { ShelterListItem } from "../model/shelter";
 import { ShelterLink } from "./shelter-link";
+import { HAS_CITY_CHOICE } from "@/shared/config";
 
 /** Карточка в списке приютов: обложка, аватар, проверка и счётчики. */
 export function ShelterCard({ shelter }: { shelter: ShelterListItem }) {
@@ -20,7 +21,7 @@ export function ShelterCard({ shelter }: { shelter: ShelterListItem }) {
           className="-mt-7 mb-2 ring-4 ring-surface-raised"
         />
         <p className="text-sm text-ink-muted">
-          {shelter.city
+          {HAS_CITY_CHOICE && shelter.city
             ? t("shelterProfile.meta", { kind: shelter.type, city: t(`cities.${shelter.city}`) })
             : t("shelter.kind", { kind: shelter.type })}
         </p>

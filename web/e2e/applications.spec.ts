@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { applyAsNewUser, loginAs, noSeriousViolations, SEED } from "./helpers";
+import { applyAsNewUser, devLogin, loginAs, noSeriousViolations, SEED } from "./helpers";
 
 test("заявитель видит заявку в «Моих заявках» и может её отозвать", async ({ page }) => {
   await applyAsNewUser(page, SEED.aina);
-  await page.getByRole("link", { name: "Мои заявки" }).click();
+  await page.goto("/ru/applications");
 
   const card = page.getByRole("listitem").filter({ hasText: "Айна" });
-  await expect(card.getByText("Отправлена").first()).toBeVisible();
+  await expect(card.locator('[aria-current="step"]')).toHaveText("Отправлена");
   await expect(card.getByRole("list", { name: "Ход заявки" })).toBeVisible();
   await noSeriousViolations(page);
 
@@ -17,8 +17,8 @@ test("заявитель видит заявку в «Моих заявках» 
 });
 
 test("обычный пользователь не видит входящих заявок", async ({ page }) => {
-  await applyAsNewUser(page, SEED.aina);
-  await page.goto("/ru/applications/incoming");
+  await page.goto(`/ru/login?next=${encodeURIComponent("/applications/incoming")}`);
+  await devLogin(page);
   await expect(page.getByRole("heading", { name: "Здесь заявки для кураторов" })).toBeVisible();
 });
 
@@ -26,7 +26,8 @@ test("куратор приюта приглашает заявителя на �
   const name = await applyAsNewUser(page, SEED.tykva);
 
   await loginAs(page, /Владелец приюта — Гульнара/);
-  await page.goto("/ru/applications/incoming?status=sent");
+  // Без фильтра: после приглашения заявка уйдёт из «Отправлена», а нам нужна та же карточка
+  await page.goto("/ru/applications/incoming");
   const card = page.getByRole("listitem").filter({ hasText: `От ${name}` });
   await expect(card).toBeVisible();
   // Телефон куратор видит только после одобрения
@@ -34,6 +35,11 @@ test("куратор приюта приглашает заявителя на �
   await noSeriousViolations(page);
 
   await card.getByRole("button", { name: "Пригласить на знакомство" }).click();
-  await expect(card.getByText("Знакомство").first()).toBeVisible();
+  await expect(card.locator('[aria-current="step"]')).toHaveText("Знакомство");
   await expect(card.getByRole("button", { name: "Пригласить на знакомство" })).toHaveCount(0);
+
+  // Убираем за собой: отклонённая заявка не копится во «Входящих» у Гульнары
+  page.once("dialog", (dialog) => dialog.accept());
+  await card.getByRole("button", { name: "Отклонить" }).click();
+  await expect(card.getByText("Отклонена").first()).toBeVisible();
 });

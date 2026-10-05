@@ -1,0 +1,165 @@
+# Продакшн-стек Paw Rescue Hub на одном сервере.
+# Запуск: docker compose --env-file .env up -d --build (делает deploy.sh)
+#
+# Наружу открыт только Caddy (80/443, автоматический HTTPS от Let's Encrypt):
+#   https://$SITE_DOMAIN/api/*  -> api (FastAPI, включая WebSocket /api/v1/ws)
+#   https://$SITE_DOMAIN/*      -> web (Next.js)
+#   https://s3.$SITE_DOMAIN     -> s3  (SeaweedFS: presigned-загрузки и фото)
+# Postgres, Redis и S3 доступны только во внутренней сети.
+
+name: pawrescue
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+x-api: &api
+  build: ../api
+  image: pawrescue/api:latest
+  restart: unless-stopped
+  logging: *logging
+  environment:
+    ENV: ${APP_ENV:-prod}
+    DATABASE_URL: postgresql+asyncpg://paw:${POSTGRES_PASSWORD}@postgres:5432/paw
+    REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+    CORS_ORIGINS: '["https://${SITE_DOMAIN}"]'
+    WEB_URL: https://${SITE_DOMAIN}
+    API_PUBLIC_URL: https://${SITE_DOMAIN}
+    SESSION_SECRET: ${SESSION_SECRET}
+    GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+    S3_ENDPOINT_URL: http://s3:8333
+    S3_PUBLIC_URL: https://s3.${SITE_DOMAIN}
+    S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+    S3_SECRET_KEY: ${S3_SECRET_KEY}
+    LOG_JSON: "true"
+    SENTRY_DSN: ${SENTRY_DSN:-}
+    # API доступен только через Caddy — доверяем его X-Forwarded-For (реальный IP для лимитов)
+    FORWARDED_ALLOW_IPS: "*"
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    logging: *logging
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+
+  web:
+    build:
+      context: ../web
+      args:
+        API_URL: http://api:8000
+        NEXT_PUBLIC_DEV_LOGIN: ${NEXT_PUBLIC_DEV_LOGIN:-}
+        NEXT_PUBLIC_TELEGRAM_BOT_ID: ${NEXT_PUBLIC_TELEGRAM_BOT_ID:-}
+    image: pawrescue/web:latest
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      # Серверные компоненты ходят в API напрямую по внутренней сети
+      API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+
+  api:
+    <<: *api
+    # Только loopback сервера — для SSH-туннеля к Swagger, снаружи недоступен
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      s3:
+        condition: service_started
+
+  worker:
+    <<: *api
+    command: arq app.workers.main.WorkerSettings
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  # Одноразовый: применяет миграции при каждом деплое и завершается
+  migrate:
+    <<: *api
+    restart: "no"
+    command: alembic upgrade head
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_USER: paw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: paw
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paw -d paw"]
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    logging: *logging
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD --no-auth-warning ping | grep PONG"]
+      interval: 5s
+      retries: 20
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+  # S3-совместимое хранилище. uploads и shelter-docs — приватные,
+  # pet-photos — публичное чтение (права в s3.json, генерирует deploy.sh).
+  s3:
+    image: chrislusf/seaweedfs:latest
+    restart: unless-stopped
+    logging: *logging
+    # Тома по 1 ГБ вместо 30 ГБ по умолчанию: иначе на небольшом диске места хватает
+    # только первому бакету ("No writable volumes"). 3 бакета × 7 томов на старте.
+    command: >-
+      server -dir=/data -master.volumeSizeLimitMB=1024 -volume.max=50
+      -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    volumes:
+      - s3data:/data
+      - ./s3.json:/etc/seaweedfs/s3.json:ro
+
+volumes:
+  pgdata:
+  redisdata:
+  s3data:
+  caddy_data:
+  caddy_config:

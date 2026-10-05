@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Building2 } from "lucide-react";
-import { getShelters, parseShelterFilters, ShelterCard } from "@/entities/shelter";
+import { parseShelterFilters, ShelterCard } from "@/entities/shelter";
+import { getShelters } from "@/entities/shelter/server";
 import { ShelterFiltersBar } from "@/features/filter-shelters";
 import { Link, type Locale } from "@/shared/i18n";
 import { Button, EmptyState, SectionHeader } from "@/shared/ui";

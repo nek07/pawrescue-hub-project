@@ -6,6 +6,16 @@
     @apply bg-surface font-sans text-ink antialiased;
   }
 
+  /* На телефоне снизу фиксированная панель вкладок: прокрутка к полю или кнопке
+     оставляет под ней место, чтобы элемент в фокусе не прятался (WCAG 2.4.11) */
+  html {
+    scroll-padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+
+    @variant md {
+      scroll-padding-bottom: 0;
+    }
+  }
+
   /* Фокус с клавиатуры виден везде — по листу «Состояния» */
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-ink;

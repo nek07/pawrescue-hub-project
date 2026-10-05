@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Suspense } from "react";
-import { getPets, parsePetFilters, toPetSearchParams, type PetFilters } from "@/entities/pet";
+import { parsePetFilters, toPetSearchParams, type PetFilters } from "@/entities/pet";
+import { getPets } from "@/entities/pet/server";
+import { getSession } from "@/entities/user";
 import { PetFiltersBar } from "@/features/filter-pets";
 import type { Locale } from "@/shared/i18n";
 import { SectionHeader } from "@/shared/ui";
@@ -35,6 +37,6 @@ export default async function PetsPage({ params, searchParams }: PageProps<"/[lo
 }
 
 async function Results({ filters }: { filters: PetFilters }) {
-  const page = await getPets(filters);
-  return <PetCatalogResults page={page} filters={filters} />;
+  const [page, user] = await Promise.all([getPets(filters), getSession()]);
+  return <PetCatalogResults page={page} filters={filters} signedIn={Boolean(user)} />;
 }

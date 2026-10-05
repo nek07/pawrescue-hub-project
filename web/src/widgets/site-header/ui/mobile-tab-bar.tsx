@@ -13,7 +13,7 @@ const tabs = [
 ] as const;
 
 /** Нижние вкладки на телефоне. Вошёл ли человек — решает сервер и передаёт сюда. */
-export function MobileTabBar({ signedIn }: { signedIn: boolean }) {
+export function MobileTabBar({ signedIn, unread = 0 }: { signedIn: boolean; unread?: number }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const account = signedIn
@@ -38,7 +38,17 @@ export function MobileTabBar({ signedIn }: { signedIn: boolean }) {
                   active ? "font-semibold text-primary" : "text-ink-muted",
                 )}
               >
-                <Icon aria-hidden className="size-5" />
+                <span className="relative">
+                  <Icon aria-hidden className="size-5" />
+                  {key === "messages" && unread > 0 && (
+                    <span
+                      className="absolute -top-1.5 -right-2.5 flex min-w-4 items-center justify-center rounded-pill bg-primary px-1 text-[10px] font-semibold text-on-primary"
+                      aria-label={t("unread", { count: unread })}
+                    >
+                      {unread}
+                    </span>
+                  )}
+                </span>
                 {t(key)}
               </Link>
             </li>
