@@ -6,7 +6,7 @@
 ```
                        ┌──────────── сервер 93.170.73.79 ─────────────────────────┐
  браузер ── HTTPS ──▶  │ Caddy :443 ─┬─ /*      ──▶ web (Next.js) ──▶ api ──▶ postgres │
-                       │             ├─ /api/v1/auth/{google,telegram} ─▶ api    redis    │
+                       │             ├─ /api/v1/* (+ WebSocket) ──────▶ api    redis    │
                        │             └─ s3.*    ──▶ s3 (SeaweedFS) ◀── worker (arq) │
                        └───────────────────────────────────────────────────────────┘
 ```
@@ -89,13 +89,15 @@ docker compose exec -T postgres pg_restore -U paw -d paw --clean --if-exists \
 
 Фото и документы лежат в volume `pawrescue_s3data` и в этот бэкап не входят.
 
-**Что открыто снаружи.** Только сайт (Next.js) и S3-поддомен: фото и загрузка по
-presigned URL с подписью. API, Swagger (`/docs`) и `/openapi.json` отвечают 404:
-Next.js обращается к API по внутренней сети Docker. Напрямую из браузера доступны
-только эндпоинты входа: `/api/v1/auth/google/login`, `/api/v1/auth/google/callback`
-и `/api/v1/auth/telegram`. Если фронт начнёт вызывать новый эндпоинт из браузера
-(например, WebSocket чата), его нужно явно добавить в `@public_api` в `Caddyfile`.
+**Что открыто снаружи.** Сайт (Next.js), API под `/api/v1/*` и S3-поддомен (фото и
+загрузка по presigned URL с подписью). API нужен браузеру напрямую: вход через
+Google/Telegram, опрос и WebSocket чата (`/api/v1/ws`), лайки, избранное. Данные
+защищают httpOnly-cookie сессии, проверка Origin для изменяющих запросов и сокета,
+лимиты частоты. Swagger (`/docs`), `/redoc` и `/openapi.json` отвечают 404.
 Postgres и Redis не публикуют порты вообще.
+
+В демо-режиме (`APP_ENV=dev`) открыт и `/api/v1/auth/dev-login`: войти можно под
+любой ролью, включая модератора. Для реальных пользователей — `APP_ENV=prod`.
 
 Swagger для разработки открывается через SSH-туннель: API слушает порт 8000 только
 на loopback сервера (`127.0.0.1`).
