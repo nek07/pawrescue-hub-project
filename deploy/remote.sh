@@ -70,7 +70,8 @@ fi
 # 5. Проверка снаружи, через Caddy и HTTPS
 log "Проверяю https://${SITE_DOMAIN}"
 for i in $(seq 1 30); do
-  if curl -fsS "https://${SITE_DOMAIN}/api/v1/health" >/dev/null 2>&1 \
+  # API проверяем изнутри (снаружи он закрыт), сайт — снаружи через Caddy
+  if docker compose exec -T api python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')" >/dev/null 2>&1 \
      && curl -fsS -o /dev/null "https://${SITE_DOMAIN}/"; then
     log "Готово: https://${SITE_DOMAIN}"
     docker image prune -f >/dev/null

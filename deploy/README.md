@@ -5,8 +5,8 @@
 
 ```
                        ┌──────────── сервер 93.170.73.79 ─────────────────────────┐
- браузер ── HTTPS ──▶  │ Caddy :443 ─┬─ /api/*  ──▶ api (FastAPI) ──┬─▶ postgres    │
-                       │             ├─ /*      ──▶ web (Next.js) ──┘   redis       │
+ браузер ── HTTPS ──▶  │ Caddy :443 ─┬─ /*      ──▶ web (Next.js) ──▶ api ──▶ postgres │
+                       │             ├─ /api/v1/auth/{google,telegram} ─▶ api    redis    │
                        │             └─ s3.*    ──▶ s3 (SeaweedFS) ◀── worker (arq) │
                        └───────────────────────────────────────────────────────────┘
 ```
@@ -24,7 +24,6 @@
 
 **Адреса**
 - Сайт: https://93-170-73-79.sslip.io
-- API: https://93-170-73-79.sslip.io/api/v1/health, документация — `/docs`
 - S3: https://s3.93-170-73-79.sslip.io
 
 `sslip.io` — бесплатный DNS, который отдаёт IP прямо из имени. Свой домен подключается так:
@@ -89,6 +88,18 @@ docker compose exec -T postgres pg_restore -U paw -d paw --clean --if-exists \
 ```
 
 Фото и документы лежат в volume `pawrescue_s3data` и в этот бэкап не входят.
+
+**Что открыто снаружи.** Только сайт (Next.js) и S3-поддомен: фото и загрузка по
+presigned URL с подписью. API, Swagger (`/docs`) и `/openapi.json` отвечают 404:
+Next.js обращается к API по внутренней сети Docker. Напрямую из браузера доступны
+только эндпоинты входа: `/api/v1/auth/google/login`, `/api/v1/auth/google/callback`
+и `/api/v1/auth/telegram`. Если фронт начнёт вызывать новый эндпоинт из браузера
+(например, WebSocket чата), его нужно явно добавить в `@public_api` в `Caddyfile`.
+Postgres и Redis не публикуют порты вообще.
+
+Swagger для разработки открывается через SSH-туннель: API слушает порт 8000 только
+на loopback сервера (`127.0.0.1`).
+`ssh -N -L 8000:127.0.0.1:8000 root@93.170.73.79`, затем http://localhost:8000/docs.
 
 **Безопасность.** ufw пропускает только порты 22, 80 и 443. fail2ban защищает SSH.
 Postgres, Redis и S3 недоступны снаружи, логи контейнеров ротируются (5 × 10 МБ).

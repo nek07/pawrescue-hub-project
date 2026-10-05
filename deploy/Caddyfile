@@ -12,11 +12,18 @@
 	import security_headers
 	encode zstd gzip
 
-	# FastAPI напрямую, минуя Next.js: так работает WebSocket /api/v1/ws.
-	# /docs и /openapi.json — Swagger UI бэкенда.
-	@api path /api/* /docs /docs/* /openapi.json
-	handle @api {
+	# API наружу не открыт: Next.js ходит в него по внутренней сети (http://api:8000).
+	# Браузеру напрямую нужны только эндпоинты входа через Google и Telegram.
+	# Новый эндпоинт, который вызывается из браузера, добавляйте сюда явно.
+	@public_api path /api/v1/auth/google/login /api/v1/auth/google/callback /api/v1/auth/telegram
+	handle @public_api {
 		reverse_proxy api:8000
+	}
+
+	# Остальной API, Swagger и схема снаружи недоступны
+	@private_api path /api /api/* /docs /docs/* /redoc /openapi.json
+	handle @private_api {
+		respond 404
 	}
 
 	handle {
