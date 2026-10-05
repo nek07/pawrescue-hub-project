@@ -65,6 +65,8 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+      s3:
+        condition: service_started  # загрузки фото; `up api` в CI поднимает и S3
 
   worker:
     build: .
@@ -75,6 +77,8 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+      s3:
+        condition: service_started  # загрузки фото; `up api` в CI поднимает и S3
 
 volumes:
   pgdata:
