@@ -224,3 +224,55 @@ class PetRepository:
             .where(*conds)
         )
         return [CatalogRow(pet=p, cover_url=url) for p, url, _ in page], next_cursor, total or 0
+
+    # --- кабинет куратора
+
+    async def create(self, **fields: Any) -> Pet:
+        pet = Pet(**fields)
+        self.session.add(pet)
+        await self.session.flush()
+        await self.session.refresh(pet)
+        return pet
+
+    async def update(self, pet: Pet, fields: dict[str, Any]) -> None:
+        for key, value in fields.items():
+            setattr(pet, key, value)
+        await self.session.flush()
+        await self.session.refresh(pet)
+
+    async def delete(self, pet: Pet) -> None:
+        await self.session.delete(pet)
+        await self.session.flush()
+
+    async def delete_photo(self, photo: PetPhoto) -> None:
+        await self.session.delete(photo)
+        await self.session.flush()
+
+    async def reorder_photos(self, photos: list[PetPhoto]) -> None:
+        for position, photo in enumerate(photos):
+            photo.position = position
+        await self.session.flush()
+
+    async def managed_page(
+        self,
+        *,
+        shelter_ids: Collection[UUID],
+        volunteer_id: UUID,
+        status: PetStatus | None,
+        params: PageParams,
+    ) -> tuple[list[CatalogRow], str | None, int]:
+        conds: list[ColumnElement[bool]] = [
+            or_(Pet.shelter_id.in_(shelter_ids), Pet.volunteer_id == volunteer_id)
+        ]
+        if status is not None:
+            conds.append(Pet.status == status)
+        stmt = apply_cursor(
+            select(Pet, _cover()).where(*conds),
+            created_at=Pet.created_at,
+            id_=Pet.id,
+            params=params,
+        )
+        rows = (await self.session.execute(stmt)).tuples().all()
+        page, next_cursor = cut_page(rows, params=params, key=lambda r: (r[0].created_at, r[0].id))
+        total = await self.session.scalar(select(func.count()).select_from(Pet).where(*conds))
+        return [CatalogRow(pet=p, cover_url=url) for p, url in page], next_cursor, total or 0

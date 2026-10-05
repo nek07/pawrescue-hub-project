@@ -1,7 +1,10 @@
 from collections.abc import Collection
 from datetime import date
+from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
+from app.core.cities import City
 from app.core.errors import DomainError
 from app.core.pagination import Page, PageParams
 from app.modules.pets.models import Pet, PetStatus
@@ -10,15 +13,40 @@ from app.modules.pets.schemas import (
     CuratorCounts,
     CuratorOut,
     FavoriteOut,
+    ManagedPetFilters,
     PetCardOut,
+    PetCreate,
     PetDetailOut,
     PetFilters,
     PetPhotoOut,
+    PetUpdate,
 )
 from app.modules.shelters.service import ShelterService
+from app.modules.users.models import User, UserRole
 from app.modules.users.service import UserService
 
 SIMILAR_LIMIT = 4  # «Тоже ищут дом»
+MANUAL_STATUSES = frozenset({PetStatus.SEEKING, PetStatus.NEEDS_FOSTER, PetStatus.TREATMENT})
+# Колонки без NULL: в PATCH их можно не передавать, но нельзя обнулить.
+_REQUIRED = frozenset({"name", "kind", "sex", "birth_date", "sterilized", "chip", "traits", "city"})
+
+
+def _not_curator() -> DomainError:
+    return DomainError(
+        "not_curator", status=403, message="Only verified shelters and volunteers publish pets"
+    )
+
+
+def _pet_fields(values: dict[str, Any]) -> dict[str, Any]:
+    """Поля схемы → колонки модели (вес храним в Numeric, черты — строками)."""
+    fields = dict(values)
+    if fields.get("weight_kg") is not None:
+        fields["weight_kg"] = Decimal(str(round(fields["weight_kg"], 1)))
+    if fields.get("traits") is not None:
+        fields["traits"] = [str(t) for t in fields["traits"]]
+    if isinstance(fields.get("name"), str):
+        fields["name"] = fields["name"].strip()
+    return fields
 
 
 class PetService:
@@ -141,3 +169,110 @@ class PetService:
             elif pet.volunteer_id:
                 result[pet.id] = CuratorOut.from_volunteer(volunteers[pet.volunteer_id])
         return result
+
+    # --- кабинет куратора
+
+    async def create_pet(self, user: User, data: PetCreate) -> PetDetailOut:
+        """Новая анкета — всегда черновик: в каталоге появится после publish."""
+        city: City | None
+        if data.shelter_id is not None:
+            if not await self.shelters.is_member(data.shelter_id, user.id):
+                raise _not_curator()
+            shelter = await self.shelters.get_shelter(data.shelter_id)  # только проверенный
+            curator: dict[str, Any] = {"shelter_id": shelter.id}
+            city = data.city or shelter.city
+        else:
+            if not (user.role == UserRole.VOLUNTEER and user.verified_at is not None):
+                raise _not_curator()
+            curator = {"volunteer_id": user.id}
+            city = data.city or user.city
+            if city is None:
+                raise DomainError("validation_error", status=422, fields={"city": "missing"})
+        fields = _pet_fields(data.model_dump(exclude={"shelter_id", "city"}, exclude_none=True))
+        pet = await self.repo.create(**fields, **curator, city=city, status=PetStatus.DRAFT)
+        await self.repo.commit()
+        return await self._managed_detail(pet)
+
+    async def update_pet(self, pet_id: UUID, user: User, data: PetUpdate) -> PetDetailOut:
+        pet = await self.get_managed_pet(pet_id, user.id)
+        changes = data.model_dump(exclude_unset=True)
+        nulls = {k: "null_not_allowed" for k, v in changes.items() if v is None and k in _REQUIRED}
+        if nulls:
+            raise DomainError("validation_error", status=422, fields=nulls)
+        await self.repo.update(pet, _pet_fields(changes))
+        await self.repo.commit()
+        return await self._managed_detail(pet)
+
+    async def publish(self, pet_id: UUID, user: User) -> PetDetailOut:
+        pet = await self.get_managed_pet(pet_id, user.id)
+        if pet.status != PetStatus.DRAFT:
+            raise DomainError("already_published", status=409, message="Pet is already published")
+        missing = {}
+        if not pet.story:
+            missing["story"] = "required"
+        if not await self.repo.photos(pet.id):
+            missing["photos"] = "required"
+        if missing:
+            # Без истории и фото анкета не работает — так говорят волонтёры в макете.
+            raise DomainError("publish_incomplete", status=422, fields=missing)
+        await self.repo.update(pet, {"status": PetStatus.SEEKING})
+        await self.repo.commit()
+        return await self._managed_detail(pet)
+
+    async def change_status(self, pet_id: UUID, user: User, status: PetStatus) -> PetDetailOut:
+        """Руками — только «Ищет дом» ↔ «Нужна передержка» ↔ «На лечении».
+        «Забронирован» и «Нашёл дом» ставит сервис заявок."""
+        await self.get_managed_pet(pet_id, user.id)
+        pet = await self.get_pet(pet_id, for_update=True)  # не гоняемся с одобрением заявки
+        if pet.status not in MANUAL_STATUSES or status not in MANUAL_STATUSES:
+            raise DomainError(
+                "status_not_allowed", status=409, message=f"Cannot change {pet.status} to {status}"
+            )
+        await self.repo.update(pet, {"status": status})
+        await self.repo.commit()
+        return await self._managed_detail(pet)
+
+    async def delete_pet(self, pet_id: UUID, user: User) -> None:
+        pet = await self.get_managed_pet(pet_id, user.id)
+        if pet.status != PetStatus.DRAFT:
+            raise DomainError("pet_published", status=409, message="Only drafts can be deleted")
+        await self.repo.delete(pet)
+        await self.repo.commit()
+
+    async def delete_photo(self, pet_id: UUID, photo_id: UUID, user: User) -> None:
+        pet = await self.get_managed_pet(pet_id, user.id)
+        photo = await self.repo.get_photo(photo_id)
+        if photo is None or photo.pet_id != pet.id:
+            raise DomainError("photo_not_found", status=404, message="Photo not found")
+        await self.repo.delete_photo(photo)
+        await self.repo.commit()
+
+    async def reorder_photos(
+        self, pet_id: UUID, user: User, photo_ids: list[UUID]
+    ) -> list[PetPhotoOut]:
+        pet = await self.get_managed_pet(pet_id, user.id)
+        photos = {p.id: p for p in await self.repo.photos(pet.id)}
+        if len(photo_ids) != len(set(photo_ids)) or set(photo_ids) != set(photos):
+            raise DomainError(
+                "photo_order_mismatch", status=422, message="Pass every photo of the pet once"
+            )
+        ordered = [photos[i] for i in photo_ids]
+        await self.repo.reorder_photos(ordered)
+        await self.repo.commit()
+        return [PetPhotoOut.from_photo(p) for p in ordered]
+
+    async def managed_detail(self, pet_id: UUID, user: User) -> PetDetailOut:
+        return await self._managed_detail(await self.get_managed_pet(pet_id, user.id))
+
+    async def list_managed(self, user: User, f: ManagedPetFilters) -> Page[PetCardOut]:
+        shelter_ids = await self.shelters.member_shelter_ids(user.id)
+        rows, next_cursor, total = await self.repo.managed_page(
+            shelter_ids=shelter_ids, volunteer_id=user.id, status=f.status, params=f.page()
+        )
+        return Page(items=await self._cards(rows), next_cursor=next_cursor, total=total)
+
+    async def _managed_detail(self, pet: Pet) -> PetDetailOut:
+        curators = await self._curators([pet])
+        return PetDetailOut.build_detail(
+            pet, curator=curators[pet.id], photos=await self.repo.photos(pet.id), similar=[]
+        )

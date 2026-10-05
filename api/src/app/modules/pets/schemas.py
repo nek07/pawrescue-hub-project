@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 from enum import StrEnum
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import AfterValidator, BaseModel, Field
+from pydantic_core import PydanticCustomError
 
 from app.core.cities import City
 from app.core.pagination import PageQuery
@@ -156,3 +157,57 @@ class PetDetailOut(PetCardOut):
 
 class FavoriteOut(BaseModel):
     favorite: bool
+
+
+def _birth_date(value: date) -> date:
+    if value > date.today():
+        raise PydanticCustomError("birth_date_future", "Birth date is in the future")
+    return value
+
+
+def _unique_traits(values: list[PetTrait]) -> list[PetTrait]:
+    return list(dict.fromkeys(values))
+
+
+class PetUpdate(BaseModel):
+    """Правка анкеты куратором; все поля необязательны (PATCH)."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=60)
+    kind: PetKind | None = None
+    sex: PetSex | None = None
+    breed: str | None = Field(default=None, max_length=80)
+    birth_date: Annotated[date, AfterValidator(_birth_date)] | None = None
+    weight_kg: float | None = Field(default=None, gt=0, lt=100)
+    sterilized: bool | None = None
+    vaccinated_at: date | None = None
+    chip: ChipStatus | None = None
+    litter_trained: bool | None = None
+    traits: Annotated[list[PetTrait], AfterValidator(_unique_traits)] | None = None
+    story_title: str | None = Field(default=None, max_length=160)
+    story: str | None = Field(default=None, max_length=5000)
+    city: City | None = None
+
+
+class PetCreate(PetUpdate):
+    """Новая анкета создаётся черновиком; опубликовать — POST /pets/{id}/publish."""
+
+    name: str = Field(min_length=1, max_length=60)
+    kind: PetKind
+    sex: PetSex
+    birth_date: Annotated[date, AfterValidator(_birth_date)]
+    # От имени какого приюта; без него — личная анкета проверенного волонтёра.
+    shelter_id: UUID | None = None
+
+
+class PetStatusIn(BaseModel):
+    status: PetStatus
+
+
+class PhotoOrderIn(BaseModel):
+    """Новый порядок фото; первое станет обложкой."""
+
+    photo_ids: list[UUID] = Field(min_length=1)
+
+
+class ManagedPetFilters(PageQuery):
+    status: PetStatus | None = None
