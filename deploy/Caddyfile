@@ -12,8 +12,10 @@
 	import security_headers
 	encode zstd gzip
 
-	# FastAPI напрямую, минуя Next.js: так работает WebSocket /api/v1/ws
-	handle /api/* {
+	# FastAPI напрямую, минуя Next.js: так работает WebSocket /api/v1/ws.
+	# /docs и /openapi.json — Swagger UI бэкенда.
+	@api path /api/* /docs /docs/* /openapi.json
+	handle @api {
 		reverse_proxy api:8000
 	}
 

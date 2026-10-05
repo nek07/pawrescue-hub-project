@@ -43,6 +43,15 @@ chmod 644 s3.json
 log "Собираю образы и запускаю стек"
 docker compose up -d --build --remove-orphans
 
+# Caddyfile смонтирован файлом: после rsync (новый inode) контейнер видит старую
+# версию, поэтому при изменении конфига Caddy пересоздаётся
+caddy_sum=$(sha256sum Caddyfile | cut -d' ' -f1)
+if [[ "$(cat .caddyfile.sha 2>/dev/null)" != "$caddy_sum" ]]; then
+  log "Caddyfile изменился — перезапускаю Caddy"
+  docker compose up -d --force-recreate caddy
+  echo "$caddy_sum" > .caddyfile.sha
+fi
+
 # 4. Бакеты: в prod API их не создаёт (это задача инфраструктуры)
 log "Проверяю бакеты S3"
 docker compose exec -T api python - <<'PY'

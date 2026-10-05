@@ -34,7 +34,7 @@ git archive --format=tar "$REF" | ssh "$HOST" "
   echo $SHA > \$tmp/REVISION
   mkdir -p $DIR
   rsync -a --delete \
-    --exclude 'deploy/.env' --exclude 'deploy/s3.json' --exclude 'backups/' \
+    --exclude 'deploy/.env' --exclude 'deploy/s3.json' --exclude 'deploy/.caddyfile.sha' --exclude 'backups/' \
     \$tmp/ $DIR/
   rm -rf \$tmp
 "
