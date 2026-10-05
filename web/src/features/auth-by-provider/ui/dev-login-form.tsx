@@ -26,7 +26,7 @@ export function DevLoginForm({ next }: { next: string }) {
   const locale = useLocale();
   const [name, setName] = useState("");
   const [pending, setPending] = useState<string>();
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState<{ error: string; retryAfter?: number }>();
   // До гидратации браузер отправил бы форму сам, без запроса к API
   const hydrated = useSyncExternalStore(
     noopSubscribe,
@@ -36,11 +36,11 @@ export function DevLoginForm({ next }: { next: string }) {
 
   const login = async (key: string, userName: string, role: UserRole) => {
     setPending(key);
-    setFailed(false);
-    const { ok } = await devLogin(userName, role);
-    if (!ok) {
+    setFailure(undefined);
+    const result = await devLogin(userName, role);
+    if (!result.ok) {
       setPending(undefined);
-      setFailed(true);
+      setFailure(result);
       return;
     }
     // Полный переход: клиентский роутер мог запомнить редирект на вход
@@ -84,7 +84,15 @@ export function DevLoginForm({ next }: { next: string }) {
           {t("submit")}
         </Button>
       </form>
-      {failed && <ErrorState title={t("failed")} />}
+      {failure && (
+        <ErrorState
+          title={
+            failure.error === "too_many_requests"
+              ? t("tooMany", { seconds: failure.retryAfter ?? 60 })
+              : t("failed")
+          }
+        />
+      )}
     </div>
   );
 }

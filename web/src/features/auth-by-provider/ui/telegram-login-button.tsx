@@ -34,20 +34,20 @@ export function TelegramLoginButton({ next, locale }: { next: string; locale: Lo
   const t = useTranslations("login");
   const [ready, setReady] = useState(false);
   const [pending, setPending] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<"failed" | "tooMany">();
 
   const login = () => {
     if (!BOT_ID || !window.Telegram) return;
-    setFailed(false);
+    setFailed(undefined);
     window.Telegram.Login.auth(
       { bot_id: BOT_ID, request_access: "write", lang: locale },
       async (user) => {
         if (!user) return; // человек закрыл окно Telegram
         setPending(true);
-        const { error } = await api.POST("/api/v1/auth/telegram", { body: user });
+        const { error, response } = await api.POST("/api/v1/auth/telegram", { body: user });
         if (error) {
           setPending(false);
-          setFailed(true);
+          setFailed(response.status === 429 ? "tooMany" : "failed");
           return;
         }
         // Полный переход: клиентский роутер мог запомнить редирект на вход
@@ -82,7 +82,9 @@ export function TelegramLoginButton({ next, locale }: { next: string; locale: Lo
           {t("telegramUnavailable")}
         </p>
       )}
-      {failed && <ErrorState title={t("telegramFailed")} />}
+      {failed && (
+        <ErrorState title={failed === "tooMany" ? t("tooManyAttempts") : t("telegramFailed")} />
+      )}
     </div>
   );
 }

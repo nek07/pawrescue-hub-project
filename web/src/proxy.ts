@@ -7,7 +7,13 @@ import { routing } from "@/shared/i18n";
 const handleI18n = createMiddleware(routing);
 
 /** Страницы группы (auth): без cookie сессии — на вход с возвратом обратно */
-const PROTECTED = [/^\/pets\/[^/]+\/apply$/, /^\/messages(\/|$)/, /^\/onboarding$/, /^\/profile$/];
+const PROTECTED = [
+  /^\/pets\/[^/]+\/apply$/,
+  /^\/messages(\/|$)/,
+  /^\/applications(\/|$)/,
+  /^\/onboarding$/,
+  /^\/profile$/,
+];
 
 export default function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

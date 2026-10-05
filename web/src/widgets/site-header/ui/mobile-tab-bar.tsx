@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, Newspaper, PawPrint, UserRound } from "lucide-react";
+import { FileText, MessageSquare, Newspaper, PawPrint, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
@@ -17,7 +17,7 @@ export function MobileTabBar({ signedIn }: { signedIn: boolean }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const account = signedIn
-    ? ({ key: "profile", href: "/profile", Icon: UserRound } as const)
+    ? ({ key: "applications", href: "/applications", Icon: FileText } as const)
     : ({ key: "login", href: "/login", Icon: UserRound } as const);
 
   return (

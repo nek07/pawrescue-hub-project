@@ -1,7 +1,7 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, MessageSquare } from "lucide-react";
+import { FileText, Inbox, LogOut, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import type { User } from "@/entities/user";
@@ -13,7 +13,7 @@ const itemClass =
   "flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm outline-none data-highlighted:bg-surface-sunken";
 
 /** Меню аватара: клавиатура и ARIA — из Radix. */
-export function UserMenu({ user }: { user: User }) {
+export function UserMenu({ user, isCurator }: { user: User; isCurator: boolean }) {
   const t = useTranslations();
   const [pending, startTransition] = useTransition();
 
@@ -35,6 +35,20 @@ export function UserMenu({ user }: { user: User }) {
           <DropdownMenu.Label className="px-3 py-2 text-sm font-semibold">
             {user.name}
           </DropdownMenu.Label>
+          <DropdownMenu.Item asChild className={itemClass}>
+            <Link href="/applications">
+              <FileText aria-hidden className="size-4" />
+              {t("userMenu.myApplications")}
+            </Link>
+          </DropdownMenu.Item>
+          {isCurator && (
+            <DropdownMenu.Item asChild className={itemClass}>
+              <Link href="/applications/incoming">
+                <Inbox aria-hidden className="size-4" />
+                {t("userMenu.incoming")}
+              </Link>
+            </DropdownMenu.Item>
+          )}
           <DropdownMenu.Item asChild className={itemClass}>
             <Link href="/messages">
               <MessageSquare aria-hidden className="size-4" />

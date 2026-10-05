@@ -27,7 +27,10 @@ export default async function MessagesPage({
       <h1 className="font-display text-4xl font-semibold">{t("title")}</h1>
       {pet && (
         <p role="status" className="rounded-sm bg-accent px-4 py-3 text-sm text-on-accent">
-          {t("sent", { name: pet.name })}
+          {t("sent", { name: pet.name })}{" "}
+          <Link href="/applications" className="font-semibold underline">
+            {t("myApplications")}
+          </Link>
         </p>
       )}
       <EmptyState

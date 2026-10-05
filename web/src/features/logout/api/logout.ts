@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { getLocale } from "next-intl/server";
-import { sessionHeaders } from "@/entities/user";
+import { sessionHeaders } from "@/shared/session";
 import { api } from "@/shared/api";
 import { SESSION_COOKIE } from "@/shared/config";
 import { redirect } from "@/shared/i18n";

@@ -12,7 +12,13 @@ const guestNav: NavKey[] = ["pets", "shelters", "feed", "howItWorks"];
 const userNav: NavKey[] = [...guestNav, "messages"];
 
 /** Два состояния: гость видит «Войти», вошедший — «Сообщения» и аватар. */
-export function SiteHeader({ user }: { user: User | null }) {
+export function SiteHeader({
+  user,
+  isCurator = false,
+}: {
+  user: User | null;
+  isCurator?: boolean;
+}) {
   const t = useTranslations();
 
   return (
@@ -33,7 +39,7 @@ export function SiteHeader({ user }: { user: User | null }) {
           <LocaleSwitcher />
           {user ? (
             <div className="hidden md:block">
-              <UserMenu user={user} />
+              <UserMenu user={user} isCurator={isCurator} />
             </div>
           ) : (
             <Button asChild size="sm" className="hidden md:inline-flex">

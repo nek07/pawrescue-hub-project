@@ -11,8 +11,11 @@ type UserRole = components["schemas"]["UserRole"];
  * изменяющих запросов с cookie, и смена аккаунта с другого порта упиралась в 403.
  * Cookie сессии переносим из ответа API в браузер.
  */
-export async function devLogin(name: string, role: UserRole): Promise<{ ok: boolean }> {
-  if (process.env.NEXT_PUBLIC_DEV_LOGIN !== "1") return { ok: false };
+type DevLoginResult =
+  { ok: true } | { ok: false; error: "unavailable" | "too_many_requests"; retryAfter?: number };
+
+export async function devLogin(name: string, role: UserRole): Promise<DevLoginResult> {
+  if (process.env.NEXT_PUBLIC_DEV_LOGIN !== "1") return { ok: false, error: "unavailable" };
 
   const result = await api
     .POST("/api/v1/auth/dev-login", { body: { name, role } })
@@ -23,7 +26,12 @@ export async function devLogin(name: string, role: UserRole): Promise<{ ok: bool
     ?.split(";")[0]
     .slice(SESSION_COOKIE.length + 1);
 
-  if (!result?.data || !token) return { ok: false };
+  // Бэкенд ограничивает входы: 20 в минуту с одного IP
+  if (result?.response.status === 429) {
+    const retryAfter = Number(result.response.headers.get("retry-after")) || 60;
+    return { ok: false, error: "too_many_requests", retryAfter };
+  }
+  if (!result?.data || !token) return { ok: false, error: "unavailable" };
 
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,

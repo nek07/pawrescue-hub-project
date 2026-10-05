@@ -133,7 +133,8 @@ export interface paths {
         /** List Pets */
         get: operations["pets-list_pets"];
         put?: never;
-        post?: never;
+        /** Create Pet */
+        post: operations["pets-create_pet"];
         delete?: never;
         options?: never;
         head?: never;
@@ -150,6 +151,94 @@ export interface paths {
         /** Get Pet */
         get: operations["pets-get_pet"];
         put?: never;
+        post?: never;
+        /** Delete Pet */
+        delete: operations["pets-delete_pet"];
+        options?: never;
+        head?: never;
+        /** Update Pet */
+        patch: operations["pets-update_pet"];
+        trace?: never;
+    };
+    "/api/v1/pets/{pet_id}/favorite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Add Favorite */
+        put: operations["pets-add_favorite"];
+        post?: never;
+        /** Remove Favorite */
+        delete: operations["pets-remove_favorite"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pets/{pet_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish Pet */
+        post: operations["pets-publish_pet"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pets/{pet_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change Pet Status */
+        patch: operations["pets-change_pet_status"];
+        trace?: never;
+    };
+    "/api/v1/pets/{pet_id}/photos/{photo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Pet Photo */
+        delete: operations["pets-delete_pet_photo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pets/{pet_id}/photos/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reorder Pet Photos */
+        put: operations["pets-reorder_pet_photos"];
         post?: never;
         delete?: never;
         options?: never;
@@ -183,6 +272,95 @@ export interface paths {
         };
         /** Get Shelter */
         get: operations["shelters-get_shelter"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shelters/{shelter_id}/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Subscribe */
+        put: operations["shelters-subscribe"];
+        post?: never;
+        /** Unsubscribe */
+        delete: operations["shelters-unsubscribe"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Subscriptions */
+        get: operations["me-list_subscriptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Favorites */
+        get: operations["me-list_favorites"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/pets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List My Pets
+         * @description Анкеты, которые ведёт человек: свои и его приютов, включая черновики.
+         */
+        get: operations["me-list_my_pets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/pets/{pet_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Pet */
+        get: operations["me-get_my_pet"];
         put?: never;
         post?: never;
         delete?: never;
@@ -311,6 +489,209 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Conversations */
+        get: operations["chat-list_conversations"];
+        put?: never;
+        /**
+         * Start Conversation
+         * @description Идемпотентно: повторный вызов возвращает уже существующий диалог.
+         */
+        post: operations["chat-start_conversation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/unread": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Unread Count
+         * @description Бейдж «Сообщения 2» в шапке.
+         */
+        get: operations["chat-unread_count"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/{conversation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Conversation */
+        get: operations["chat-get_conversation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/{conversation_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Messages */
+        get: operations["chat-list_messages"];
+        put?: never;
+        /** Send Message */
+        post: operations["chat-send_message"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/{conversation_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark Read */
+        post: operations["chat-mark_read"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Posts
+         * @description Лента доступна гостю; liked_by_me — только для вошедших.
+         */
+        get: operations["feed-list_posts"];
+        put?: never;
+        /** Create Post */
+        post: operations["feed-create_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{post_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Post */
+        get: operations["feed-get_post"];
+        put?: never;
+        post?: never;
+        /** Delete Post */
+        delete: operations["feed-delete_post"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{post_id}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Like Post */
+        put: operations["feed-like_post"];
+        post?: never;
+        /** Unlike Post */
+        delete: operations["feed-unlike_post"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{post_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Comments */
+        get: operations["feed-list_comments"];
+        put?: never;
+        /** Add Comment */
+        post: operations["feed-add_comment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comments/{comment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Comment */
+        delete: operations["feed-delete_comment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comments/{comment_id}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Like Comment */
+        put: operations["feed-like_comment"];
+        post?: never;
+        /** Unlike Comment */
+        delete: operations["feed-unlike_comment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -376,6 +757,18 @@ export interface components {
             allowed_transitions: components["schemas"]["ApplicationStatus"][];
         };
         /**
+         * ApplicationRefOut
+         * @description Для панели «Ваша заявка» рядом с диалогом.
+         */
+        ApplicationRefOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            status: components["schemas"]["ApplicationStatus"];
+        };
+        /**
          * ApplicationStatus
          * @enum {string}
          */
@@ -384,6 +777,31 @@ export interface components {
         ApplicationStatusIn: {
             status: components["schemas"]["ApplicationStatus"];
         };
+        /** AuthorOut */
+        AuthorOut: {
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "shelter" | "volunteer" | "owner" | "user";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Avatar Url */
+            avatar_url: string | null;
+            /** Verified */
+            verified: boolean;
+            city: components["schemas"]["City"] | null;
+        };
+        /**
+         * ChatSide
+         * @enum {string}
+         */
+        ChatSide: "user" | "curator";
         /**
          * ChipStatus
          * @enum {string}
@@ -395,6 +813,89 @@ export interface components {
          * @enum {string}
          */
         City: "pavlodar" | "astana" | "almaty";
+        /** CommentCreate */
+        CommentCreate: {
+            /** Body */
+            body: string;
+            /** Parent Id */
+            parent_id?: string | null;
+            /**
+             * As Shelter
+             * @default false
+             */
+            as_shelter: boolean;
+        };
+        /** CommentOut */
+        CommentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Post Id
+             * Format: uuid
+             */
+            post_id: string;
+            /** Parent Id */
+            parent_id: string | null;
+            author: components["schemas"]["AuthorOut"];
+            /** Body */
+            body: string;
+            /** Likes Count */
+            likes_count: number;
+            /** Liked By Me */
+            liked_by_me: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Replies
+             * @default []
+             */
+            replies: components["schemas"]["CommentOut"][];
+        };
+        /** ConversationOut */
+        ConversationOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            my_side: components["schemas"]["ChatSide"];
+            counterpart: components["schemas"]["CounterpartOut"];
+            pet: components["schemas"]["PetCardOut"] | null;
+            last_message: components["schemas"]["MessageOut"] | null;
+            /**
+             * Last Message At
+             * Format: date-time
+             */
+            last_message_at: string;
+            /** Unread Count */
+            unread_count: number;
+            application: components["schemas"]["ApplicationRefOut"] | null;
+        };
+        /** CounterpartOut */
+        CounterpartOut: {
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "shelter" | "volunteer" | "user";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Avatar Url */
+            avatar_url: string | null;
+            /** Verified */
+            verified: boolean;
+        };
         /**
          * CuratorCardOut
          * @description Карточка участника: «Тёплый угол · 23 ищут дом · 41 пристроено».
@@ -421,6 +922,11 @@ export interface components {
             seeking_count: number;
             /** Adopted Count */
             adopted_count: number;
+            /**
+             * Subscribed
+             * @default false
+             */
+            subscribed: boolean;
         };
         /** CuratorOut */
         CuratorOut: {
@@ -466,6 +972,17 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
+        /** FavoriteOut */
+        FavoriteOut: {
+            /** Favorite */
+            favorite: boolean;
+        };
+        /**
+         * FeedCategory
+         * @description Вкладки ленты из макета.
+         * @enum {string}
+         */
+        FeedCategory: "all" | "curators" | "owners" | "before_after" | "help";
         /** HealthOut */
         HealthOut: {
             /**
@@ -489,6 +1006,13 @@ export interface components {
          * @enum {string}
          */
         Housing: "flat" | "house" | "rent";
+        /** LikeOut */
+        LikeOut: {
+            /** Liked */
+            liked: boolean;
+            /** Likes Count */
+            likes_count: number;
+        };
         /** MeOut */
         MeOut: {
             /**
@@ -505,10 +1029,62 @@ export interface components {
             /** Verified */
             verified: boolean;
         };
+        /** MessageIn */
+        MessageIn: {
+            /** Text */
+            text: string;
+        };
+        /**
+         * MessageKind
+         * @enum {string}
+         */
+        MessageKind: "text" | "system";
+        /** MessageOut */
+        MessageOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Conversation Id
+             * Format: uuid
+             */
+            conversation_id: string;
+            kind: components["schemas"]["MessageKind"];
+            side: components["schemas"]["ChatSide"] | null;
+            /** Sender Id */
+            sender_id: string | null;
+            /** Text */
+            text: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** Page[ApplicationOut] */
         Page_ApplicationOut_: {
             /** Items */
             items: components["schemas"]["ApplicationOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Total */
+            total: number;
+        };
+        /** Page[CommentOut] */
+        Page_CommentOut_: {
+            /** Items */
+            items: components["schemas"]["CommentOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Total */
+            total: number;
+        };
+        /** Page[ConversationOut] */
+        Page_ConversationOut_: {
+            /** Items */
+            items: components["schemas"]["ConversationOut"][];
             /** Next Cursor */
             next_cursor: string | null;
             /** Total */
@@ -523,10 +1099,28 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** Page[MessageOut] */
+        Page_MessageOut_: {
+            /** Items */
+            items: components["schemas"]["MessageOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Total */
+            total: number;
+        };
         /** Page[PetCardOut] */
         Page_PetCardOut_: {
             /** Items */
             items: components["schemas"]["PetCardOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Total */
+            total: number;
+        };
+        /** Page[PostOut] */
+        Page_PostOut_: {
+            /** Items */
+            items: components["schemas"]["PostOut"][];
             /** Next Cursor */
             next_cursor: string | null;
             /** Total */
@@ -562,6 +1156,46 @@ export interface components {
             /** Cover Url */
             cover_url: string | null;
             curator: components["schemas"]["CuratorOut"];
+            /**
+             * Is Favorite
+             * @default false
+             */
+            is_favorite: boolean;
+        };
+        /**
+         * PetCreate
+         * @description Новая анкета создаётся черновиком; опубликовать — POST /pets/{id}/publish.
+         */
+        PetCreate: {
+            /** Name */
+            name: string;
+            kind: components["schemas"]["PetKind"];
+            sex: components["schemas"]["PetSex"];
+            /** Breed */
+            breed?: string | null;
+            /**
+             * Birth Date
+             * Format: date
+             */
+            birth_date: string;
+            /** Weight Kg */
+            weight_kg?: number | null;
+            /** Sterilized */
+            sterilized?: boolean | null;
+            /** Vaccinated At */
+            vaccinated_at?: string | null;
+            chip?: components["schemas"]["ChipStatus"] | null;
+            /** Litter Trained */
+            litter_trained?: boolean | null;
+            /** Traits */
+            traits?: components["schemas"]["PetTrait"][] | null;
+            /** Story Title */
+            story_title?: string | null;
+            /** Story */
+            story?: string | null;
+            city?: components["schemas"]["City"] | null;
+            /** Shelter Id */
+            shelter_id?: string | null;
         };
         /**
          * PetDetailOut
@@ -593,6 +1227,11 @@ export interface components {
             /** Cover Url */
             cover_url: string | null;
             curator: components["schemas"]["CuratorOut"];
+            /**
+             * Is Favorite
+             * @default false
+             */
+            is_favorite: boolean;
             /** Breed */
             breed: string | null;
             /** Weight Kg */
@@ -649,12 +1288,123 @@ export interface components {
          * @enum {string}
          */
         PetStatus: "draft" | "seeking" | "needs_foster" | "treatment" | "reserved" | "adopted";
+        /** PetStatusIn */
+        PetStatusIn: {
+            status: components["schemas"]["PetStatus"];
+        };
         /**
          * PetTrait
          * @description Ключи черт характера: фронт переводит их и строит из них чипы и фильтры.
          * @enum {string}
          */
         PetTrait: "affectionate" | "good_with_kids" | "calm" | "playful" | "quiet" | "loves_people" | "well_mannered" | "no_dogs" | "no_cats" | "apartment_ok" | "after_treatment";
+        /**
+         * PetUpdate
+         * @description Правка анкеты куратором; все поля необязательны (PATCH).
+         */
+        PetUpdate: {
+            /** Name */
+            name?: string | null;
+            kind?: components["schemas"]["PetKind"] | null;
+            sex?: components["schemas"]["PetSex"] | null;
+            /** Breed */
+            breed?: string | null;
+            /** Birth Date */
+            birth_date?: string | null;
+            /** Weight Kg */
+            weight_kg?: number | null;
+            /** Sterilized */
+            sterilized?: boolean | null;
+            /** Vaccinated At */
+            vaccinated_at?: string | null;
+            chip?: components["schemas"]["ChipStatus"] | null;
+            /** Litter Trained */
+            litter_trained?: boolean | null;
+            /** Traits */
+            traits?: components["schemas"]["PetTrait"][] | null;
+            /** Story Title */
+            story_title?: string | null;
+            /** Story */
+            story?: string | null;
+            city?: components["schemas"]["City"] | null;
+        };
+        /**
+         * PhotoLabel
+         * @enum {string}
+         */
+        PhotoLabel: "before" | "after";
+        /**
+         * PhotoOrderIn
+         * @description Новый порядок фото; первое станет обложкой.
+         */
+        PhotoOrderIn: {
+            /** Photo Ids */
+            photo_ids: string[];
+        };
+        /** PostCreate */
+        PostCreate: {
+            kind: components["schemas"]["PostKind"];
+            /** Pet Id */
+            pet_id?: string | null;
+            /** Shelter Id */
+            shelter_id?: string | null;
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body: string;
+        };
+        /**
+         * PostKind
+         * @enum {string}
+         */
+        PostKind: "story" | "help" | "update";
+        /** PostOut */
+        PostOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["PostKind"];
+            author: components["schemas"]["AuthorOut"];
+            /** Title */
+            title: string | null;
+            /** Body */
+            body: string;
+            pet: components["schemas"]["PetCardOut"] | null;
+            /** Photos */
+            photos: components["schemas"]["PostPhotoOut"][];
+            /** Likes Count */
+            likes_count: number;
+            /** Comments Count */
+            comments_count: number;
+            /** Liked By Me */
+            liked_by_me: boolean;
+            /** Comments Preview */
+            comments_preview: components["schemas"]["CommentOut"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** PostPhotoOut */
+        PostPhotoOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Url */
+            url: string;
+            /** Card Url */
+            card_url: string;
+            /** Original Url */
+            original_url: string;
+            label: components["schemas"]["PhotoLabel"] | null;
+            /** Caption */
+            caption: string | null;
+        };
         /**
          * ShelterProfileOut
          * @description Профиль приюта: шапка, статистика и блок «О приюте».
@@ -686,6 +1436,29 @@ export interface components {
             seeking_count: number;
             /** Adopted Count */
             adopted_count: number;
+            /** Subscribers Count */
+            subscribers_count: number;
+            /** Subscribed */
+            subscribed: boolean;
+        };
+        /**
+         * StartConversationIn
+         * @description С кем начать диалог: о питомце («Спросить куратора») или с приютом/волонтёром.
+         */
+        StartConversationIn: {
+            /** Pet Id */
+            pet_id?: string | null;
+            /** Shelter Id */
+            shelter_id?: string | null;
+            /** Volunteer Id */
+            volunteer_id?: string | null;
+        };
+        /** SubscriptionOut */
+        SubscriptionOut: {
+            /** Subscribed */
+            subscribed: boolean;
+            /** Subscribers Count */
+            subscribers_count: number;
         };
         /**
          * TelegramLoginIn
@@ -709,14 +1482,21 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** UnreadOut */
+        UnreadOut: {
+            /** Count */
+            count: number;
+        };
         /** UploadCreate */
         UploadCreate: {
             purpose: components["schemas"]["UploadPurpose"];
-            /**
-             * Pet Id
-             * Format: uuid
-             */
-            pet_id: string;
+            /** Pet Id */
+            pet_id?: string | null;
+            /** Post Id */
+            post_id?: string | null;
+            label?: components["schemas"]["PhotoLabel"] | null;
+            /** Caption */
+            caption?: string | null;
             /**
              * Content Type
              * @enum {string}
@@ -735,13 +1515,14 @@ export interface components {
             status: components["schemas"]["UploadStatus"];
             /** Error */
             error: string | null;
-            photo?: components["schemas"]["PetPhotoOut"] | null;
+            /** Photo */
+            photo?: components["schemas"]["PetPhotoOut"] | components["schemas"]["PostPhotoOut"] | null;
         };
         /**
          * UploadPurpose
          * @enum {string}
          */
-        UploadPurpose: "pet_photo";
+        UploadPurpose: "pet_photo" | "post_photo";
         /**
          * UploadStatus
          * @enum {string}
@@ -760,7 +1541,8 @@ export interface components {
             status: components["schemas"]["UploadStatus"];
             /** Error */
             error: string | null;
-            photo?: components["schemas"]["PetPhotoOut"] | null;
+            /** Photo */
+            photo?: components["schemas"]["PetPhotoOut"] | components["schemas"]["PostPhotoOut"] | null;
             /** Upload Url */
             upload_url: string;
             /**
@@ -1114,6 +1896,48 @@ export interface operations {
             };
         };
     };
+    "pets-create_pet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PetCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PetDetailOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     "pets-get_pet": {
         parameters: {
             query?: never;
@@ -1132,6 +1956,335 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PetDetailOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "pets-delete_pet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "pets-update_pet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PetUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PetDetailOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "pets-add_favorite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "pets-remove_favorite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "pets-publish_pet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PetDetailOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "pets-change_pet_status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PetStatusIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PetDetailOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "pets-delete_pet_photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+                photo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "pets-reorder_pet_photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhotoOrderIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PetPhotoOut"][];
                 };
             };
             /** @description Client error */
@@ -1214,6 +2367,247 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ShelterProfileOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "shelters-subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shelter_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "shelters-unsubscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shelter_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "me-list_subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_CuratorCardOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "me-list_favorites": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_PetCardOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "me-list_my_pets": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                status?: components["schemas"]["PetStatus"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_PetCardOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "me-get_my_pet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PetDetailOut"];
                 };
             };
             /** @description Client error */
@@ -1550,6 +2944,745 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UploadOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "chat-list_conversations": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                after?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ConversationOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "chat-start_conversation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartConversationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "chat-unread_count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnreadOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "chat-get_conversation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "chat-list_messages": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                after?: string | null;
+            };
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_MessageOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "chat-send_message": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "chat-mark_read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-list_posts": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                category?: components["schemas"]["FeedCategory"];
+                kind?: components["schemas"]["PostKind"] | null;
+                pet_id?: string | null;
+                shelter_id?: string | null;
+                author_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_PostOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-create_post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-get_post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-delete_post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-like_post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LikeOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-unlike_post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LikeOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-list_comments": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_CommentOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-add_comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-delete_comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-like_comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LikeOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "feed-unlike_comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LikeOut"];
                 };
             };
             /** @description Client error */

@@ -3,7 +3,7 @@
 import { updateTag } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
-import { sessionHeaders } from "@/entities/user";
+import { sessionHeaders } from "@/shared/session";
 import { api } from "@/shared/api";
 import { redirect } from "@/shared/i18n";
 import { applySchema, type ApplyField, type ApplyInput, type SubmitResult } from "../model/schema";

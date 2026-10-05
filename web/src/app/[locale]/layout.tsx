@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getSession } from "@/entities/user";
+import { getSession, isCurator } from "@/entities/user";
 import { routing } from "@/shared/i18n";
 import { fontVariables } from "@/shared/styles";
 import { SiteFooter } from "@/widgets/site-footer";
@@ -36,7 +36,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           >
             {t("skipToContent")}
           </a>
-          <SiteHeader user={user} />
+          <SiteHeader user={user} isCurator={await isCurator(user)} />
           <main id="main" className="flex flex-1 flex-col">
             {children}
           </main>
