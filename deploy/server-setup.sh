@@ -11,8 +11,8 @@ if ! swapon --show | grep -q /swapfile; then
 fi
 echo "vm.swappiness=10" > /etc/sysctl.d/99-swap.conf && sysctl -p /etc/sysctl.d/99-swap.conf
 
-apt-get update -qq
-apt-get install -y -qq ca-certificates curl ufw fail2ban unattended-upgrades rsync
+apt-get -o DPkg::Lock::Timeout=600 update -qq
+apt-get -o DPkg::Lock::Timeout=600 install -y -qq ca-certificates curl ufw fail2ban unattended-upgrades rsync
 command -v docker >/dev/null || curl -fsSL https://get.docker.com | sh
 
 # Firewall: SSH и HTTP(S). Docker публикует только порты Caddy.
@@ -22,8 +22,17 @@ ufw allow 443/tcp
 ufw allow 443/udp
 ufw --force enable
 
-# fail2ban: бан IP после неудачных попыток входа по SSH
-systemctl enable --now fail2ban
+# fail2ban: бан IP на час после 5 неудачных входов по SSH.
+# backend=systemd — на минимальных образах нет rsyslog и /var/log/auth.log
+cat > /etc/fail2ban/jail.local <<'JAIL'
+[sshd]
+enabled  = true
+backend  = systemd
+maxretry = 5
+bantime  = 1h
+JAIL
+systemctl enable fail2ban
+systemctl restart fail2ban
 
 # Ежедневный бэкап БД в 03:30
 cat > /etc/cron.d/pawrescue-backup <<'CRON'
