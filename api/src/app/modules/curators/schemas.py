@@ -29,6 +29,8 @@ class CuratorCardOut(BaseModel):
     verified: bool
     seeking_count: int
     adopted_count: int
+    on_platform_since: int  # «на платформе с 2025» — вместо «0 пристроено» у новичков
+    preview_covers: list[str] = []  # до 3 обложек питомцев, которые ищут дом
     subscribed: bool = False  # только для приютов и вошедших
 
 

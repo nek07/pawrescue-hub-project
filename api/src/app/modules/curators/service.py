@@ -23,6 +23,7 @@ from app.modules.users.service import UserService
 # Участников десятки, а не тысячи: отдаём одной страницей в формате Page,
 # чтобы фронт обрабатывал списки одинаково. Курсор появится, когда понадобится.
 MAX_CURATORS = 100
+PREVIEW_COVERS = 3
 
 NO_PETS = CuratorCounts(seeking=0, adopted=0)
 
@@ -42,8 +43,12 @@ class CuratorService:
             volunteers = await self.users.list_verified_volunteers(
                 city=f.city, q=f.q, limit=MAX_CURATORS
             )
+        shelter_ids, volunteer_ids = [s.id for s in shelters], [v.id for v in volunteers]
         counts = await self.pets.count_by_curator(
-            shelter_ids=[s.id for s in shelters], volunteer_ids=[v.id for v in volunteers]
+            shelter_ids=shelter_ids, volunteer_ids=volunteer_ids
+        )
+        covers = await self.pets.preview_covers(
+            shelter_ids=shelter_ids, volunteer_ids=volunteer_ids, per_curator=PREVIEW_COVERS
         )
 
         items = [
@@ -56,6 +61,8 @@ class CuratorService:
                 verified=True,
                 seeking_count=counts.get(s.id, NO_PETS).seeking,
                 adopted_count=counts.get(s.id, NO_PETS).adopted,
+                on_platform_since=s.created_at.year,
+                preview_covers=covers.get(s.id, []),
             )
             for s in shelters
         ] + [
@@ -68,6 +75,8 @@ class CuratorService:
                 verified=True,
                 seeking_count=counts.get(v.id, NO_PETS).seeking,
                 adopted_count=counts.get(v.id, NO_PETS).adopted,
+                on_platform_since=v.created_at.year,
+                preview_covers=covers.get(v.id, []),
             )
             for v in volunteers
         ]
@@ -84,6 +93,9 @@ class CuratorService:
         ids = await self.shelters.subscribed_ids(user_id)
         shelters = list((await self.shelters.get_shelters(ids)).values())
         counts = await self.pets.count_by_curator(shelter_ids=ids, volunteer_ids=[])
+        covers = await self.pets.preview_covers(
+            shelter_ids=ids, volunteer_ids=[], per_curator=PREVIEW_COVERS
+        )
         items = [
             CuratorCardOut(
                 type="shelter",
@@ -94,6 +106,8 @@ class CuratorService:
                 verified=s.verified_at is not None,
                 seeking_count=counts.get(s.id, NO_PETS).seeking,
                 adopted_count=counts.get(s.id, NO_PETS).adopted,
+                on_platform_since=s.created_at.year,
+                preview_covers=covers.get(s.id, []),
                 subscribed=True,
             )
             for s in sorted(shelters, key=lambda s: s.name)

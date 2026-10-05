@@ -10,9 +10,9 @@ export function PetCatalogSkeleton() {
       <span className="sr-only">{t("loading")}</span>
       <div className="flex items-center justify-between">
         <Skeleton className="h-5 w-48" />
-        <Skeleton className="h-10 w-56 rounded-pill" />
+        <Skeleton className="h-10 w-48 rounded-pill" />
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }, (_, i) => (
           <PetCardSkeleton key={i} />
         ))}

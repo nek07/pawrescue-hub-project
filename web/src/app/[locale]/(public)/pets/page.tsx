@@ -6,7 +6,6 @@ import { getPets } from "@/entities/pet/server";
 import { getSession } from "@/entities/user";
 import { PetFiltersBar } from "@/features/filter-pets";
 import type { Locale } from "@/shared/i18n";
-import { SectionHeader } from "@/shared/ui";
 import { PetCatalogResults, PetCatalogSkeleton } from "@/widgets/pet-grid";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,10 +22,14 @@ export default async function PetsPage({ params, searchParams }: PageProps<"/[lo
   ]);
 
   return (
-    <div className="page-container flex flex-col gap-6 py-10">
-      <SectionHeader as="h1" eyebrow={t("eyebrow")} title={t("title")}>
-        <p className="text-ink-muted">{t("lead")}</p>
-      </SectionHeader>
+    <div className="page-container flex flex-col gap-4 py-6 sm:gap-6 sm:py-8">
+      {/* Компактная шапка: на телефоне первые карточки должны быть видны сразу */}
+      <div className="flex flex-col gap-1">
+        <h1 className="font-display text-xl leading-tight font-semibold sm:text-3xl">
+          {t("title")}
+        </h1>
+        <p className="hidden text-sm text-ink-muted sm:block">{t("lead")}</p>
+      </div>
       <PetFiltersBar value={filters} />
       {/* Новый key на каждый набор фильтров — при смене фильтров виден скелетон */}
       <Suspense key={toPetSearchParams(filters).toString()} fallback={<PetCatalogSkeleton />}>

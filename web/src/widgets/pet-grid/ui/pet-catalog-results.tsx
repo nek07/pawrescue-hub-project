@@ -1,17 +1,10 @@
 import { PawPrint } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  PetCard,
-  PETS_PAGE_SIZE,
-  toPetSearchParams,
-  type PetFilters,
-  type PetPage,
-} from "@/entities/pet";
-import { FavoriteButton } from "@/features/favorite-pet";
+import { PETS_PAGE_SIZE, toPetSearchParams, type PetFilters, type PetPage } from "@/entities/pet";
 import { PetSortSelect } from "@/features/filter-pets";
 import { Link } from "@/shared/i18n";
-import { cn } from "@/shared/lib";
-import { Button, buttonVariants, EmptyState } from "@/shared/ui";
+import { Button, EmptyState } from "@/shared/ui";
+import { PetGrid } from "./pet-grid";
 
 /** Результаты каталога: счётчик, сортировка, сетка, пустое состояние и «Показать ещё». */
 export function PetCatalogResults({
@@ -55,29 +48,7 @@ export function PetCatalogResults({
         <PetSortSelect value={filters} />
       </div>
 
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {page.items.map((pet) => (
-          <li key={pet.id} className="flex">
-            <PetCard
-              pet={pet}
-              actions={
-                // Вся карточка — ссылка; кнопка здесь только визуальная подсказка
-                <>
-                  <span aria-hidden className={cn(buttonVariants(), "pointer-events-none flex-1")}>
-                    {t("pet.more")}
-                  </span>
-                  <FavoriteButton
-                    petId={pet.id}
-                    petName={pet.name}
-                    favorite={pet.is_favorite}
-                    signedIn={signedIn}
-                  />
-                </>
-              }
-            />
-          </li>
-        ))}
-      </ul>
+      <PetGrid pets={page.items} signedIn={signedIn} />
 
       {page.next_cursor && (
         <Button asChild variant="secondary" className="self-center">

@@ -19,6 +19,32 @@ from app.modules.pets.schemas import AgeBucket, CuratorCounts, PetFilters, PetSo
 CATALOG_STATUSES = (PetStatus.SEEKING, PetStatus.NEEDS_FOSTER, PetStatus.TREATMENT)
 
 
+# Черты хранятся ключами, а люди ищут словами с карточки: «ласк» → affectionate.
+# Слова — из подписей фронта (messages: pet.trait.*), обе формы рода и казахский.
+TRAIT_WORDS: dict[PetTrait, tuple[str, ...]] = {
+    PetTrait.AFFECTIONATE: ("ласковый", "ласковая", "еркелегіш"),
+    PetTrait.GOOD_WITH_KIDS: ("ладит", "детьми", "дети", "балалармен"),
+    PetTrait.CALM: ("спокойный", "спокойная", "сабырлы"),
+    PetTrait.PLAYFUL: ("игривый", "игривая", "ойнақы"),
+    PetTrait.QUIET: ("тихий", "тихая", "тыныш"),
+    PetTrait.LOVES_PEOPLE: ("любит", "людей", "адамдарды"),
+    PetTrait.WELL_MANNERED: ("воспитанный", "воспитанная", "тәрбиелі"),
+    PetTrait.APARTMENT_OK: ("квартира", "квартиры", "пәтерге"),
+    PetTrait.AFTER_TREATMENT: ("лечения", "лечение", "емделгеннен"),
+}
+MIN_TRAIT_PREFIX = 3
+
+
+def _traits_matching(q: str) -> list[str]:
+    """Черты, у которых какое-то слово начинается с одного из слов запроса."""
+    prefixes = [w for w in q.lower().replace("ё", "е").split() if len(w) >= MIN_TRAIT_PREFIX]
+    return [
+        trait.value
+        for trait, words in TRAIT_WORDS.items()
+        if any(word.replace("ё", "е").startswith(p) for word in words for p in prefixes)
+    ]
+
+
 @dataclass(frozen=True)
 class CatalogRow:
     pet: Pet
@@ -62,14 +88,18 @@ def _catalog_conditions(f: PetFilters, today: date) -> list[ColumnElement[bool]]
         case AgeBucket.OVER_5:
             conds.append(Pet.birth_date <= years_ago(today, 6))
     if f.q:
-        # Полнотекстовый поиск по имени, породе и истории + префикс имени («Мур» → Мурка).
+        # Полнотекстовый поиск по имени, породе и истории + префикс имени («Мур» → Мурка),
+        # подстрока породы («сиам» → сиамская) и черты характера («ласк» → ласковая).
         query = func.websearch_to_tsquery("russian", f.q)
-        conds.append(
-            or_(
-                Pet.search.bool_op("@@")(query),
-                Pet.name.ilike(f"{like_escape(f.q)}%", escape="\\"),
-            )
-        )
+        pattern = like_escape(f.q)
+        matches = [
+            Pet.search.bool_op("@@")(query),
+            Pet.name.ilike(f"{pattern}%", escape="\\"),
+            Pet.breed.ilike(f"%{pattern}%", escape="\\"),
+        ]
+        if traits := _traits_matching(f.q):
+            matches.append(Pet.traits.overlap(traits))
+        conds.append(or_(*matches))
     return conds
 
 
@@ -182,6 +212,37 @@ class PetRepository:
         )
         rows = (await self.session.execute(stmt)).tuples().all()
         return {cid: CuratorCounts(seeking=s, adopted=a) for cid, s, a in rows}
+
+    async def preview_covers(
+        self, *, shelter_ids: Collection[UUID], volunteer_ids: Collection[UUID], per_curator: int
+    ) -> dict[UUID, list[str]]:
+        """Обложки последних питомцев из каталога — мозаика на карточке участника."""
+        curator = func.coalesce(Pet.shelter_id, Pet.volunteer_id)
+        has_photo = select(PetPhoto.id).where(PetPhoto.pet_id == Pet.id).exists()
+        ranked = (
+            select(
+                curator.label("curator_id"),
+                _cover().label("cover"),
+                func.row_number()
+                .over(partition_by=curator, order_by=(Pet.created_at.desc(), Pet.id))
+                .label("n"),
+            )
+            .where(
+                Pet.status.in_(CATALOG_STATUSES),
+                has_photo,
+                or_(Pet.shelter_id.in_(shelter_ids), Pet.volunteer_id.in_(volunteer_ids)),
+            )
+            .subquery()
+        )
+        stmt = (
+            select(ranked.c.curator_id, ranked.c.cover)
+            .where(ranked.c.n <= per_curator)
+            .order_by(ranked.c.curator_id, ranked.c.n)
+        )
+        result: dict[UUID, list[str]] = {}
+        for cid, cover in (await self.session.execute(stmt)).tuples():
+            result.setdefault(cid, []).append(cover)
+        return result
 
     async def favorite_ids(self, user_id: UUID, pet_ids: Collection[UUID]) -> set[UUID]:
         if not pet_ids:
