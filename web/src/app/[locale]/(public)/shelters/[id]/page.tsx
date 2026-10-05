@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openGraph } from "@/shared/lib";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PawPrint } from "lucide-react";
@@ -22,10 +23,21 @@ import {
 type Props = PageProps<"/[locale]/shelters/[id]">;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const shelter = await getShelter((await params).id);
-  return shelter
-    ? { title: `${shelter.name} — ${SITE_NAME}`, description: shelter.about ?? undefined }
-    : {};
+  const { locale, id } = await params;
+  const shelter = await getShelter(id);
+  if (!shelter) return {};
+  const description = shelter.about ?? undefined;
+  return {
+    title: `${shelter.name} — ${SITE_NAME}`,
+    description,
+    ...openGraph({
+      siteName: SITE_NAME,
+      title: shelter.name,
+      description,
+      locale,
+      type: "profile",
+    }),
+  };
 }
 
 export default async function ShelterPage({ params, searchParams }: Props) {

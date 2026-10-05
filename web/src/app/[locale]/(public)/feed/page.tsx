@@ -7,9 +7,20 @@ import { getShelters } from "@/entities/shelter/server";
 import { getSession } from "@/entities/user";
 import type { Locale } from "@/shared/i18n";
 import { FeedCategories, FeedGuestBanner, FeedList, FeedSidebar } from "@/widgets/feed-list";
+import { openGraph } from "@/shared/lib";
+import { SITE_NAME } from "@/shared/ui";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: (await getTranslations("feed"))("metaTitle") };
+export async function generateMetadata({ params }: PageProps<"/[locale]/feed">): Promise<Metadata> {
+  const { locale } = await params;
+  const [t, home] = await Promise.all([
+    getTranslations({ locale: locale as Locale, namespace: "feed" }),
+    getTranslations({ locale: locale as Locale, namespace: "home" }),
+  ]);
+  return {
+    title: t("metaTitle"),
+    description: home("lead"),
+    ...openGraph({ siteName: SITE_NAME, title: home("title"), description: home("lead"), locale }),
+  };
 }
 
 export default async function FeedPage({ params, searchParams }: PageProps<"/[locale]/feed">) {

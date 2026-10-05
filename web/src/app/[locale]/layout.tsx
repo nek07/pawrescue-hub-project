@@ -5,7 +5,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getUnreadCount } from "@/entities/conversation/server";
 import { getSession, isCurator } from "@/entities/user";
 import { routing } from "@/shared/i18n";
+import { openGraph, siteUrl } from "@/shared/lib";
 import { fontVariables } from "@/shared/styles";
+import { SITE_NAME } from "@/shared/ui";
 import { SiteFooter } from "@/widgets/site-footer";
 import { MobileTabBar, SiteHeader } from "@/widgets/site-header";
 import "../globals.css";
@@ -19,7 +21,13 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "metadata" });
-  return { title: t("title"), description: t("description") };
+  return {
+    // Абсолютные ссылки в превью (og:image) — иначе мессенджеры не откроют картинку
+    metadataBase: siteUrl(),
+    title: t("title"),
+    description: t("description"),
+    ...openGraph({ siteName: SITE_NAME, title: t("title"), description: t("description"), locale }),
+  };
 }
 
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {

@@ -13,9 +13,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Попадают в сборку: rewrites и NEXT_PUBLIC_* вшиваются на этапе build
 ARG API_URL=http://api:8000
+ARG SITE_URL=http://localhost:3000
 ARG NEXT_PUBLIC_DEV_LOGIN=
 ARG NEXT_PUBLIC_TELEGRAM_BOT_ID=
 ENV API_URL=$API_URL \
+    SITE_URL=$SITE_URL \
     NEXT_PUBLIC_DEV_LOGIN=$NEXT_PUBLIC_DEV_LOGIN \
     NEXT_PUBLIC_TELEGRAM_BOT_ID=$NEXT_PUBLIC_TELEGRAM_BOT_ID \
     NEXT_TELEMETRY_DISABLED=1

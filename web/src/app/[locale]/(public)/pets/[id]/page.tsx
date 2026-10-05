@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openGraph } from "@/shared/lib";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { storyParagraphs } from "@/entities/pet";
@@ -19,10 +20,18 @@ import {
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/pets/[id]">): Promise<Metadata> {
-  const pet = await getPet((await params).id);
-  return pet
-    ? { title: `${pet.name} — ${SITE_NAME}`, description: storyParagraphs(pet.story)[0] }
-    : {};
+  const { locale, id } = await params;
+  const pet = await getPet(id);
+  if (!pet) return {};
+  const t = await getTranslations({ locale: locale as Locale, namespace: "pet" });
+  // «Мурка — Кошка, ищет дом»: в превью сразу видно, кто это и можно ли забрать
+  const title = `${pet.name} — ${t("kind", { kind: pet.kind, sex: pet.sex })}, ${t(`status.${pet.status}`, { sex: pet.sex }).toLowerCase()}`;
+  const description = storyParagraphs(pet.story)[0];
+  return {
+    title: `${pet.name} — ${SITE_NAME}`,
+    description,
+    ...openGraph({ siteName: SITE_NAME, title, description, locale, type: "article" }),
+  };
 }
 
 export default async function PetPage({ params }: PageProps<"/[locale]/pets/[id]">) {

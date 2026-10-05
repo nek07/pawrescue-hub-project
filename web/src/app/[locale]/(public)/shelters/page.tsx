@@ -7,12 +7,20 @@ import { getSession } from "@/entities/user";
 import { ShelterFiltersBar } from "@/features/filter-shelters";
 import { SubscribeButton } from "@/features/subscribe-shelter";
 import { Link, type Locale } from "@/shared/i18n";
-import { Button, EmptyState } from "@/shared/ui";
+import { SITE_NAME, Button, EmptyState } from "@/shared/ui";
 import { PartnerCta } from "@/widgets/partner-cta";
+import { openGraph } from "@/shared/lib";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("shelters");
-  return { title: t("metaTitle"), description: t("lead") };
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/shelters">): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale: locale as Locale, namespace: "shelters" });
+  return {
+    title: t("metaTitle"),
+    description: t("lead"),
+    ...openGraph({ siteName: SITE_NAME, title: t("title"), description: t("lead"), locale }),
+  };
 }
 
 export default async function SheltersPage({

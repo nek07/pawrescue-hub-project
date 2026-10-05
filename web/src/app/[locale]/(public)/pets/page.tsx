@@ -7,10 +7,17 @@ import { getSession } from "@/entities/user";
 import { PetFiltersBar } from "@/features/filter-pets";
 import type { Locale } from "@/shared/i18n";
 import { PetCatalogResults, PetCatalogSkeleton } from "@/widgets/pet-grid";
+import { openGraph } from "@/shared/lib";
+import { SITE_NAME } from "@/shared/ui";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("catalog");
-  return { title: t("metaTitle"), description: t("lead") };
+export async function generateMetadata({ params }: PageProps<"/[locale]/pets">): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale: locale as Locale, namespace: "catalog" });
+  return {
+    title: t("metaTitle"),
+    description: t("lead"),
+    ...openGraph({ siteName: SITE_NAME, title: t("title"), description: t("lead"), locale }),
+  };
 }
 
 export default async function PetsPage({ params, searchParams }: PageProps<"/[locale]/pets">) {

@@ -64,6 +64,7 @@ services:
       context: ../web
       args:
         API_URL: http://api:8000
+        SITE_URL: https://${SITE_DOMAIN}
         NEXT_PUBLIC_DEV_LOGIN: ${NEXT_PUBLIC_DEV_LOGIN:-}
         NEXT_PUBLIC_TELEGRAM_BOT_ID: ${NEXT_PUBLIC_TELEGRAM_BOT_ID:-}
     image: pawrescue/web:latest
@@ -72,6 +73,8 @@ services:
     environment:
       # Серверные компоненты ходят в API напрямую по внутренней сети
       API_URL: http://api:8000
+      # Абсолютные ссылки в превью ссылок (og:image) для Telegram и соцсетей
+      SITE_URL: https://${SITE_DOMAIN}
     depends_on:
       api:
         condition: service_healthy
