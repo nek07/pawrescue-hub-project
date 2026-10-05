@@ -1,6 +1,9 @@
+import asyncio
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
@@ -27,6 +30,9 @@ from app.modules.moderation import router as moderation_router
 from app.modules.onboarding import router as onboarding_router
 from app.modules.pets import router as pets_router
 
+logger = logging.getLogger(__name__)
+BUCKET_WAIT_SECONDS = 10
+
 
 def operation_id(route: APIRoute) -> str:
     # pets-list_pets вместо list_pets_api_v1_pets_get — так читаются типы на фронте
@@ -34,14 +40,34 @@ def operation_id(route: APIRoute) -> str:
     return f"{tag}-{route.name}"
 
 
+async def _ensure_dev_buckets(settings: Settings) -> None:
+    """Удобство для разработки: создать бакеты, если S3 уже поднят.
+
+    Старт API от этого не зависит — без S3 не работают только загрузки фото.
+    Ждём не дольше BUCKET_WAIT_SECONDS: у botocore свои повторы с паузами.
+    """
+
+    async def ensure() -> None:
+        while True:
+            try:
+                await get_storage().ensure_buckets(
+                    settings.s3_uploads_bucket, settings.s3_photos_bucket, settings.s3_docs_bucket
+                )
+                return
+            except (BotoCoreError, ClientError):
+                await asyncio.sleep(1)  # SeaweedFS ещё поднимается
+
+    try:
+        await asyncio.wait_for(ensure(), timeout=BUCKET_WAIT_SECONDS)
+    except TimeoutError:
+        logger.warning("S3 is unavailable, buckets were not created")
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     if settings.env == "dev":
-        storage = get_storage()
-        await storage.ensure_buckets(
-            settings.s3_uploads_bucket, settings.s3_photos_bucket, settings.s3_docs_bucket
-        )
+        await _ensure_dev_buckets(settings)
     yield
     await get_queue().close()
     await get_pubsub().close()
