@@ -10,9 +10,7 @@ test("корень редиректит на русскую версию", async
 test("казахская версия отдаёт lang=kk и казахский текст", async ({ page }) => {
   await page.goto("/kk");
   await expect(page.locator("html")).toHaveAttribute("lang", "kk");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Сізді күтіп жүргенді үйге алып кетіңіз",
-  );
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Үйде аяқталатын оқиғалар");
 });
 
 test("главная без нарушений доступности уровня serious", async ({ page }) => {
