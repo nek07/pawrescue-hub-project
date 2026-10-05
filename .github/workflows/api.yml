@@ -1,0 +1,55 @@
+name: api
+
+on:
+  push:
+    branches: [main]
+    paths: ["api/**", ".github/workflows/api.yml"]
+  pull_request:
+    paths: ["api/**", ".github/workflows/api.yml"]
+
+defaults:
+  run:
+    working-directory: api
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: paw
+          POSTGRES_PASSWORD: paw
+          POSTGRES_DB: paw
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U paw -d paw"
+          --health-interval 2s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgresql+asyncpg://paw:paw@localhost:5433/paw
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: api/uv.lock
+      - run: uv sync --locked
+      - name: Format
+        run: uv run ruff format --check
+      - name: Lint
+        run: uv run ruff check
+      - name: Types
+        run: uv run mypy
+      - name: Migrations on empty DB
+        run: |
+          uv run alembic upgrade head
+          uv run alembic check
+      - name: Tests
+        run: uv run pytest
+      - name: Export OpenAPI
+        run: uv run python scripts/export_openapi.py openapi.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openapi
+          path: api/openapi.json

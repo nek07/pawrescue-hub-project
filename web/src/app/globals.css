@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@import "../shared/styles/tokens.css";
+
+@layer base {
+  body {
+    @apply bg-surface font-sans text-ink antialiased;
+  }
+
+  /* Фокус с клавиатуры виден везде — по листу «Состояния» */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ink;
+  }
+}
+
+/* Общая ширина контента: шапка, страницы и футер выравниваются по одной сетке */
+@utility page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-inline: 1rem;
+
+  @variant sm {
+    padding-inline: 1.5rem;
+  }
+}
