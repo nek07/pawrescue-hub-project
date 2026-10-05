@@ -41,14 +41,23 @@ export function HomeHero() {
   );
 }
 
-/** Открытка «Мурка → домой» — иллюстрация из макета: фото, марка и почтовый штемпель */
+/** Открытка «Кнопка → домой» — иллюстрация из макета: фото, марка и почтовый штемпель */
 function Postcard({ caption }: { caption: string }) {
   return (
     <div aria-hidden className="mx-auto w-full max-w-sm md:max-w-none">
       <div className="rotate-2 rounded-sm border border-line bg-surface-raised p-4 shadow-xl">
         <div className="grid grid-cols-[1.25fr_1fr] gap-4">
-          <div className="flex aspect-[4/5] items-center justify-center bg-surface-sunken">
-            <PawPrint className="size-8 text-surface-raised" />
+          <div className="aspect-[4/5] overflow-hidden bg-surface-sunken">
+            {/* Котёнок из демо-фото (knopka.jpg, CC0) — см. api/src/app/seed_assets/CREDITS.md */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/home/kitten.webp"
+              alt=""
+              width={533}
+              height={666}
+              fetchPriority="high"
+              className="size-full object-cover"
+            />
           </div>
           <div className="relative flex flex-col justify-between">
             <div className="ml-auto flex size-20 items-center justify-center border-2 border-dashed border-primary/30 bg-accent p-1">
