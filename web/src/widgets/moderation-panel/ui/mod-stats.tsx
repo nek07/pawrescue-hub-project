@@ -26,7 +26,11 @@ export function ModStats({ stats }: { stats: ModerationStats }) {
       extra: stats.users_blocked,
       href: modHref({ tab: "users" }),
     },
-    { key: "onboarding", value: stats.onboarding_pending },
+    {
+      key: "onboarding",
+      value: stats.onboarding_pending,
+      href: modHref({ tab: "onboarding" }),
+    },
   ] as const;
 
   return (

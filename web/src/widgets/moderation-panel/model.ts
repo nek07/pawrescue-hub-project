@@ -1,4 +1,4 @@
-export const MOD_TABS = ["overview", "posts", "comments", "users"] as const;
+export const MOD_TABS = ["overview", "onboarding", "posts", "comments", "users"] as const;
 export type ModTab = (typeof MOD_TABS)[number];
 
 /** Состояние панели живёт в адресе: его можно обновить, переслать и вернуться назад */
@@ -9,6 +9,7 @@ export type ModQuery = {
   post?: string;
   author?: string;
   blocked?: string;
+  status?: string;
   cursor?: string;
 };
 

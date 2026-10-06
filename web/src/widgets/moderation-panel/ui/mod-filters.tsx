@@ -20,30 +20,34 @@ export function ModFilters({
   query: ModQuery;
   options: Option[];
   active: string;
-  placeholder: string;
+  /** Без подсказки поиска нет: у очереди заявок его нет и в API */
+  placeholder?: string;
 }) {
   const t = useTranslations("moderation.filters");
   const keep = { tab: query.tab, post: query.post, author: query.author };
 
   return (
     <div className="flex flex-col gap-3">
-      <form action="/moderation" className="flex gap-2" role="search">
-        {Object.entries({ ...keep, visibility: query.visibility, blocked: query.blocked }).map(
-          ([name, value]) => value && <input key={name} type="hidden" name={name} value={value} />,
-        )}
-        <Input
-          name="q"
-          type="search"
-          defaultValue={query.q}
-          placeholder={placeholder}
-          aria-label={placeholder}
-          maxLength={100}
-        />
-        <Button type="submit" variant="secondary">
-          <Search aria-hidden className="size-4" />
-          {t("search")}
-        </Button>
-      </form>
+      {placeholder && (
+        <form action="/moderation" className="flex gap-2" role="search">
+          {Object.entries({ ...keep, visibility: query.visibility, blocked: query.blocked }).map(
+            ([name, value]) =>
+              value && <input key={name} type="hidden" name={name} value={value} />,
+          )}
+          <Input
+            name="q"
+            type="search"
+            defaultValue={query.q}
+            placeholder={placeholder}
+            aria-label={placeholder}
+            maxLength={100}
+          />
+          <Button type="submit" variant="secondary">
+            <Search aria-hidden className="size-4" />
+            {t("search")}
+          </Button>
+        </form>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         {options.map((option) => (
           <Link

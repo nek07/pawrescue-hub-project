@@ -1,7 +1,7 @@
 import "server-only";
 import { api } from "@/shared/api";
 import { sessionHeaders } from "@/shared/session";
-import { MOD_PAGE_SIZE, type Visibility } from "../model/types";
+import { MOD_PAGE_SIZE, type ReviewStatus, type Visibility } from "../model/types";
 
 type ContentQuery = { visibility?: Visibility; q?: string; author_id?: string; cursor?: string };
 
@@ -50,5 +50,17 @@ export async function getModUsers(query: { q?: string; blocked?: boolean; cursor
       cache: "no-store",
     }),
     "moderation_users",
+  );
+}
+
+/** Заявки приютов и волонтёров; по умолчанию — ждущие решения, старые сверху */
+export async function getModOnboarding(query: { status?: ReviewStatus; cursor?: string }) {
+  return load(
+    api.GET("/api/v1/moderation/onboarding", {
+      params: { query: { limit: MOD_PAGE_SIZE, ...query } },
+      headers: await sessionHeaders(),
+      cache: "no-store",
+    }),
+    "moderation_onboarding",
   );
 }

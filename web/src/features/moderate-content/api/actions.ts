@@ -97,3 +97,25 @@ export async function removeLike(target: LikeTarget, id: string, userId: string)
         }),
   );
 }
+
+/** Приют — создаётся проверенным, заявитель становится его админом; волонтёр — проверен */
+export async function approveOnboarding(requestId: string) {
+  return run(
+    api.POST("/api/v1/moderation/onboarding/{request_id}/approve", {
+      params: { path: { request_id: requestId } },
+      headers: await sessionHeaders(),
+    }),
+  );
+}
+
+export async function rejectOnboarding(requestId: string, reason: string) {
+  const text = reason.trim();
+  if (text.length < 3) return { ok: false, error: "reason_short" } as ModResult;
+  return run(
+    api.POST("/api/v1/moderation/onboarding/{request_id}/reject", {
+      params: { path: { request_id: requestId } },
+      body: { reason: text.slice(0, 2000) },
+      headers: await sessionHeaders(),
+    }),
+  );
+}

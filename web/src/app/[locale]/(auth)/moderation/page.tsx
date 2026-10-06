@@ -4,14 +4,17 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireSession } from "@/entities/user";
 import {
   ModCommentRow,
+  ModOnboardingRow,
   ModPostRow,
   ModUserRow,
+  REVIEW_STATUSES,
   VISIBILITIES,
   type Visibility,
 } from "@/features/moderate-content";
 import {
   getModComments,
   getModerationStats,
+  getModOnboarding,
   getModPosts,
   getModUsers,
 } from "@/features/moderate-content/server";
@@ -48,6 +51,7 @@ export default async function ModerationPage({
     post: raw.post,
     author: raw.author,
     blocked: raw.blocked === "true" ? "true" : undefined,
+    status: REVIEW_STATUSES.find((s) => s === raw.status),
     cursor: raw.cursor,
   };
   const t = await getTranslations("moderation");
@@ -76,6 +80,36 @@ async function renderTab(query: ModQuery, t: T) {
   switch (query.tab) {
     case "overview":
       return <ModStats stats={await getModerationStats()} />;
+
+    case "onboarding": {
+      const status = REVIEW_STATUSES.find((s) => s === query.status) ?? "submitted";
+      const page = await getModOnboarding({ status, cursor: query.cursor });
+      return (
+        <>
+          <ModFilters
+            query={query}
+            options={REVIEW_STATUSES.map((s) => ({
+              key: s,
+              label: t(`onboarding.status.${s}`),
+              query: { status: s === "submitted" ? undefined : s },
+            }))}
+            active={status}
+          />
+          <ModList
+            query={query}
+            total={page.total}
+            nextCursor={page.next_cursor}
+            empty={page.items.length === 0}
+          >
+            <ul className="flex flex-col gap-4">
+              {page.items.map((request) => (
+                <ModOnboardingRow key={request.id} request={request} />
+              ))}
+            </ul>
+          </ModList>
+        </>
+      );
+    }
 
     case "posts": {
       const page = await getModPosts({
