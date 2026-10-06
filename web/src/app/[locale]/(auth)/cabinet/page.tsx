@@ -31,6 +31,11 @@ export default async function CabinetPage({
           visual={<PawPrint aria-hidden className="size-8" />}
           title={t("notCuratorTitle")}
           description={t("notCuratorText")}
+          action={
+            <Link href="/onboarding" className={buttonVariants()}>
+              {t("notCuratorAction")}
+            </Link>
+          }
         />
       </div>
     );
