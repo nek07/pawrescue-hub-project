@@ -827,6 +827,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/moderation/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stats */
+        get: operations["moderation-stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/moderation/onboarding": {
         parameters: {
             query?: never;
@@ -898,6 +915,80 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/moderation/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Posts
+         * @description Все посты, новые сверху, включая скрытые.
+         */
+        get: operations["moderation-list_posts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/moderation/posts/{post_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Post
+         * @description Навсегда, вместе с комментариями, лайками и фото.
+         */
+        delete: operations["moderation-delete_post"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/moderation/posts/{post_id}/likes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Post Likers */
+        get: operations["moderation-post_likers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/moderation/posts/{post_id}/likes/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Post Like */
+        delete: operations["moderation-remove_post_like"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/moderation/posts/{post_id}/hidden": {
         parameters: {
             query?: never;
@@ -911,6 +1002,80 @@ export interface paths {
         post?: never;
         /** Unhide Post */
         delete: operations["moderation-unhide_post"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/moderation/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Comments
+         * @description Все комментарии и ответы, новые сверху, включая скрытые.
+         */
+        get: operations["moderation-list_comments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/moderation/comments/{comment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Comment
+         * @description Навсегда, вместе с ответами и лайками.
+         */
+        delete: operations["moderation-delete_comment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/moderation/comments/{comment_id}/likes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Comment Likers */
+        get: operations["moderation-comment_likers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/moderation/comments/{comment_id}/likes/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Comment Like */
+        delete: operations["moderation-remove_comment_like"];
         options?: never;
         head?: never;
         patch?: never;
@@ -951,6 +1116,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/moderation/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Users */
+        get: operations["moderation-list_users"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/moderation/users/{user_id}/blocked": {
         parameters: {
             query?: never;
@@ -973,6 +1155,24 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AccountOut
+         * @description Настоящий аккаунт автора — даже если пост от имени приюта: его и блокируют.
+         */
+        AccountOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            role: components["schemas"]["UserRole"];
+            /** Avatar Url */
+            avatar_url: string | null;
+            /** Blocked */
+            blocked: boolean;
+        };
         /**
          * AgeBucket
          * @enum {string}
@@ -1403,6 +1603,15 @@ export interface components {
             /** Likes Count */
             likes_count: number;
         };
+        /** LikerOut */
+        LikerOut: {
+            account: components["schemas"]["AccountOut"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** MeOut */
         MeOut: {
             /**
@@ -1452,6 +1661,115 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /** ModCommentOut */
+        ModCommentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Post Id
+             * Format: uuid
+             */
+            post_id: string;
+            /** Post Title */
+            post_title: string;
+            /** Parent Id */
+            parent_id: string | null;
+            author: components["schemas"]["AuthorOut"];
+            account: components["schemas"]["AccountOut"];
+            /** Body */
+            body: string;
+            /** Likes Count */
+            likes_count: number;
+            /** Hidden At */
+            hidden_at: string | null;
+            /** Post Hidden */
+            post_hidden: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ModPostOut */
+        ModPostOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["PostKind"];
+            author: components["schemas"]["AuthorOut"];
+            account: components["schemas"]["AccountOut"];
+            /** Title */
+            title: string | null;
+            /** Body */
+            body: string;
+            /** Pet Name */
+            pet_name: string | null;
+            /** Cover Url */
+            cover_url: string | null;
+            /** Photos Count */
+            photos_count: number;
+            /** Likes Count */
+            likes_count: number;
+            /** Comments Count */
+            comments_count: number;
+            /** Hidden At */
+            hidden_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ModUserOut */
+        ModUserOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            role: components["schemas"]["UserRole"];
+            /** Avatar Url */
+            avatar_url: string | null;
+            /** Verified */
+            verified: boolean;
+            /** Blocked At */
+            blocked_at: string | null;
+            /** Posts Count */
+            posts_count: number;
+            /** Comments Count */
+            comments_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ModerationStats */
+        ModerationStats: {
+            /** Posts */
+            posts: number;
+            /** Posts Hidden */
+            posts_hidden: number;
+            /** Comments */
+            comments: number;
+            /** Comments Hidden */
+            comments_hidden: number;
+            /** Likes */
+            likes: number;
+            /** Users */
+            users: number;
+            /** Users Blocked */
+            users_blocked: number;
+            /** Onboarding Pending */
+            onboarding_pending: number;
         };
         /** OnboardingOut */
         OnboardingOut: {
@@ -1569,10 +1887,46 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** Page[LikerOut] */
+        Page_LikerOut_: {
+            /** Items */
+            items: components["schemas"]["LikerOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Total */
+            total: number;
+        };
         /** Page[MessageOut] */
         Page_MessageOut_: {
             /** Items */
             items: components["schemas"]["MessageOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Total */
+            total: number;
+        };
+        /** Page[ModCommentOut] */
+        Page_ModCommentOut_: {
+            /** Items */
+            items: components["schemas"]["ModCommentOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Total */
+            total: number;
+        };
+        /** Page[ModPostOut] */
+        Page_ModPostOut_: {
+            /** Items */
+            items: components["schemas"]["ModPostOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Total */
+            total: number;
+        };
+        /** Page[ModUserOut] */
+        Page_ModUserOut_: {
+            /** Items */
+            items: components["schemas"]["ModUserOut"][];
             /** Next Cursor */
             next_cursor: string | null;
             /** Total */
@@ -2050,6 +2404,11 @@ export interface components {
          * @enum {string}
          */
         UserRole: "user" | "volunteer" | "moderator";
+        /**
+         * Visibility
+         * @enum {string}
+         */
+        Visibility: "all" | "visible" | "hidden";
     };
     responses: never;
     parameters: never;
@@ -4507,6 +4866,44 @@ export interface operations {
             };
         };
     };
+    "moderation-stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModerationStats"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     "moderation-onboarding_queue": {
         parameters: {
             query?: {
@@ -4673,6 +5070,171 @@ export interface operations {
             };
         };
     };
+    "moderation-list_posts": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                visibility?: components["schemas"]["Visibility"];
+                q?: string | null;
+                author_id?: string | null;
+                kind?: components["schemas"]["PostKind"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ModPostOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "moderation-delete_post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "moderation-post_likers": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_LikerOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "moderation-remove_post_like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     "moderation-hide_post": {
         parameters: {
             query?: never;
@@ -4717,6 +5279,171 @@ export interface operations {
             header?: never;
             path: {
                 post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "moderation-list_comments": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                visibility?: components["schemas"]["Visibility"];
+                q?: string | null;
+                author_id?: string | null;
+                post_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ModCommentOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "moderation-delete_comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "moderation-comment_likers": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_LikerOut_"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "moderation-remove_comment_like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: string;
+                user_id: string;
             };
             cookie?: never;
         };
@@ -4843,6 +5570,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PetDetailOut"];
+                };
+            };
+            /** @description Client error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    "moderation-list_users": {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                q?: string | null;
+                role?: components["schemas"]["UserRole"] | null;
+                blocked?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ModUserOut_"];
                 };
             };
             /** @description Client error */
